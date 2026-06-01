@@ -1,0 +1,33 @@
+
+* {
+  font-family: 'Manrope', sans-serif;
+}
+input, button, textarea, span, div {
+  font-family: inherit;
+}
+
+.TopBarSearchIn {
+  font-family: 'Galdeano', sans-serif !important;
+}
+
+:root {
+  --bg: #121414;
+  --bg-dop: #16161F;
+
+  --color-text-main: #E3E2E2;
+  --color-text-dop: #FFFFFF;
+
+  --color-accent-blue: #72DEEF;
+  --color-accent-purple: #A98FDB;
+
+  --first-text: 'Manrope', sans-serif;
+  --second-text: 'Galdeano', sans-serif;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--color-text-main);
+  font-family: var(--first-text);
+}
+

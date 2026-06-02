@@ -1437,3 +1437,317 @@ color: #D9D9D9;
   text-align: center;
   outline: none;
 }
+
+
+.MiddleLogoRec {
+  /* Group 8 */
+
+position: absolute;
+width: 79px;
+height: 111px;
+left: 919.5px;
+top: 293px;
+
+
+} 
+
+.Recovery {
+  /* Відновлення паролю */
+
+position: absolute;
+width: 753px;
+height: 44px;
+left: 583px;
+top: 436px;
+
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 600;
+font-size: 32px;
+line-height: 44px;
+/* identical to box height */
+text-align: center;
+
+color: #F5F5F5;
+
+
+}
+
+.Type {
+  /* Введіть новий пароль */
+
+position: absolute;
+width: 416px;
+height: 27px;
+left: 752px;
+top: 517px;
+
+font-family: 'Manrope';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 27px;
+
+color: #F5F5F5;
+
+
+}
+
+.NewPass {
+  /* Frame 9 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 15px 0px 15px 15px;
+gap: 10px;
+
+position: absolute;
+width: 417px;
+height: 56px;
+left: 751px;
+top: 559px;
+
+background: #F5F5F5;
+border-radius: 17px;
+
+}
+
+.IputNewPass {
+  /* Пароль */
+background: transparent;
+border: none;
+box-shadow: none;
+outline: none;
+width: 100%;
+height: 100%;
+
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 27px;
+
+color: rgba(161, 161, 170, 0.7);
+}
+
+.WarNewPass {
+  /* Має містити не менше 8 символів! */
+
+position: absolute;
+width: 417px;
+height: 19px;
+left: 750px;
+top: 625px;
+
+font-family: 'Manrope',sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 19px;
+
+color: #F5F5F5;
+
+
+}
+
+.ConfNewPass {
+  /* Підтвердити пароль */
+
+position: absolute;
+width: 415px;
+height: 27px;
+left: 753px;
+top: 672px;
+
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 27px;
+
+color: #F5F5F5;
+
+
+}
+
+.ContConfNewPass {
+  /* Frame 8 */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 15px 0px 15px 15px;
+gap: 10px;
+
+position: absolute;
+width: 417px;
+height: 56px;
+left: 751px;
+top: 714px;
+
+background: #F5F5F5;
+border-radius: 17px;
+
+}
+
+.InputConfNewPass {
+  /* Повторіть пароль */
+background: transparent;
+outline: none;
+border: none;
+box-shadow: none;
+
+
+width: 100%;
+height: 100%;
+
+font-family: 'Manrope';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 27px;
+
+color: rgba(161, 161, 170, 0.7);
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.ButtonNewPass {
+  /* Rectangle 6 */
+
+position: absolute;
+width: 415px;
+height: 56px;
+left: 752px;
+top: 815px;
+
+background: #A98FDB;
+border-radius: 17px;
+
+}
+
+.TextButtonNewPass {
+  /* Продовжити */
+
+position: absolute;
+width: 415px;
+height: 27px;
+left: 752px;
+top: 831px;
+
+font-family: 'Manrope';
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 27px;
+text-align: center;
+
+color: #F5F5F5;
+
+
+}
+
+.Main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0px 0px 0px 256px;
+  isolation: isolate;
+  position: relative;
+  width: 1920px;
+  height: 1546px;
+  background: linear-gradient(0deg, #121414, #121414), #FFFFFF;
+}
+
+.Sidebar {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column; 
+  align-items: flex-start;
+  padding: 24px 0px;     
+  position: absolute;
+  width: 290px;
+  height: 1546px;
+  left: 0px;
+  top: 0px;
+  background: #121414;
+  border-right: 1px solid #72DEEF;
+  z-index: 2;
+}
+
+.SidebarHeader {
+  display: flex;
+  flex-direction: row; 
+  align-items: center;  
+  gap: 14px;            
+  margin-bottom: 40px;   
+  width: 100%;
+}
+
+.Logo {
+  width: 71px;
+  height: 40px;
+  filter: drop-shadow(0px 0px 4px #72DEEF);
+}
+
+.Groovra {
+  font-family: 'Manrope', sans-serif;
+  font-weight: 800;
+  font-size: 32px;
+  line-height: 1;
+  letter-spacing: -1.6px;
+  color: #72DEEF;
+}
+
+.NavItem {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  width: 100%;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.NavItem:hover {
+  background: rgba(114, 222, 239, 0.05); 
+}
+
+.NavText {
+  font-family: 'Galindo', sans-serif;
+  font-weight: 400;
+  font-size: 20px;
+  color: #72DEEF;
+  letter-spacing: 1.2px;
+  line-height: 1;
+}
+
+.NavItem.active .HomeType {
+  opacity: 1;
+  text-shadow: 0px 0px 10px rgba(114, 222, 239, 0.6); 
+}
+
+.ActiveLine {
+  position: absolute;
+  left: 0;                   
+  top: 50%;                  
+  transform: translateY(-50%);  
+  
+  width: 4px;              
+  height: 24px;            
+  
+  background-color: #72DEEF; 
+  box-shadow: 0px 0px 10px #72DEEF; 
+  border-radius: 0 4px 4px 0; 
+}

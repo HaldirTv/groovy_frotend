@@ -1713,6 +1713,7 @@ color: #F5F5F5;
   flex-direction: row;
   align-items: center;
   gap: 12px;
+  margin-bottom: 12px;
   padding: 10px 12px;
   width: 100%;
   border-radius: 8px;
@@ -1750,4 +1751,326 @@ color: #F5F5F5;
   background-color: #72DEEF; 
   box-shadow: 0px 0px 10px #72DEEF; 
   border-radius: 0 4px 4px 0; 
+}
+
+.ContTextColl {
+  /* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 24px 0px 0px;
+
+width: 220px;
+height: 52px;
+margin-bottom: 16px;
+
+}
+
+.TextColl {
+  /* YOUR COLLECTIONS */
+
+width: 215px;
+height: 16px;
+white-space: nowrap;
+align-self: center;
+font-family: 'Galdeano', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 24px;
+line-height: 16px;
+margin-left: 40px;
+/* identical to box height, or 67% */
+display: flex;
+align-items: center;
+letter-spacing: 1px;
+text-transform: uppercase;
+
+color: #A98FDB;
+
+
+}
+
+.MainHeader {
+  /* Header - TopAppBar (Authority: JSON/Style Guidance) */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px 24px;
+gap: 108.17px;
+
+position: absolute;
+height: 80px;
+left: 277px;
+right: 0px;
+top: 0px;
+
+background: rgba(13, 13, 18, 0.7);
+border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+backdrop-filter: blur(32px);
+/* Note: backdrop-filter has minimal browser support */
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+z-index: 1;
+
+}
+
+.BackLogo {
+  /* Frame 4 */
+
+position: absolute;
+width: 825px;
+height: 806.25px;
+left: 805px;
+top: 128px;
+
+opacity: 0.52;
+
+
+}
+
+.Main2 {
+  /* Main Content Canvas */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 128px 40px 176.38px 80px;
+gap: 48px;
+isolation: isolate;
+
+width: 1664px;
+height: 1546px;
+min-height: 1546px;
+
+background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(102, 102, 102, 0.2) 100%), #16161F;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+z-index: 0;
+
+}
+
+.ContSearch {
+  /* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: center;
+align-items: center;
+padding: 0px;
+isolation: isolate;
+
+width: 672px;
+height: 44px;
+
+border-radius: 12px;
+
+/* Inside auto layout */
+
+}
+
+.HeaderSearch {
+  /* Icon */
+
+width: 17.19px;
+height: 17.19px;
+left: 19.4px;
+
+
+
+
+}
+
+.SecContHeader {
+  /* Input */
+
+/* Auto layout */
+display: flex;
+justify-content: flex-start;
+align-items: center;
+padding: 13px 16px 14px 48px;
+gap: 12px;
+width: 672px;
+height: 44px;
+padding: 0 16px;
+background: #1A1C1C;
+border-radius: 12px;
+
+
+
+}
+
+.InputSearch {
+  /* Search for tracks, artists, or moods... */
+outline: none;
+border: none;
+background: transparent;
+box-shadow: none;
+width: 608px;
+height: 17px;
+
+font-family: 'Galdeano', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 16px;
+line-height: 17px;
+/* identical to box height */
+display: flex;
+align-items: center;
+letter-spacing: 0.16px;
+
+color: rgba(230, 209, 180, 0.5);
+
+}
+
+.Notificationicon {
+  /* Icon */
+
+width: 15px;
+height: 19.19px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.AvatarIcon {
+  /* Icon */
+
+width: 23.75px;
+height: 23.75px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.ButtonProfile {
+  /* Volodymyr sova */
+background: transparent;
+  background-color: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+width: 115px;
+height: 12px;
+
+font-family: 'Manrope';
+font-style: normal;
+font-weight: 700;
+font-size: 12px;
+line-height: 12px;
+/* identical to box height, or 100% */
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: 0.6px;
+text-transform: uppercase;
+
+color: #A98FDB;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.profileCont {
+  /* Button */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+width: 146.75px;
+height: 23.75px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+}
+
+.UserCont {
+  /* Margin */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px 0px 0px 24px;
+gap: 24px;
+width: 209.75px;
+height: 23.75px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+}
+
+.MainLine {
+  /* Paragraph+HorizontalBorder */
+
+box-sizing: border-box;
+
+width: 547px;
+height: 21px;
+
+
+border-bottom: 1px solid #A98FDB;
+
+}
+
+.ContMainHello {
+  /* Section - Welcome Block */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 8px;
+
+width: 1544px;
+height: 111.99px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+z-index: 1;
+
 }

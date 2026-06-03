@@ -4,9 +4,10 @@ import MiddleLogo from '../assets/MiddleLogo.svg'
 import Google from '../assets/Google.svg'
 import { Link } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
-
+import { useNavigate } from 'react-router-dom';
 
 export const Log = () => {
+  const navigate = useNavigate();
   const loginWithGoogle = useGoogleLogin({onSuccess: () => {}, });
   return (
     <div className='Reg'>
@@ -31,7 +32,7 @@ export const Log = () => {
            <input type="text" placeholder='Пароль' className='InputTextPass' />
         </div>
         <Link to="/forgotpassword" className='LogForgot'>Забули пароль?</Link>
-        <button className='ContButtonLog'>
+        <button className='ContButtonLog' onClick={() => navigate('/main')}>
         
       </button>
       <button className='GoogleLog' onClick={() => loginWithGoogle()}>

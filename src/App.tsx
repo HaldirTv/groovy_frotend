@@ -6,7 +6,7 @@ import { Profile } from './pages/profile';
 import { Forgot } from './pages/forgotpassword';
 import { Cod } from './pages/emailcod'
 import { Recovery } from './pages/passwordrecovery'
-import { Main } from './pages/main'
+import { Main } from './pages/mainpage'
 import './App.css';
 
 function App() {

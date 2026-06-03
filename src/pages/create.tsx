@@ -1,9 +1,10 @@
 import '../App.css'
 import LogoReg from '../assets/LogoReg.svg'
 import MiddleLogo from '../assets/MiddleLogo.svg'
+import { useNavigate } from 'react-router-dom';
 
 export const Create = () => {
-    
+        const navigate = useNavigate();
       return (
         <div className='Reg'>
             <img src={MiddleLogo} className='MiddleLogo'  />
@@ -29,7 +30,7 @@ export const Create = () => {
         <div className='InputConfirmPass'>
            <input type="text" placeholder='Повторіть пароль' className='TextConfirmPass' />
         </div>
-        <button className='ContButtonPass'>
+        <button className='ContButtonPass' onClick={() => navigate('/main')}>
         
       </button>
       <span className='ContButtonPassText'>

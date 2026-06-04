@@ -1,5 +1,5 @@
 import '../App.css'
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../assets/Logo.svg'
 import Home from '../assets/IconHome.svg'
@@ -13,18 +13,46 @@ import BackLogo from '../assets/Frame 4.svg'
 import HeaderSearch from '../assets/HeaderSearch.svg'
 import Notification from '../assets/IconNotification.svg'
 import Avatar from '../assets/IconAvatar.svg'
+import Right from '../assets/IconRight.svg'
+import Volume from '../assets/IconVolume.svg'
+import Button from '../assets/Button.svg'
 
 export const Main = () => {
     const [activeTab, setActiveTab] = useState('Home');
     const navigate = useNavigate();
+    const profileName = "Profile";
+
+    const [volume, setVolume] = useState(70); 
+    const trackRef = useRef<HTMLDivElement>(null);
+
+    const handleSliderClick = (e: { clientX: number; }) => {
+        if (!trackRef.current) return;
+        
+        const rect = trackRef.current.getBoundingClientRect();
+        const clickX = e.clientX - rect.left; 
+        const width = rect.width;
+        
+        let newVolume = Math.round((clickX / width) * 100);
+        newVolume = Math.max(0, Math.min(100, newVolume));
+        
+        setVolume(newVolume);
+    };
     return (
         <div className='Main'>
             <div className='Main2'>
                 
             <img src={BackLogo} className='BackLogo'/>
             <div className='ContMainHello'>
-            <div className='MainLine'></div>
+                <span className='MainHeaderText'>Good evening, </span>
+                <div className='NameText'>
+                    <span className='ProfileText'>{profileName}</span>
+                    
+                </div>
             </div>
+            <div className='OpCont'>
+                    <span className='OpText '>It's time to grow your aura, choose a playlist</span>
+                    </div>
+            <div className='MainLine'></div>
             </div>
             <div className='Sidebar'>
                 <div className='SidebarHeader'>
@@ -89,10 +117,42 @@ export const Main = () => {
                     <img src={Notification} className='Notificationicon'  />
                     <div className='profileCont'>
                     <img src={Avatar} className='AvatarIcon' />
-                    <button className='ButtonProfile'  onClick={() => navigate('/profile')}>Profile</button>
+                    <button className='ButtonProfile'  onClick={() => navigate('/profile')}>{profileName}</button>
                     </div>
                     </div>
                 </div>
-            </div>
+                <div className='FooterPlayer'>
+                    <div className='TrackContainer'>
+                    <div className='CurrentPlaying '></div>
+                    
+                    <span className='NameOfTrack'>Track</span>
+                    <span className='Author'>Author</span>
+
+                    <button className='IconLiked '>
+                            <img src={Liked} />
+                        </button>
+                    </div>
+
+                    <div className='ContPlayBack'>
+                        <div className='ContStartTime'>
+                            <span className='StartTime'>00:00</span>
+                            <div className='PlayBackLine'></div>
+                        </div>
+                    </div>
+
+                    <div className='Volume'>
+                    <button className='ButtonIcon'><img src={Button} className='ButtonIcon' /></button>
+                    <img src={Volume} className='VolumeIcon' />
+                    <div className='ContVolume' ref={trackRef} onClick={handleSliderClick}>
+                    <div className='VolumeFill' style={{ width: `${volume}%` }}></div>
+                    </div>
+                    
+                    
+                    <button className='ButtonRight'><img src={Right} /></button>
+                    </div>
+                    
+                    </div>
+
+                </div>
     );
 };

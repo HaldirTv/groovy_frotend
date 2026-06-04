@@ -4,23 +4,29 @@
   box-sizing: border-box; 
 }
 
-body, html {
-  width: 100%;
-  height: 100%;
-  overflow-x: hidden;
-  overflow-y: hidden;
+html, body, #root {
+    width: 100%;
+    height: 100%;
+    overflow: hidden; 
 }
 
 .Reg {
 /* Slide 16:9 - 1 */
-
+justify-content: center;
 position: relative;
-width: 1920px;
-height: 1080px;
-
+width: 100vw;              
+height: 100vh;
+position: relative;
 background: #0D0D12;
 
 
+}
+
+.Reg > * {
+    position: static; 
+    width: 100%;     
+    max-width: 100%; 
+    margin: 0;        
 }
 
 .Rec {
@@ -57,18 +63,18 @@ top: 21px;
 .RegHeader {
 /* header */
 
-position: absolute;
-width: 1920px;
+position: relative;
+width: 100%;
 height: 88px;
 left: 0px;
 top: 0px;
-
+display: flex;
 
 
 /* Rectangle 2 */
 
 position: absolute;
-width: 126px;
+width: 100%;
 height: 88px;
 left: 96px;
 top: 0px;
@@ -79,7 +85,7 @@ background: #D9D9D9;
 /* Rectangle 1 */
 
 position: absolute;
-width: 1920px;
+width: 100%;
 height: 88px;
 left: 0px;
 top: 0px;
@@ -1657,17 +1663,18 @@ color: #F5F5F5;
 
 .Main {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   padding: 0px 0px 0px 256px;
   isolation: isolate;
   position: relative;
-  width: 1920px;
-  height: 1546px;
+  width: 100vw;
+  height: 100vh;
   background: linear-gradient(0deg, #121414, #121414), #FFFFFF;
 }
 
 .Sidebar {
+  flex-shrink: 0;
   box-sizing: border-box;
   display: flex;
   flex-direction: column; 
@@ -1849,8 +1856,8 @@ padding: 128px 40px 176.38px 80px;
 gap: 48px;
 isolation: isolate;
 
-width: 1664px;
-height: 1546px;
+width: 100vw;
+  height: 100vh;
 min-height: 1546px;
 
 background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(102, 102, 102, 0.2) 100%), #16161F;
@@ -2045,7 +2052,7 @@ flex-grow: 0;
 box-sizing: border-box;
 
 width: 547px;
-height: 21px;
+height: auto;
 
 
 border-bottom: 1px solid #A98FDB;
@@ -2053,24 +2060,353 @@ border-bottom: 1px solid #A98FDB;
 }
 
 .ContMainHello {
-  /* Section - Welcome Block */
+/* Section - Welcome Block */
 
 /* Auto layout */
 display: flex;
-flex-direction: column;
+flex-direction: row;
 align-items: flex-start;
 padding: 0px;
 gap: 8px;
 
-width: 1544px;
-height: 111.99px;
+height: auto;
+white-space: nowrap;
+
+
+}
+
+.MainHeaderText {
+  /* Good evening, */
+
+height: auto;
+
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 48px;
+line-height: 53px;
+/* identical to box height, or 110% */
+display: flex;
+align-items: center;
+letter-spacing: -0.96px;
+white-space: nowrap;
+color: #E3E2E2;
+
+
+}
+
+.NameText {
+  /* Shadow */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+white-space: nowrap;
+filter: drop-shadow(0px 0px 15px #72DEEF);
+
+}
+
+.ProfileText {
+  /* Volodymyr */
+
+gap: 0px;
+flex-direction: row;
+font-family: 'Manrope',sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 48px;
+/* identical to box height, or 110% */
+display: flex;
+align-items: center;
+letter-spacing: -0.96px;
+white-space: nowrap;
+color: #72DEEF;
+
+
+}
+
+.OpText {
+  /* It's time to grow your aura, choose a playlist */
+
+height: auto;
+gap: 0px;
+
+font-family: 'Galdeano', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 20px;
+line-height: 26px;
+/* identical to box height, or 128% */
+display: flex;
+align-items: center;
+letter-spacing: 0.16px;
+
+color: #A98FDB;
+
+
+}
+
+.OpCont {
+  /* Container */
+gap: 0px;
+width: 576px;
+max-width: 576px;
+
+
+}
+
+.FooterPlayer {
+  /* Footer - BottomNavBar (Authority: JSON/Style Guidance) - Player Dock */
+
+box-sizing: border-box;
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px 24px;
+flex-shrink: 0;
+position: absolute;
+width: 100%;
+height: 96px;
+left: 0px;
+bottom: 0px;
+
+background: #121414;
+box-shadow: 0px -10px 40px #72DEEF;
+backdrop-filter: blur(20px);
+/* Note: backdrop-filter has minimal browser support */
+
+/* Inside auto layout */
+flex: none;
+order: 3;
+flex-grow: 0;
+z-index: 3;
+
+}
+
+.TrackContainer {
+  display: grid !important;
+  grid-template-columns: auto auto auto !important;
+  grid-template-rows: auto auto; 
+  justify-content: start !important;
+  gap: 2px 16px !important;
+  align-items: center;
+  
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px;
+}
+
+.CurrentPlaying {
+  grid-column: 1;
+  grid-row: 1 / span 2; 
+
+  box-sizing: border-box;
+  width: 64px;
+  height: 64px;
+
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  background-color: #000000; 
+}
+
+.NameOfTrack {
+  grid-column: 2;
+  grid-row: 1;
+  justify-self: start; 
+  margin: 0 !important; 
+
+  font-family: 'Manrope', sans-serif;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 16px;
+  line-height: 20px;
+  color: #E3E2E2;
+  white-space: nowrap;
+  
+  width: auto;
+  height: auto;
+}
+
+.Author {
+  grid-column: 2;
+  grid-row: 2;
+  justify-self: start;
+  margin: 0 !important; 
+
+  font-family: 'Galdeano', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 12px;
+  line-height: 16px;
+  color: rgba(114, 222, 239, 0.71);
+  white-space: nowrap;
+  
+  width: auto;
+  height: auto;
+}
+
+.IconLiked {
+/* Icon */
+border: none;
+box-shadow: none;
+background: transparent;
+outline: none;
+ cursor: pointer; 
+width: 19px;
+height: 17.18px;
 
 
 /* Inside auto layout */
 flex: none;
-order: 1;
-align-self: stretch;
+order: 2;
 flex-grow: 0;
-z-index: 1;
+}
+
+.ButtonRight {
+/* Icon */
+border: none;
+box-shadow: none;
+background: transparent;
+outline: none;
+ cursor: pointer; 
+width: 17.01px;
+height: 17px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+flex-grow: 0;
+
+
+}
+
+.Volume {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex-shrink: 0; 
+}
+
+.ContVolume {
+    width: 100px;
+    height: 6px;
+    background-color: #2A2A2A;
+    border-radius: 10px;
+    cursor: pointer;
+    overflow: hidden; 
+}
+
+.VolumeFill {
+    height: 100%;
+    background-color: #72DEEF; 
+}
+
+.VolumeIcon {
+  /* Icon */
+
+width: 16.69px;
+height: 16.27px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.ButtonIcon {
+  /* Button */
+border: none;
+box-shadow: none;
+background: transparent;
+outline: none;
+ cursor: pointer;
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;
+padding: 0px;
+
+width: 19.1px;
+height: 15px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.ContPlayBack {
+  /* Playback Controls */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+
+width: 624px;
+height: 72px;
+
+}
+
+.ContStartTime {
+  /* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+padding: 0px;
+
+width: 25px;
+height: 16px;
+
+
+}
+
+.StartTime {
+  /* 2:45 */
+
+width: 25px;
+height: 16px;
+
+font-family: 'Galdeano', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 10px;
+line-height: 16px;
+/* identical to box height, or 160% */
+display: flex;
+align-items: center;
+letter-spacing: 0.16px;
+
+color: rgba(114, 222, 239, 0.71)
+
+}
+
+.PlayBackLine {
+  /* Background */
+
+width: 374px;
+height: 4px;
+
+background: #343535;
+border-radius: 9999px;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 1;
 
 }

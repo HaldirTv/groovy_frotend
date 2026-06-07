@@ -16,6 +16,7 @@ import Avatar from '../assets/IconAvatar.svg'
 import Right from '../assets/IconRight.svg'
 import Volume from '../assets/IconVolume.svg'
 import Button from '../assets/Button.svg'
+import Remix from '../assets/IconRemix.svg'
 
 export const Main = () => {
     const [activeTab, setActiveTab] = useState('Home');
@@ -133,12 +134,18 @@ export const Main = () => {
                         </button>
                     </div>
 
-                    <div className='ContPlayBack'>
+                    {/* <div className='ContPlayBack'> 
                         <div className='ContStartTime'>
                             <span className='StartTime'>00:00</span>
                             <div className='PlayBackLine'></div>
                         </div>
+                        <div className='PlayeerCont'>
+                        <button className='ButtonRemix'>
+                            <img src={Remix} className='LogoRemix' />
+                        </button>
                     </div>
+                    </div> */}
+                  
 
                     <div className='Volume'>
                     <button className='ButtonIcon'><img src={Button} className='ButtonIcon' /></button>

@@ -2069,7 +2069,7 @@ align-items: flex-start;
 padding: 0px;
 gap: 8px;
 
-height: auto;
+height: 53;
 white-space: nowrap;
 
 
@@ -2458,6 +2458,19 @@ flex-grow: 0;
 
 width: 15px;
 height: 15px;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.Settings {
+  /* Icon */
+
+width: 18.79px;
+height: 19px;
 
 /* Inside auto layout */
 flex: none;

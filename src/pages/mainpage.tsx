@@ -17,6 +17,7 @@ import Right from '../assets/IconRight.svg'
 import Volume from '../assets/IconVolume.svg'
 import Button from '../assets/Button.svg'
 import Remix from '../assets/IconRemix.svg'
+import Settings from '../assets/IconSettings.svg'
 
 export const Main = () => {
     const [activeTab, setActiveTab] = useState('Home');
@@ -44,14 +45,14 @@ export const Main = () => {
                 
             <img src={BackLogo} className='BackLogo'/>
             <div className='ContMainHello'>
-                <span className='MainHeaderText'>Good evening, </span>
+                <span className='MainHeaderText'>Добрий вечір, </span>
                 <div className='NameText'>
                     <span className='ProfileText'>{profileName}</span>
                     
                 </div>
             </div>
             <div className='OpCont'>
-                    <span className='OpText '>It's time to grow your aura, choose a playlist</span>
+                    <span className='OpText '>Час набирати ауру, оберіть плейлист</span>
                     </div>
             <div className='MainLine'></div>
             </div>
@@ -64,46 +65,52 @@ export const Main = () => {
                 onClick={() => setActiveTab('Home')}>
                 {activeTab === 'Home' && <div className="ActiveLine" />}
                     <img src={Home} />
-                    <span className='NavText'>Home</span>
+                    <span className='NavText'>Головна</span>
                 </div>
                 <div className={`NavItem ${activeTab === 'Search' ? 'active' : ''}`} 
                 onClick={() => setActiveTab('Search')}> 
                 {activeTab === 'Search' && <div className="ActiveLine" />} 
                     <img src={Search} /> 
-                    <span className='NavText'>Search</span> 
+                    <span className='NavText'>Пошук</span> 
                 </div>
                 <div className={`NavItem ${activeTab === 'Library' ? 'active' : ''}`}
                 onClick={() => setActiveTab('Library')}>
                 {activeTab === 'Library' && <div className='ActiveLine'/>}    
                     <img src={Library} />
-                    <span className='NavText'>Library</span>
+                    <span className='NavText'>Бібліотека</span>
                 </div>
                     <div className='ContTextColl'>
-                        <span className='TextColl'>YOUR COLLECTIONS</span>
+                        <span className='TextColl'>Ваші Колекції</span>
                     </div>
                 <div className={`NavItem ${activeTab === 'Playlist' ? 'active' : ''}`}
                 onClick={() => setActiveTab('Playlist')}>
                 {activeTab === 'Playlist' && <div className='ActiveLine'/>}
                     <img src={Playlist}  />
-                    <span className='NavText'>Playlist</span>
+                    <span className='NavText'>Плейлисти</span>
                 </div>
                 <div className={`NavItem ${activeTab === 'Liked' ? 'active' : ''}`}
                 onClick={() => setActiveTab('Liked')}>
                 {activeTab === 'Liked' && <div className='ActiveLine'/>}
                     <img src={Liked}  />
-                    <span className='NavText'>Liked</span>
+                    <span className='NavText'>Улюблене</span>
                 </div>
                 <div className={`NavItem ${activeTab === 'AI' ? 'active' : ''}`}
                 onClick={() => setActiveTab('AI')}>
                 {activeTab === 'AI' && <div className='ActiveLine'/>}
                     <img src={AI}  />
-                    <span className='NavText'>AI mix</span>
+                    <span className='NavText'>AI мікс</span>
                 </div>
                 <div className={`NavItem ${activeTab === 'Downloads' ? 'active' : ''}`}
                 onClick={() => setActiveTab('Downloads')}>
                 {activeTab === 'Downloads' && <div className='ActiveLine'/>}
                     <img src={Downloads}  />
-                    <span className='NavText'>Downloads</span>
+                    <span className='NavText'>Завантаження</span>
+                </div>
+                <div className={`NavItem ${activeTab === 'Settings' ? 'active' : ''}`}
+                onClick={() => setActiveTab('Settings')}>
+                {activeTab === 'Settings' && <div className='ActiveLine'/>}
+                    <img src={Settings}  />
+                    <span className='NavText'>Налаштування</span>
                 </div>
 
                 </div>
@@ -111,7 +118,7 @@ export const Main = () => {
                     <div className='ContSearch'>
                         <div className='SecContHeader'>
                         <img src={HeaderSearch} className='HeaderSearch' />
-                        <input type="text" className='InputSearch' placeholder='Search for tracks, artists, or moods...' />
+                        <input type="text" className='InputSearch' placeholder='Пошук треків, виконавців або настроїв...' />
                         </div>
                     </div>
                     <div className='UserCont'>

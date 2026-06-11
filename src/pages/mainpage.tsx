@@ -18,6 +18,10 @@ import Volume from '../assets/IconVolume.svg'
 import Button from '../assets/Button.svg'
 import Remix from '../assets/IconRemix.svg'
 import Settings from '../assets/IconSettings.svg'
+import LeftArrow from '../assets/LeftArrowLogo.svg'
+import Pause from '../assets/IconPause.svg'
+import RightArrow from '../assets/RightArrowLogo.svg'
+import Ref from '../assets/IconRef.svg'
 
 export const Main = () => {
     const [activeTab, setActiveTab] = useState('Home');
@@ -141,17 +145,32 @@ export const Main = () => {
                         </button>
                     </div>
 
-                    {/* <div className='ContPlayBack'> 
+                     <div className='ContPlayBack'> 
+                         <div className='PlayeerCont'>
+                            <button className='ButtonRemix'>
+                                <img src={Remix} className='LogoRemix' />
+                            </button>
+                            <button className='LeftArrowButton'>
+                                <img src={LeftArrow} className='LeftArrow'/>
+                            </button>
+                            <button className='PauseButton'>
+                                <img src={Pause} className='PauseLogo'/>
+                            </button>
+                            <button className='ButtonRightArrow'>
+                                <img src={RightArrow} className='RightArrowLogo' />
+                            </button>
+                            <button className='RefButton'>
+                                <img src={Ref} className='RefLogo'/>
+                            </button>
+
+                        </div>
+
                         <div className='ContStartTime'>
                             <span className='StartTime'>00:00</span>
                             <div className='PlayBackLine'></div>
+                            <span className='EndTime'>99:99</span>
                         </div>
-                        <div className='PlayeerCont'>
-                        <button className='ButtonRemix'>
-                            <img src={Remix} className='LogoRemix' />
-                        </button>
-                    </div>
-                    </div> */}
+                    </div> 
                   
 
                     <div className='Volume'>

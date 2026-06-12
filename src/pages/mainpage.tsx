@@ -22,6 +22,8 @@ import LeftArrow from '../assets/LeftArrowLogo.svg'
 import Pause from '../assets/IconPause.svg'
 import RightArrow from '../assets/RightArrowLogo.svg'
 import Ref from '../assets/IconRef.svg'
+import Arrow from '../assets/IconArrow.svg'
+import Cover from '../assets/Cover.svg'
 
 export const Main = () => {
     const [activeTab, setActiveTab] = useState('Home');
@@ -46,7 +48,28 @@ export const Main = () => {
     return (
         <div className='Main'>
             <div className='Main2'>
-                
+                <div className='TrendingNow'>
+                        <div className='ContTextTrendingNow'>
+                            <span className='LisNowTrending'>Слухають зараз</span>
+                            <span className='TrendNowText'>У тренді зараз</span>
+                        </div>
+                        <button className='ButtonViewAll'>
+                            <span className='TextViewAll'>VIEW ALL</span>
+                            <img src={Arrow} className='ArrowViewAll' />
+                        </button>
+                    </div>
+                <div className='MusicCardCont'>
+                    <div className='MusicCard'>
+                        <div className='OverCover'>
+                            <img src={Cover} className='CoverImg' />
+                        </div>
+                        <div className='ContMusicCardText'>
+                            <span className='HeadText'>Назва треку</span>
+                            <span className='AuthorText'>Виконавець</span>
+                            <span className='StyleTrack'>POP</span>
+                        </div>
+                    </div>
+                </div>
             <img src={BackLogo} className='BackLogo'/>
             <div className='ContMainHello'>
                 <span className='MainHeaderText'>Добрий вечір, </span>
@@ -185,6 +208,7 @@ export const Main = () => {
                     </div>
                     
                     </div>
+                    
 
                 </div>
     );

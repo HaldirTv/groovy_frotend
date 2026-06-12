@@ -1853,7 +1853,7 @@ display: flex;
 flex-direction: column;
 align-items: flex-start;
 padding: 128px 40px 176.38px 80px;
-gap: 48px;
+gap: 18px;
 isolation: isolate;
 
 width: 100vw;
@@ -2659,5 +2659,343 @@ height: 19px;
 flex: none;
 order: 0;
 flex-grow: 0;
+
+}
+
+.TrendingNow {
+  /* Section - Trending Now */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 16px 0px 0px;
+gap: 12px;
+
+width: 1544px;
+height: auto;
+
+
+/* Inside auto layout */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+z-index: 2;
+
+}
+
+.ContTextTrendingNow {
+  /* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 7px;
+
+width: 208px;
+height: 62px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.LisNowTrending {
+  /* listening now */
+
+width: 118px;
+height: 16px;
+
+font-family: 'Galdeano', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 16px;
+/* identical to box height, or 133% */
+display: flex;
+align-items: center;
+letter-spacing: 3px;
+text-transform: uppercase;
+
+color: #A98FDB;
+
+white-space: nowrap;
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.TrendNowText {
+  /* Trending Now */
+
+width: 208px;
+height: 39px;
+
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 32px;
+line-height: 38px;
+/* identical to box height, or 120% */
+display: flex;
+align-items: center;
+letter-spacing: -0.32px;
+
+color: #FFFFFF;
+white-space: nowrap;
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.ButtonViewAll {
+  /* Button */
+border: none;
+outline: none;
+box-shadow: none;
+background: transparent;
+/* Auto layout */
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px;
+gap: 8px;
+cursor: pointer;
+width: 88.75px;
+height: 26px;
+margin-left: auto;
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+flex-grow: 0;
+
+}
+
+.TextViewAll {
+  /* VIEW ALL */
+
+width: 72px;
+height: 26px;
+
+font-family: 'Manrope',sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 16px;
+line-height: 26px;
+/* identical to box height, or 160% */
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: 0.16px;
+text-transform: uppercase;
+
+color: #72DEEF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.ArrowViewAll {
+  /* Icon */
+
+width: 8.75px;
+height: 8.75px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.MusicCard {
+  /* Music Card Template */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 15.99px;
+border-radius: 12px;
+
+}
+
+.MusicCardCont {
+  /* Container */
+
+width: 1544px;
+height: 222.94px;
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+/* Inside auto layout */
+flex: none;
+order: 2;
+align-self: stretch;
+flex-grow: 0;
+
+}
+
+.ContMusicCardText {
+  /* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 4px;
+
+width: 137.33px;
+height: 70px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 1;
+align-self: stretch;
+flex-grow: 0;
+
+}
+
+.HeadText {
+  /* Мікросхема - EP */
+
+width: 137.33px;
+height: 26px;
+
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 800;
+font-size: 16px;
+line-height: 26px;
+/* identical to box height, or 160% */
+display: flex;
+align-items: center;
+letter-spacing: 0.16px;
+
+color: #E3E2E2;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+}
+
+.AuthorText {
+  /* Diana Glebova */
+
+width: 137.33px;
+height: 20px;
+
+font-family: 'Galdeano', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 14px;
+line-height: 20px;
+/* identical to box height, or 143% */
+display: flex;
+align-items: center;
+letter-spacing: 0.16px;
+
+color: #A98FDB;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+}
+
+.StyleTrack {
+  /* POP */
+
+width: 137.33px;
+height: 16px;
+
+font-family: 'Galdeano', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 16px;
+/* identical to box height, or 133% */
+display: flex;
+align-items: center;
+letter-spacing: 0.16px;
+text-transform: uppercase;
+
+color: rgba(114, 222, 239, 0.71);
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+}
+
+.OverCover {
+  /* Overlay+Shadow */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: flex-start;
+padding: 0px;
+isolation: isolate;
+width: 137.33px;
+height: 137.33px;
+align-items: center;
+overflow: hidden;
+background: rgba(255, 255, 255, 0.002);
+border-radius: 12px;
+object-fit: cover;
+border-radius: inherit;
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+
+}
+
+.CoverImg {
+  /* AB6AXuDRZmxWXjnm7L9YJ4tSguPsbsgTprkUHJeAMckTss6ROUZGrI-n3AxyNw0S5-DakFFQHPK11RVG2KIq_S1HajZpnbSqwKVJPXpYl2isNMv1i6HJyOebAUogFV5N3RKKVsho0BD2AFKnR_V6UR0UOfP_aLAk6JHx61oSt4k6Mh8bLGKU9cMW5PTBgWw91v7zVQNLVPv8NyCthnJQU8ip5d9gGL2JsgXeLtKx9Pi5S0fi9KWxGAWyHHI5ICqA8uL3GFbzVKxrWGsIb61T */
+
+width: 100%;
+height: 100%;
+object-fit: cover;
+display: block;
+/* Inside auto layout */
+flex: none;
+order: 0;
+align-self: stretch;
+flex-grow: 0;
+z-index: 0;
 
 }

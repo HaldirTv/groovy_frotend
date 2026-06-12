@@ -58,6 +58,21 @@ export const Main = () => {
                             <img src={Arrow} className='ArrowViewAll' />
                         </button>
                     </div>
+                <div className='Personalized'>
+                <div className='PersonalizedContText'>
+                <div className='PersonalizedText'>
+                    <span className='PersonalizedTextHead'>ПЕРСОНАЛІЗОВАНИЙ АЛГОРИТМ</span>
+                </div>
+                <span className='PersonalizedTextF'>Музика за стилем та настроєм</span>
+                </div>
+                <button className='PersonalizedButtonView'>
+                    <span className='ButtonTextView'>VIEW ALL</span>
+                    <img src={Arrow} className='ArrowViewAll' />
+                </button>
+                </div>
+
+                <div></div>
+
                 <div className='MusicCardCont'>
                     <div className='MusicCard'>
                         <div className='OverCover'>
@@ -69,6 +84,79 @@ export const Main = () => {
                             <span className='StyleTrack'>POP</span>
                         </div>
                     </div>
+                <div className='MusicCard'>
+                    <div className='OverCover'>
+                        <img src={Cover} className='CoverImg' />
+                    </div>
+                    <div className='ContMusicCardText'>
+                        <span className='HeadText'>Назва треку</span>
+                        <span className='AuthorText'>Виконавець</span>
+                        <span className='StyleTrack'>POP</span>
+                    </div>
+                </div>
+                <div className='MusicCard'>
+                    <div className='OverCover'>
+                        <img src={Cover} className='CoverImg' />
+                    </div>
+                    <div className='ContMusicCardText'>
+                        <span className='HeadText'>Назва треку</span>
+                        <span className='AuthorText'>Виконавець</span>
+                        <span className='StyleTrack'>POP</span>
+                    </div>
+                </div>
+                <div className='MusicCard'>
+                    <div className='OverCover'>
+                        <img src={Cover} className='CoverImg' />
+                    </div>
+                    <div className='ContMusicCardText'>
+                        <span className='HeadText'>Назва треку</span>
+                        <span className='AuthorText'>Виконавець</span>
+                        <span className='StyleTrack'>POP</span>
+                    </div>
+                </div>
+                <div className='MusicCard'>
+                    <div className='OverCover'>
+                        <img src={Cover} className='CoverImg' />
+                    </div>
+                    <div className='ContMusicCardText'>
+                        <span className='HeadText'>Назва треку</span>
+                        <span className='AuthorText'>Виконавець</span>
+                        <span className='StyleTrack'>POP</span>
+                    </div>
+                </div>
+                <div className='MusicCard'>
+                    <div className='OverCover'>
+                        <img src={Cover} className='CoverImg' />
+                    </div>
+                    <div className='ContMusicCardText'>
+                        <span className='HeadText'>Назва треку</span>
+                        <span className='AuthorText'>Виконавець</span>
+                        <span className='StyleTrack'>POP</span>
+                    </div>
+                </div>
+                <div className='MusicCard'>
+                    <div className='OverCover'>
+                        <img src={Cover} className='CoverImg' />
+                    </div>
+                    <div className='ContMusicCardText'>
+                        <span className='HeadText'>Назва треку</span>
+                        <span className='AuthorText'>Виконавець</span>
+                        <span className='StyleTrack'>POP</span>
+                    </div>
+                </div>
+                <div className='MusicCard'>
+                    <div className='OverCover'>
+                        <img src={Cover} className='CoverImg' />
+                    </div>
+                    <div className='ContMusicCardText'>
+                        <span className='HeadText'>Назва треку</span>
+                        <span className='AuthorText'>Виконавець</span>
+                        <span className='StyleTrack'>POP</span>
+                    </div>
+                </div>
+
+            
+
                 </div>
             <img src={BackLogo} className='BackLogo'/>
             <div className='ContMainHello'>

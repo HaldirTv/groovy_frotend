@@ -16,7 +16,7 @@ justify-content: center;
 position: relative;
 width: 100vw;              
 height: 100vh;
-position: relative;
+
 background: #0D0D12;
 
 
@@ -2800,8 +2800,9 @@ align-items: center;
 text-align: center;
 letter-spacing: 0.16px;
 text-transform: uppercase;
-
+margin-left: auto;
 color: #72DEEF;
+
 
 
 /* Inside auto layout */
@@ -2851,7 +2852,7 @@ flex: none;
 order: 2;
 align-self: stretch;
 flex-grow: 0;
-
+gap: 59px;
 }
 
 .ContMusicCardText {
@@ -2999,3 +3000,165 @@ flex-grow: 0;
 z-index: 0;
 
 }
+
+
+.Personalized {
+display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0px;
+  gap: 32px;
+
+  width: 1544px; 
+  height: auto;
+
+  flex: none;
+  order: 3;
+  align-self: stretch;
+  flex-grow: 0;
+  z-index: 3;
+}
+
+.PersonalizedText {
+display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+  padding: 0px;
+  isolation: isolate;
+
+  width: 100%; 
+  height: 62px;
+
+  flex: none;
+  order: 0;
+  align-self: stretch;
+  flex-grow: 0;
+
+}
+
+.PersonalizedContText{
+  /* Container */
+
+/* Auto layout */
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 0px;
+gap: 7px;
+
+width: 476px;
+height: 62px;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+z-index: 0;
+
+}
+
+.PersonalizedTextHead {
+/* ПЕРСОНАЛІЗОВАНИЙ АЛГОРИТМ */
+
+width: 268px;
+height: 16px;
+
+font-family: 'Galdeano', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 12px;
+line-height: 16px;
+/* identical to box height, or 133% */
+display: flex;
+align-items: center;
+letter-spacing: 3px;
+text-transform: uppercase;
+
+color: #A98FDB;
+
+white-space: nowrap;
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.PersonalizedTextF{
+  /* Музика за стилем та настроєм */
+
+width: 476px;
+height: 39px;
+
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 32px;
+line-height: 38px;
+/* identical to box height, or 120% */
+display: flex;
+align-items: center;
+letter-spacing: -0.32px;
+
+color: #FFFFFF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+
+.PersonalizedButtonView {
+border: none;
+  outline: none;
+  box-shadow: none;
+  background: transparent;
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 0px;
+  gap: 8px; 
+
+  width: max-content; 
+  height: 26px;
+  
+  margin-left: auto; 
+
+  flex: none;
+  order: 1;
+  flex-grow: 0;
+}
+
+.ButtonTextView {
+  /* VIEW ALL */
+
+width: 72px;
+height: 26px;
+
+font-family: 'Manrope',sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 16px;
+line-height: 26px;
+/* identical to box height, or 160% */
+display: flex;
+align-items: center;
+text-align: center;
+letter-spacing: 0.16px;
+text-transform: uppercase;
+
+color: #72DEEF;
+
+
+/* Inside auto layout */
+flex: none;
+order: 0;
+flex-grow: 0;
+
+}
+

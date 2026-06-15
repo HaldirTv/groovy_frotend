@@ -1662,102 +1662,102 @@ color: #F5F5F5;
 }
 
 .Main {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 0px 0px 0px 256px;
-  isolation: isolate;
-  position: relative;
-  width: 100vw;
-  height: 100vh;
-  background: linear-gradient(0deg, #121414, #121414), #FFFFFF;
+display: flex;
+flex-direction: row;
+align-items: stretch;
+isolation: isolate;
+position: relative;
+width: 100%;
+height: 100vh;
+background: linear-gradient(0deg, #121414, #121414), #FFFFFF;
+overflow: hidden;
 }
 
 .Sidebar {
-  flex-shrink: 0;
-  box-sizing: border-box;
-  display: flex;
-  flex-direction: column; 
-  align-items: flex-start;
-  padding: 24px 0px;     
-  position: absolute;
-  width: 290px;
-  height: 1546px;
-  left: 0px;
-  top: 0px;
-  background: #121414;
-  border-right: 1px solid #72DEEF;
-  z-index: 2;
+flex-shrink: 0;
+box-sizing: border-box;
+display: flex;
+flex-direction: column; 
+align-items: flex-start;
+padding: 24px 0px;     
+position: relative;
+width: 290px;
+height: 100%;
+min-height: 100vh;
+background: #121414;
+border-right: 1px solid #72DEEF;
+z-index: 2;
+overflow-y: auto;
 }
 
 .SidebarHeader {
-  display: flex;
-  flex-direction: row; 
-  align-items: center;  
-  gap: 14px;            
-  margin-bottom: 40px;   
-  width: 100%;
+display: flex;
+flex-direction: row; 
+align-items: center;  
+gap: 14px;            
+margin-bottom: 40px;   
+width: 100%;
 }
 
 .Logo {
-  width: 71px;
-  height: 40px;
-  filter: drop-shadow(0px 0px 4px #72DEEF);
+width: 71px;
+height: 40px;
+filter: drop-shadow(0px 0px 4px #72DEEF);
 }
 
 .Groovra {
-  font-family: 'Manrope', sans-serif;
-  font-weight: 800;
-  font-size: 32px;
-  line-height: 1;
-  letter-spacing: -1.6px;
-  color: #72DEEF;
+font-family: 'Manrope', sans-serif;
+font-weight: 800;
+font-size: 32px;
+line-height: 1;
+letter-spacing: -1.6px;
+color: #72DEEF;
 }
 
 .NavItem {
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding: 10px 12px;
-  width: 100%;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background 0.2s ease;
+position: relative;
+display: flex;
+flex-direction: row;
+align-items: center;
+gap: 12px;
+margin-bottom: 12px;
+padding: 10px 12px;
+width: 100%;
+border-radius: 8px;
+cursor: pointer;
+transition: background 0.2s ease;
 }
 
 .NavItem:hover {
-  background: rgba(114, 222, 239, 0.05); 
+background: rgba(114, 222, 239, 0.05); 
 }
 
 .NavText {
-  font-family: 'Galindo', sans-serif;
-  font-weight: 400;
-  font-size: 20px;
-  color: #72DEEF;
-  letter-spacing: 1.2px;
-  line-height: 1;
+font-family: 'Galindo', sans-serif;
+font-weight: 400;
+font-size: 20px;
+color: #72DEEF;
+letter-spacing: 1.2px;
+line-height: 1;
 }
 
 .NavItem.active .HomeType {
-  opacity: 1;
-  text-shadow: 0px 0px 10px rgba(114, 222, 239, 0.6); 
+opacity: 1;
+text-shadow: 0px 0px 10px rgba(114, 222, 239, 0.6); 
 }
 
 .ActiveLine {
-  position: absolute;
-  left: 0;                   
-  top: 50%;                  
-  transform: translateY(-50%);  
+position: absolute;
+left: 0;                   
+top: 50%;                  
+transform: translateY(-50%);  
   
-  width: 4px;              
-  height: 24px;            
+width: 4px;              
+height: 24px;            
   
-  background-color: #72DEEF; 
-  box-shadow: 0px 0px 10px #72DEEF; 
-  border-radius: 0 4px 4px 0; 
+background-color: #72DEEF; 
+box-shadow: 0px 0px 10px #72DEEF; 
+border-radius: 0 4px 4px 0; 
 }
 
 .ContTextColl {
@@ -1801,10 +1801,8 @@ color: #A98FDB;
 
 .MainHeader {
   /* Header - TopAppBar (Authority: JSON/Style Guidance) */
-
-box-sizing: border-box;
-
 /* Auto layout */
+box-sizing: border-box;
 display: flex;
 flex-direction: row;
 justify-content: space-between;
@@ -1812,9 +1810,9 @@ align-items: center;
 padding: 0px 24px;
 gap: 108.17px;
 
-position: absolute;
+position: fixed;
 height: 80px;
-left: 277px;
+left: 290px;
 right: 0px;
 top: 0px;
 
@@ -1824,10 +1822,7 @@ backdrop-filter: blur(32px);
 /* Note: backdrop-filter has minimal browser support */
 
 /* Inside auto layout */
-flex: none;
-order: 1;
-flex-grow: 0;
-z-index: 1;
+z-index: 10;
 
 }
 
@@ -1836,13 +1831,14 @@ z-index: 1;
 
 position: absolute;
 width: 825px;
-height: 806.25px;
-left: 805px;
-top: 128px;
+height: auto;
+max-width: 60%;
+right: -60px;
+top: 80px;
 
 opacity: 0.52;
-
-
+z-index: 0;
+pointer-events: none;
 }
 
 .Main2 {
@@ -1852,23 +1848,18 @@ opacity: 0.52;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
-padding: 128px 40px 176.38px 80px;
-gap: 18px;
+padding: 28px 40px 40px 80px;
+gap: 32px;
 isolation: isolate;
-
-width: 100vw;
-  height: 100vh;
-min-height: 1546px;
-
+position: relative;
+flex: 1;
+min-width: 0;
+margin-bottom: 96px;
+margin-top: 80px;
 background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(102, 102, 102, 0.2) 100%), #16161F;
-
-/* Inside auto layout */
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
-z-index: 0;
-
+overflow-x: hidden;
+overflow-y: auto;
+width: 100%;
 }
 
 .ContSearch {
@@ -2048,15 +2039,14 @@ flex-grow: 0;
 
 .MainLine {
   /* Paragraph+HorizontalBorder */
-
+position: relative;
 box-sizing: border-box;
-
-width: 547px;
-height: auto;
-
+width: 100%;
+max-width: 547px;
+height: 0;
 
 border-bottom: 1px solid #A98FDB;
-
+z-index: 1;
 }
 
 .ContMainHello {
@@ -2066,19 +2056,16 @@ border-bottom: 1px solid #A98FDB;
 display: flex;
 flex-direction: row;
 align-items: flex-start;
-padding: 0px;
+flex-wrap: wrap;
 gap: 8px;
-
-height: 53;
+width: 100%;
 white-space: nowrap;
-
-
+z-index: 1;
+position: relative;
 }
 
 .MainHeaderText {
   /* Good evening, */
-
-height: auto;
 
 font-family: 'Manrope', sans-serif;
 font-style: normal;
@@ -2086,12 +2073,10 @@ font-weight: 700;
 font-size: 48px;
 line-height: 53px;
 /* identical to box height, or 110% */
-display: flex;
-align-items: center;
 letter-spacing: -0.96px;
 white-space: nowrap;
 color: #E3E2E2;
-
+margin: 0;
 
 }
 
@@ -2109,39 +2094,29 @@ filter: drop-shadow(0px 0px 15px #72DEEF);
 
 .ProfileText {
   /* Volodymyr */
-
-gap: 0px;
-flex-direction: row;
 font-family: 'Manrope',sans-serif;
 font-style: normal;
 font-weight: 700;
 font-size: 48px;
 /* identical to box height, or 110% */
-display: flex;
-align-items: center;
+line-height: 1.1;
 letter-spacing: -0.96px;
 white-space: nowrap;
 color: #72DEEF;
-
+margin: 0;
 
 }
 
 .OpText {
   /* It's time to grow your aura, choose a playlist */
-
-height: auto;
-gap: 0px;
-
 font-family: 'Galdeano', sans-serif;
 font-style: normal;
 font-weight: 400;
 font-size: 20px;
 line-height: 26px;
 /* identical to box height, or 128% */
-display: flex;
-align-items: center;
 letter-spacing: 0.16px;
-
+margin: 0;
 color: #A98FDB;
 
 
@@ -2149,10 +2124,10 @@ color: #A98FDB;
 
 .OpCont {
   /* Container */
-gap: 0px;
-width: 576px;
+position: relative;
+width: 100%;
 max-width: 576px;
-
+z-index: 1;
 
 }
 
@@ -2167,11 +2142,11 @@ flex-direction: row;
 justify-content: space-between;
 align-items: center;
 padding: 0px 24px;
-flex-shrink: 0;
-position: absolute;
+position: fixed;
 width: 100%;
 height: 96px;
 left: 0px;
+right: 0px;
 bottom: 0px;
 
 background: #121414;
@@ -2180,10 +2155,7 @@ backdrop-filter: blur(20px);
 /* Note: backdrop-filter has minimal browser support */
 
 /* Inside auto layout */
-flex: none;
-order: 3;
-flex-grow: 0;
-z-index: 3;
+z-index: 10;
 
 }
 
@@ -2669,20 +2641,10 @@ flex-grow: 0;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
-padding: 16px 0px 0px;
 gap: 12px;
-
-width: 1544px;
-height: auto;
-
-
-/* Inside auto layout */
-flex: none;
-order: 2;
-align-self: stretch;
-flex-grow: 0;
-z-index: 2;
-
+position: relative;
+width: 100%;
+z-index: 1;
 }
 
 .ContTextTrendingNow {
@@ -2690,73 +2652,44 @@ z-index: 2;
 
 /* Auto layout */
 display: flex;
-flex-direction: column;
-align-items: flex-start;
-padding: 0px;
-gap: 7px;
-
-width: 208px;
-height: 62px;
-
-
-/* Inside auto layout */
-flex: none;
-order: 0;
-flex-grow: 0;
-
+flex-direction: row;
+flex-wrap: wrap;
+align-items: flex-end;
+justify-content: space-between;
+gap: 8px;
+width: 100%;
 }
 
 .LisNowTrending {
   /* listening now */
-
-width: 118px;
-height: 16px;
-
 font-family: 'Galdeano', sans-serif;
 font-style: normal;
 font-weight: 400;
 font-size: 12px;
 line-height: 16px;
+width: 100%;
 /* identical to box height, or 133% */
-display: flex;
-align-items: center;
+display: block;
 letter-spacing: 3px;
 text-transform: uppercase;
 
 color: #A98FDB;
 
 white-space: nowrap;
-/* Inside auto layout */
-flex: none;
-order: 0;
-flex-grow: 0;
-
 }
 
 .TrendNowText {
   /* Trending Now */
-
-width: 208px;
-height: 39px;
-
 font-family: 'Manrope', sans-serif;
 font-style: normal;
 font-weight: 700;
 font-size: 32px;
 line-height: 38px;
 /* identical to box height, or 120% */
-display: flex;
-align-items: center;
 letter-spacing: -0.32px;
-
+margin: 0;
 color: #FFFFFF;
 white-space: nowrap;
-
-/* Inside auto layout */
-flex: none;
-order: 0;
-flex-grow: 0;
-
 }
 
 .ButtonViewAll {
@@ -2769,47 +2702,24 @@ background: transparent;
 display: flex;
 flex-direction: row;
 align-items: center;
-padding: 0px;
 gap: 8px;
 cursor: pointer;
-width: 88.75px;
+flex-shrink: 0;
 height: 26px;
-margin-left: auto;
-
-/* Inside auto layout */
-flex: none;
-order: 1;
-flex-grow: 0;
-
 }
 
 .TextViewAll {
   /* VIEW ALL */
-
-width: 72px;
-height: 26px;
-
 font-family: 'Manrope',sans-serif;
 font-style: normal;
 font-weight: 700;
 font-size: 16px;
 line-height: 26px;
 /* identical to box height, or 160% */
-display: flex;
-align-items: center;
-text-align: center;
 letter-spacing: 0.16px;
 text-transform: uppercase;
 margin-left: auto;
 color: #72DEEF;
-
-
-
-/* Inside auto layout */
-flex: none;
-order: 0;
-flex-grow: 0;
-
 }
 
 .ArrowViewAll {
@@ -2817,12 +2727,7 @@ flex-grow: 0;
 
 width: 8.75px;
 height: 8.75px;
-
-
-/* Inside auto layout */
-flex: none;
-order: 0;
-flex-grow: 0;
+flex-shrink : 0;
 
 }
 
@@ -2833,26 +2738,23 @@ flex-grow: 0;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
-padding: 0px;
-gap: 15.99px;
+width: 100%;
+gap: 16px;
 border-radius: 12px;
-
+min-width: 0;
+max-width: none;
 }
 
 .MusicCardCont {
   /* Container */
-
-width: 1544px;
-height: 222.94px;
-display: flex;
-flex-direction: row;
+display: grid;
+position: relative;
+grid-template-columns: repeat(8, minmax(120px, 1fr));
 align-items: flex-start;
 /* Inside auto layout */
-flex: none;
-order: 2;
-align-self: stretch;
-flex-grow: 0;
-gap: 59px;
+gap: 24px;
+width: 100%;
+z-index: 1;
 }
 
 .ContMusicCardText {
@@ -2880,83 +2782,63 @@ flex-grow: 0;
 .HeadText {
   /* Мікросхема - EP */
 
-width: 137.33px;
-height: 26px;
-
+width: 100%;
 font-family: 'Manrope', sans-serif;
 font-style: normal;
 font-weight: 800;
 font-size: 16px;
 line-height: 26px;
+white-space: nowrap;
 /* identical to box height, or 160% */
-display: flex;
-align-items: center;
+overflow: hidden;
 letter-spacing: 0.16px;
-
+text-overflow: ellipsis;
 color: #E3E2E2;
 
 
 /* Inside auto layout */
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
+margin: 0;
 
 }
 
 .AuthorText {
   /* Diana Glebova */
 
-width: 137.33px;
-height: 20px;
-
+width: 100%;
 font-family: 'Galdeano', sans-serif;
 font-style: normal;
 font-weight: 400;
 font-size: 14px;
 line-height: 20px;
 /* identical to box height, or 143% */
-display: flex;
-align-items: center;
 letter-spacing: 0.16px;
+white-space: nowrap;
 
 color: #A98FDB;
-
-
-/* Inside auto layout */
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
-
+overflow: hidden;
+text-overflow: ellipsis;
+margin: 0;
 }
 
 .StyleTrack {
   /* POP */
 
-width: 137.33px;
-height: 16px;
-
+width: 100%;
 font-family: 'Galdeano', sans-serif;
 font-style: normal;
 font-weight: 400;
 font-size: 12px;
 line-height: 16px;
 /* identical to box height, or 133% */
-display: flex;
-align-items: center;
 letter-spacing: 0.16px;
+display: flex;
 text-transform: uppercase;
 
 color: rgba(114, 222, 239, 0.71);
-
-
-/* Inside auto layout */
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
-
+white-space: nowrap;
+overflow: hidden;
+text-overflow: ellipsis;
+margin: 0;
 }
 
 .OverCover {
@@ -2964,39 +2846,22 @@ flex-grow: 0;
 
 /* Auto layout */
 display: flex;
-flex-direction: column;
 justify-content: center;
-align-items: flex-start;
-padding: 0px;
-isolation: isolate;
-width: 137.33px;
-height: 137.33px;
 align-items: center;
+isolation: isolate;
+width: 100%;
 overflow: hidden;
 background: rgba(255, 255, 255, 0.002);
 border-radius: 12px;
-object-fit: cover;
-border-radius: inherit;
-/* Inside auto layout */
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
-
+aspect-ratio: 1 / 1;
 }
 
 .CoverImg {
-  /* AB6AXuDRZmxWXjnm7L9YJ4tSguPsbsgTprkUHJeAMckTss6ROUZGrI-n3AxyNw0S5-DakFFQHPK11RVG2KIq_S1HajZpnbSqwKVJPXpYl2isNMv1i6HJyOebAUogFV5N3RKKVsho0BD2AFKnR_V6UR0UOfP_aLAk6JHx61oSt4k6Mh8bLGKU9cMW5PTBgWw91v7zVQNLVPv8NyCthnJQU8ip5d9gGL2JsgXeLtKx9Pi5S0fi9KWxGAWyHHI5ICqA8uL3GFbzVKxrWGsIb61T */
-
 width: 100%;
 height: 100%;
 object-fit: cover;
 display: block;
 /* Inside auto layout */
-flex: none;
-order: 0;
-align-self: stretch;
-flex-grow: 0;
 z-index: 0;
 
 }
@@ -3004,36 +2869,23 @@ z-index: 0;
 
 .Personalized {
 display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  padding: 0px;
-  gap: 32px;
-
-  width: 1544px; 
-  height: auto;
-
-  flex: none;
-  order: 3;
-  align-self: stretch;
-  flex-grow: 0;
-  z-index: 3;
+position: relative;
+flex-direction: column;
+align-items: flex-start;
+gap: 32px;
+width: 100%; 
+z-index: 1;
 }
 
 .PersonalizedText {
 display: flex;
-  flex-direction: row;
-  align-items: flex-end;
-  padding: 0px;
-  isolation: isolate;
-
-  width: 100%; 
-  height: 62px;
-
-  flex: none;
-  order: 0;
-  align-self: stretch;
-  flex-grow: 0;
-
+flex-direction: row;
+align-items: flex-end;
+flex-wrap: wrap;
+justify-content: space-between;
+gap: 8px;
+width: 100%; 
+isolation:isolate;
 }
 
 .PersonalizedContText{
@@ -3043,35 +2895,19 @@ display: flex;
 display: flex;
 flex-direction: column;
 align-items: flex-start;
-padding: 0px;
 gap: 7px;
-
-width: 476px;
-height: 62px;
-
-
-/* Inside auto layout */
-flex: none;
-order: 0;
-flex-grow: 0;
 z-index: 0;
 
 }
 
 .PersonalizedTextHead {
 /* ПЕРСОНАЛІЗОВАНИЙ АЛГОРИТМ */
-
-width: 268px;
-height: 16px;
-
 font-family: 'Galdeano', sans-serif;
 font-style: normal;
 font-weight: 400;
 font-size: 12px;
 line-height: 16px;
 /* identical to box height, or 133% */
-display: flex;
-align-items: center;
 letter-spacing: 3px;
 text-transform: uppercase;
 
@@ -3079,86 +2915,62 @@ color: #A98FDB;
 
 white-space: nowrap;
 /* Inside auto layout */
-flex: none;
-order: 0;
-flex-grow: 0;
-
+margin: 0;
 }
 
 .PersonalizedTextF{
   /* Музика за стилем та настроєм */
-
-width: 476px;
-height: 39px;
-
 font-family: 'Manrope', sans-serif;
 font-style: normal;
 font-weight: 700;
 font-size: 32px;
 line-height: 38px;
 /* identical to box height, or 120% */
-display: flex;
-align-items: center;
 letter-spacing: -0.32px;
 
 color: #FFFFFF;
 
 
 /* Inside auto layout */
-flex: none;
-order: 0;
-flex-grow: 0;
-
+margin: 0;
 }
 
 .PersonalizedButtonView {
 border: none;
-  outline: none;
-  box-shadow: none;
-  background: transparent;
-  cursor: pointer;
+outline: none;
+box-shadow: none;
+background: transparent;
+cursor: pointer;
 
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  padding: 0px;
-  gap: 8px; 
-
-  width: max-content; 
-  height: 26px;
-  
-  margin-left: auto; 
-
-  flex: none;
-  order: 1;
-  flex-grow: 0;
+display: flex;
+flex-direction: row;
+align-items: center;
+gap: 8px;  
+height: 26px;
+flex-shrink: 0;
+z-index: 1;
 }
 
 .ButtonTextView {
   /* VIEW ALL */
-
-width: 72px;
-height: 26px;
-
 font-family: 'Manrope',sans-serif;
 font-style: normal;
 font-weight: 700;
 font-size: 16px;
 line-height: 26px;
 /* identical to box height, or 160% */
-display: flex;
-align-items: center;
-text-align: center;
 letter-spacing: 0.16px;
 text-transform: uppercase;
 
 color: #72DEEF;
-
-
-/* Inside auto layout */
-flex: none;
-order: 0;
-flex-grow: 0;
-
 }
 
+.RightColumn {
+display: flex;
+flex-direction: column;
+flex: 1;
+min-width: 0;
+height: 100vh;
+position: relative;
+overflow: hidden;
+}

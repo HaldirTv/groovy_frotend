@@ -1,0 +1,399 @@
+/* ============================================
+   PROFILE PAGE STYLES — from archive App.css
+   ============================================ */
+
+.ProfMain2 {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 28px 40px 40px 80px;
+  gap: 32px;
+  isolation: isolate;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 96px;
+  margin-top: 80px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(102, 102, 102, 0.2) 100%), #16161F;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 100%;
+}
+
+.ProfileUser {
+  position: relative;
+  width: 100%;
+  height: 267px;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #16161F;
+  flex-shrink: 0;
+}
+
+.ProfileUserBg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.ProfileUserOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(22,22,30,0.85) 0%, rgba(22,22,30,0.35) 55%, rgba(22,22,30,0.05) 100%);
+  z-index: 1;
+}
+
+.ProfAvatarWrap {
+  position: absolute;
+  left: 32px;
+  top: 38px;
+  width: 182px;
+  height: 182px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #16161F;
+  z-index: 2;
+}
+
+.ProfAvatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ProfName {
+  font-family: 'Manrope', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 36px;
+  line-height: 49px;
+  color: #F5F5F5;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.ProfNameBlock {
+  position: absolute;
+  left: 259px;
+  top: 38px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ProfHandle {
+  font-family: 'Galdeano', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 21px;
+  color: #A1A1AA;
+  margin: 0;
+}
+
+.ProfBio {
+  font-family: 'Galdeano', sans-serif;
+  font-style: normal;
+  font-weight: 400;
+  font-size: 20px;
+  line-height: 21px;
+  color: #A1A1AA;
+  margin: 0;
+}
+
+.ProfEditButton {
+  box-sizing: border-box;
+  position: absolute;
+  left: 259px;
+  top: 192px;
+  z-index: 2;
+  width: 227px;
+  height: 43px;
+  background: #16161F;
+  border: 2px solid #72DEEF;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.ProfEditButtonText {
+  font-family: 'Manrope', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 27px;
+  color: #72DEEF;
+}
+
+.ProfStats {
+  position: absolute;
+  right: 32px;
+  top: 0;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  gap: 56px;
+  z-index: 2;
+}
+
+.ProfStatItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.ProfStatNumber {
+  font-family: 'Manrope', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 32px;
+  line-height: 44px;
+  color: #F5F5F5;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.ProfStatLabel {
+  font-family: 'Manrope', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 27px;
+  color: #A1A1AA;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.ProfTabs {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  border-bottom: 0px;
+  flex-wrap: wrap;
+}
+
+.ProfTabItem {
+  font-family: 'Galdeano', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 24px;
+  color: #A1A1AA;
+  padding-bottom: 14px;
+  white-space: nowrap;
+  position: relative;
+  cursor: default;
+}
+
+.ProfTabItem.ProfTabActive {
+  color: #72DEEF;
+}
+
+.ProfTabItem.ProfTabActive::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: #72DEEF;
+  box-shadow: 0px 0px 3.4px #72DEEF;
+}
+
+.ProfBody {
+  width: 100%;
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.ProfSideNav {
+  flex-shrink: 0;
+  width: 265px;
+  background: #16161F;
+  border-radius: 8px;
+  padding: 17px 17px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ProfSideNavItem {
+  font-family: 'Manrope', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 27px;
+  color: #A1A1AA;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.ProfSideNavItem.ProfSideNavActive {
+  background: #5C7182;
+  color: rgba(114, 222, 239, 0.71);
+}
+
+.ProfPanel {
+  flex: 1;
+  min-width: 0;
+  background: #16161F;
+  border-radius: 8px;
+  padding: 26px 32px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.ProfPanelTitle {
+  font-family: 'Manrope', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 33px;
+  color: #F5F5F5;
+  margin: 0 0 8px 0;
+}
+
+.ProfPanelSubtitle {
+  font-family: 'Galdeano', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 18px;
+  color: #A1A1AA;
+  margin: 0 0 26px 0;
+  max-width: 350px;
+}
+
+.ProfInfoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 0;
+  border-bottom: 1px solid #A1A1AA;
+  max-width: 714px;
+}
+
+.ProfInfoLabel {
+  font-family: 'Galdeano', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 19px;
+  color: #A1A1AA;
+  width: 180px;
+  flex-shrink: 0;
+}
+
+.ProfInfoValue {
+  font-family: 'Galdeano', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 19px;
+  color: #F5F5F5;
+  flex: 1;
+}
+
+.ProfInfoChange {
+  box-sizing: border-box;
+  flex-shrink: 0;
+  background: #16161F;
+  border: 1px solid #72DEEF;
+  border-radius: 8px;
+  font-family: 'Manrope', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 15px;
+  line-height: 20px;
+  color: #72DEEF;
+  padding: 5px 14px;
+  cursor: pointer;
+}
+
+.ProfManageSub {
+  margin-top: 26px;
+  box-sizing: border-box;
+  width: 218px;
+  height: 43px;
+  background: #16161F;
+  border: 2px solid #72DEEF;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.ProfManageSubText {
+  font-family: 'Manrope', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 27px;
+  color: #72DEEF;
+}
+
+.ProfPanelLogo {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 220px;
+  height: 220px;
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.ProfRecent {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.ProfRecentTitle {
+  font-family: 'Manrope', sans-serif;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 24px;
+  line-height: 33px;
+  color: #F5F5F5;
+  margin: 0;
+}
+
+.ProfRecentGrid {
+  width: 100%;
+  background: #16161F;
+  border-radius: 8px;
+  padding: 24px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 16px;
+}
+
+.ProfRecentCard {
+  width: 100%;
+  aspect-ratio: 213/240;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #16161F;
+}
+
+.ProfRecentCardImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}

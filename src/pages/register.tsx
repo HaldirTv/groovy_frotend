@@ -1,3 +1,4 @@
+// src/pages/register.tsx
 import { useState } from 'react'
 import LogoReg from '../assets/LogoReg.svg'
 import MiddleLogo from '../assets/MiddleLogo.svg'
@@ -9,6 +10,7 @@ import { setAccessToken, GATEWAY_URL, getOrCreateDeviceId, decodeTokenEmail } fr
 export const Reg = () => {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('') // ДОБАВЛЕНО: Никнейм
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -16,53 +18,13 @@ export const Reg = () => {
 
   const loginWithGoogle = useGoogleLogin({
     flow: 'auth-code',
-    onSuccess: async (codeResponse) => {
-      setError('')
-      setIsLoading(true)
-      try {
-        const deviceId = getOrCreateDeviceId()
-        const response = await fetch(`${GATEWAY_URL}/auth/google`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({ code: codeResponse.code, deviceId }),
-        })
-
-        const data = await response.json()
-
-        if (!response.ok) {
-          throw new Error(data.message || 'Помилка реєстрації через Google')
-        }
-
-        if (data.token) {
-          const emailFromToken = decodeTokenEmail(data.token)
-          if (emailFromToken) {
-            localStorage.setItem('UserEmail', emailFromToken)
-          }
-          setAccessToken(data.token)
-        }
-
-        navigate('/main')
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(err.message || 'Сталася помилка при реєстрації')
-        } else {
-          setError('Сталася невідома помилка')
-        }
-      } finally {
-        setIsLoading(false)
-      }
-    },
-    onError: () => {
-      setError('Не вдалося зареєструватися через Google')
-    }
+    ux_mode: 'redirect',
+    redirect_uri: 'http://localhost:5178/auth/callback',
   })
 
   const handleGoogleClick = () => {
     if (!hasGoogleClientId) {
-      setError('Реєстрація через Google не налаштована (відсутній VITE_GOOGLE_CLIENT_ID).')
+      setError('Реєстрація через Google не налаштована.')
       return
     }
     loginWithGoogle()
@@ -70,12 +32,13 @@ export const Reg = () => {
 
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) {
-      setError('Будь ласка, введіть email')
+    if (!email || !username) {
+      setError('Будь ласка, заповніть усі поля')
       return
     }
-    // Save email for next step (create.tsx)
+    // Зберігаємо дані для наступного кроку
     localStorage.setItem('RegistrationEmail', email)
+    localStorage.setItem('RegistrationUsername', username) // Зберігаємо нікнейм
     navigate('/create')
   }
 
@@ -93,6 +56,23 @@ export const Reg = () => {
           {error && <div className='auth-error' role="alert">{error}</div>}
 
           <form onSubmit={handleContinue} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            
+            {/* ДОБАВЛЕНО: Поле Нікнейм */}
+            <div className='auth-form-group'>
+              <label htmlFor="reg-username" className='auth-label'>Нікнейм</label>
+              <div className='auth-input-wrapper'>
+                <input
+                  id="reg-username"
+                  type="text"
+                  placeholder='Введіть свій нікнейм'
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  disabled={isLoading}
+                />
+              </div>
+            </div>
+
             <div className='auth-form-group'>
               <label htmlFor="reg-email" className='auth-label'>E-Mail</label>
               <div className='auth-input-wrapper'>

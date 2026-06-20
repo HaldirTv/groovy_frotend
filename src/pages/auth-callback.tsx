@@ -1,3 +1,4 @@
+// src/pages/auth-callback.tsx
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { loginWithGoogleApi } from '../api/auth'
@@ -6,6 +7,7 @@ import { setAccessToken, getOrCreateDeviceId, decodeTokenEmail } from '../api/ap
 export const AuthCallback = () => {
   const navigate = useNavigate()
   const [error, setError] = useState('')
+  const [status, setStatus] = useState('Обробка даних Google, зачекайте...')
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -13,31 +15,32 @@ export const AuthCallback = () => {
       const code = params.get('code')
 
       if (!code) {
-        setError('Код авторизації відсутній у URL.')
+        setError('Код авторизації відсутній у посиланні. Спробуйте ще раз.')
         return
       }
 
       try {
         const deviceId = getOrCreateDeviceId()
+        setStatus('Зв\'язок з сервером Groovra...')
+        
         const result = await loginWithGoogleApi({ code, deviceId })
+        const token = result?.token || result?.Token
 
-        if (result.token) {
-          const email = decodeTokenEmail(result.token)
+        if (token) {
+          const email = decodeTokenEmail(token)
           if (email) {
             localStorage.setItem('UserEmail', email)
           }
-          setAccessToken(result.token)
+          
+          setAccessToken(token)
+          setStatus('Успішно! Вхід в акаунт...')
           navigate('/main')
         } else {
-          throw new Error('Токен відсутній у відповіді сервера')
+          throw new Error('Сервер повернув успішну відповідь, але токен доступу відсутній.')
         }
-      } catch (err: unknown) {
-        console.error("Помилка авторизації через Google:", err)
-        if (err instanceof Error) {
-          setError(err.message || 'Помилка авторизації через Google')
-        } else {
-          setError('Помилка авторизації через Google')
-        }
+      } catch (err: any) {
+        console.error("Помилка Google Auth:", err)
+        setError(err.message || 'Сталася помилка на бекенді при обміні коду Google.')
       }
     }
 
@@ -45,11 +48,19 @@ export const AuthCallback = () => {
   }, [navigate])
 
   return (
-    <div style={{ color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#131313', fontFamily: 'SUSE, sans-serif' }}>
+    <div style={{ color: 'white', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', height: '100vh', backgroundColor: '#131313', fontFamily: 'SUSE, sans-serif', padding: '20px', textAlign: 'center' }}>
       {error ? (
-        <div style={{ color: '#ef4444', marginBottom: '20px', fontSize: '18px' }}>{error}</div>
+        <div style={{ maxWidth: '500px' }}>
+          <h2 style={{ color: '#ff4a4a', marginBottom: '15px' }}>Помилка авторизації</h2>
+          <p style={{ color: '#b3b3b3', marginBottom: '20px' }}>{error}</p>
+          <button onClick={() => navigate('/login')} style={{ backgroundColor: '#fff', color: '#000', border: 'none', padding: '10px 20px', borderRadius: '6px', cursor: 'pointer', fontWeight: 'bold' }}>
+            Повернутися до входу
+          </button>
+        </div>
       ) : (
-        <div style={{ fontSize: '18px' }}>Авторизація через Google...</div>
+        <div>
+          <p style={{ fontSize: '18px', color: '#e0e0e0' }}>{status}</p>
+        </div>
       )}
     </div>
   )

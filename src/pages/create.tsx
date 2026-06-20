@@ -1,8 +1,9 @@
+// src/pages/create.tsx
 import LogoReg from '../assets/LogoReg.svg'
 import MiddleLogo from '../assets/MiddleLogo.svg'
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { GATEWAY_URL, getOrCreateDeviceId, setAccessToken } from '../api/api-client'
+import { GATEWAY_URL } from '../api/api-client'
 
 export const Create = () => {
   const navigate = useNavigate()
@@ -13,9 +14,7 @@ export const Create = () => {
 
   useEffect(() => {
     const email = localStorage.getItem('RegistrationEmail')
-    if (!email) {
-      navigate('/reg')
-    }
+    if (!email) navigate('/reg')
   }, [navigate])
 
   const handleContinue = async (e: React.FormEvent) => {
@@ -26,49 +25,38 @@ export const Create = () => {
       setError('Пароль має містити не менше 8 символів!')
       return
     }
-
     if (password !== confirmPassword) {
       setError('Паролі не співпадають!')
       return
     }
 
     const email = localStorage.getItem('RegistrationEmail')
-    if (!email) {
-      setError('Email не знайдено. Поверніться до попереднього кроку.')
-      navigate('/reg')
+    const username = localStorage.getItem('RegistrationUsername')
+    if (!email || !username) {
+      setError('Дані не знайдено. Поверніться до початку.')
       return
     }
 
     setIsLoading(true)
     try {
-      const deviceId = getOrCreateDeviceId()
+      // Виклик твого бекенду: /auth/register
       const response = await fetch(`${GATEWAY_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ email, password, deviceId }),
+        body: JSON.stringify({ email, password, username }), // Відправляємо Username!
       })
 
-      const data = await response.json()
+      const data = await response.json().catch(() => ({}))
 
       if (!response.ok) {
-        throw new Error(data.message || 'Помилка реєстрації')
+        throw new Error(data.message || data.Message || 'Помилка реєстрації')
       }
 
-      if (data.token) {
-        localStorage.setItem('UserEmail', email)
-        setAccessToken(data.token)
-      }
-
-      // Очищаємо тимчасові дані реєстрації
-      localStorage.removeItem('RegistrationEmail')
-      navigate('/main')
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Сталася невідома помилка')
-      }
+      // Успіх! Твій бекенд каже: "You have 10 minutes to verify."
+      // Переходимо на сторінку введення коду для реєстрації
+      navigate('/confirm-reg')
+    } catch (err: any) {
+      setError(err.message || 'Сталася невідома помилка')
     } finally {
       setIsLoading(false)
     }

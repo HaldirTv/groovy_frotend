@@ -1,3 +1,4 @@
+// src/pages/password-recovery.tsx
 import LogoReg from '../assets/LogoReg.svg'
 import MiddleLogo from '../assets/MiddleLogo.svg'
 import { useState, useEffect } from 'react'
@@ -13,7 +14,8 @@ export const Recovery = () => {
 
   useEffect(() => {
     const email = localStorage.getItem('RecoveryEmail')
-    if (!email) {
+    const resetToken = localStorage.getItem('ResetToken')
+    if (!email || !resetToken) {
       navigate('/forgotpassword')
     }
   }, [navigate])
@@ -33,27 +35,35 @@ export const Recovery = () => {
     }
 
     const email = localStorage.getItem('RecoveryEmail')
-    if (!email) {
-      setError('Email не знайдено. Почніть відновлення знову.')
+    const resetToken = localStorage.getItem('ResetToken') // Достаем токен сброса
+
+    if (!email || !resetToken) {
+      setError('Необхідні дані відсутні. Почніть відновлення знову.')
       navigate('/forgotpassword')
       return
     }
 
     setIsLoading(true)
     try {
-      const response = await fetch(`${GATEWAY_URL}/auth/reset-password`, {
+      // ИСПРАВЛЕНО: Твой актуальный урл бэкенда для сброса пароля
+      const response = await fetch(`${GATEWAY_URL}/auth/confirmresetpassword`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        // Передаем email, новый пароль и временный токен
+        body: JSON.stringify({ email, newPassword: password, token: resetToken }),
       })
 
+      const data = await response.json().catch(() => ({}))
+
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
-        throw new Error(data.message || 'Помилка зміни паролю')
+        throw new Error(data.message || data.Message || 'Помилка зміни паролю')
       }
 
-      // Очищаємо дані відновлення
+      // Полностью очищаем временные данные восстановления
       localStorage.removeItem('RecoveryEmail')
+      localStorage.removeItem('ResetToken')
+      
+      // Пароль изменен — отправляем на логин
       navigate('/login')
     } catch (err: unknown) {
       if (err instanceof Error) {

@@ -1,3 +1,4 @@
+// src/App.tsx
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { refreshSession } from './api/api-client'
@@ -9,19 +10,21 @@ import { Forgot } from './pages/forgot-password'
 import { Cod } from './pages/email-code'
 import { Recovery } from './pages/password-recovery'
 import { Main } from './pages/main-page'
-import { AuthCallback } from './pages/auth-callback'
+import { ConfirmReg } from './pages/confirm-reg'
 import { ProtectedRoute } from './components/protected-route'
 import { PublicRoute } from './components/public-route'
 import { Layout } from './components/layout'
 import { PlayerProvider } from './context/player-context'
 import './app.css'
+import { AuthCallback } from './pages/auth-callback'
 
 export const App = () => {
   const [isInitializing, setIsInitializing] = useState(true)
 
   useEffect(() => {
     const initApp = async () => {
-      if (localStorage.getItem('UserEmail')) {
+      const isAuthCallback = window.location.pathname === '/auth/callback'
+      if (!isAuthCallback && localStorage.getItem('UserEmail')) {
         await refreshSession()
       }
       setIsInitializing(false)
@@ -48,22 +51,25 @@ export const App = () => {
         <Routes>
           <Route path='/' element={<Navigate to='/main' replace />} />
           
-          {/* Public Routes (only for unauthenticated users) */}
+          // ⚠️ Меняем путь здесь
+          <Route path='/auth/callback' element={<AuthCallback />} />
+          
+          {/* Public Routes */}
           <Route path='/reg' element={<PublicRoute><Reg /></PublicRoute>} />
           <Route path='/login' element={<PublicRoute><Log /></PublicRoute>} />
           <Route path='/create' element={<PublicRoute><Create /></PublicRoute>} />
+          <Route path='/confirm-reg' element={<PublicRoute><ConfirmReg /></PublicRoute>} />
           <Route path='/forgotpassword' element={<PublicRoute><Forgot /></PublicRoute>} />
           <Route path='/emailcod' element={<PublicRoute><Cod /></PublicRoute>} />
           <Route path='/passwordrecovery' element={<PublicRoute><Recovery /></PublicRoute>} />
-          <Route path='/auth/callback' element={<PublicRoute><AuthCallback /></PublicRoute>} />
           
-          {/* Protected Routes inside persistent layout with global audio */}
+          {/* Protected Routes */}
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route path='/profile' element={<Profile />} />
             <Route path='/main' element={<Main />} />
           </Route>
           
-          {/* Wildcard/Fallback */}
+          {/* Fallback */}
           <Route path='*' element={<Navigate to='/main' replace />} />
         </Routes>
       </Router>

@@ -1,11 +1,10 @@
 import { getAccessToken, storeAccessToken, clearAccessToken } from './token-store'
 
-export const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL || 'http://localhost:5274'
+// 1. Убираем "s" из http, так как твой бэкенд отвечает по http://localhost:7005
+export const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL || 'https://localhost:7005'
 
-/**
- * Повертає існуючий DeviceId з localStorage або генерує та зберігає новий.
- * Спільний для всіх сторінок авторизації для уникнення дублювання.
- */
+// 2. Исправляем '/google-callback' на '/auth/callback' в массиве публичных путей
+const publicPaths = ['/login', '/reg', '/forgotpassword', '/emailcod', '/passwordrecovery', '/auth/callback', '/confirm-reg', '/create']
 export const getOrCreateDeviceId = (): string => {
   let deviceId = localStorage.getItem('DeviceId')
   if (!deviceId) {
@@ -15,10 +14,6 @@ export const getOrCreateDeviceId = (): string => {
   return deviceId
 }
 
-/**
- * Безпечно декодує корисне навантаження JWT та витягує email користувача.
- * НЕ перевіряє підпис — суто для покращення UX (збереження email для оновлення).
- */
 export const decodeTokenEmail = (token: string): string | null => {
   try {
     const base64Url = token.split('.')[1]
@@ -60,8 +55,7 @@ const addRefreshSubscriber = (callback: (token: string) => void) => {
 export const clearAuth = () => {
   setAccessToken(null)
   localStorage.removeItem('UserEmail')
-  
-  const publicPaths = ['/login', '/reg', '/forgotpassword', '/emailcod', '/passwordrecovery']
+
   if (!publicPaths.includes(window.location.pathname)) {
     window.location.href = '/login'
   }

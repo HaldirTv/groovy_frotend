@@ -1,10 +1,11 @@
+﻿// src/pages/confirm-reg.tsx
 import LogoReg from '../assets/LogoReg.svg'
 import MiddleLogo from '../assets/MiddleLogo.svg'
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GATEWAY_URL } from '../api/api-client'
+import { GATEWAY_URL, getOrCreateDeviceId, setAccessToken } from '../api/api-client'
 
-export const Cod = () => {
+export const ConfirmReg = () => {
   const navigate = useNavigate()
   const [code, setCode] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
@@ -12,10 +13,8 @@ export const Cod = () => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
-    const email = localStorage.getItem('RecoveryEmail')
-    if (!email) {
-      navigate('/forgotpassword')
-    }
+    const email = localStorage.getItem('RegistrationEmail')
+    if (!email) navigate('/reg')
   }, [navigate])
 
   const handleChange = (value: string, index: number) => {
@@ -23,10 +22,7 @@ export const Cod = () => {
     const newCode = [...code]
     newCode[index] = sanitized
     setCode(newCode)
-
-    if (sanitized && index < 5) {
-      inputRefs.current[index + 1]?.focus()
-    }
+    if (sanitized && index < 5) inputRefs.current[index + 1]?.focus()
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
@@ -43,20 +39,18 @@ export const Cod = () => {
       return
     }
 
-    const email = localStorage.getItem('RecoveryEmail')
-    if (!email) {
-      setError('Email не знайдено. Поверніться назад.')
-      return
-    }
+    const email = localStorage.getItem('RegistrationEmail')
+    if (!email) return
 
     setIsLoading(true)
     setError('')
     try {
-      // ИСПРАВЛЕНО: Изменен урл под твой бэкенд
-      const response = await fetch(`${GATEWAY_URL}/auth/verifycodepasswordreset`, {
+      const deviceId = getOrCreateDeviceId()
+      const response = await fetch(`${GATEWAY_URL}/auth/confirmregister`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code: fullCode }),
+        credentials: 'include', // Передаем куки для RefreshToken
+        body: JSON.stringify({ email, code: fullCode, deviceId }),
       })
 
       const data = await response.json().catch(() => ({}))
@@ -65,22 +59,21 @@ export const Cod = () => {
         throw new Error(data.message || data.Message || 'Невірний код підтвердження')
       }
 
-      // ИСПРАВЛЕНО: Твой бэкенд возвращает Ok(new { Message = "...", Token = resetToken })
-      // Нам критически важно сохранить этот Token для третьего шага!
-      const resetToken = data.token || data.Token
-      if (resetToken) {
-        localStorage.setItem('ResetToken', resetToken)
+      if (data.token || data.Token) {
+        localStorage.setItem('UserEmail', email)
+        setAccessToken(data.token || data.Token)
+        
+        // Чистим временные данные регистрации
+        localStorage.removeItem('RegistrationEmail')
+        localStorage.removeItem('RegistrationUsername')
+        
+        // Перекидываем на главную — теперь ProtectedRoute нас пустит!
+        navigate('/main')
       } else {
-        throw new Error('Сервер не повернув токен для скидання паролю')
+        throw new Error('Сервер не повернув токен авторизації')
       }
-
-      navigate('/passwordrecovery')
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Сталася невідома помилка')
-      }
+    } catch (err: any) {
+      setError(err.message || 'Сталася невідома помилка')
     } finally {
       setIsLoading(false)
     }
@@ -91,12 +84,11 @@ export const Cod = () => {
       <div className='auth-header'>
         <img src={LogoReg} className='auth-logo' alt='RegLogo' />
       </div>
-
       <div className='auth-content'>
         <div className='auth-container'>
           <img src={MiddleLogo} className='auth-middle-logo' alt="Logo" />
-          <span className='auth-title'>Відновлення паролю</span>
-          <span className='auth-subtitle'>Ми надіслали код підтвердження на вашу пошту!</span>
+          <span className='auth-title'>Підтвердження реєстрації</span>
+          <span className='auth-subtitle'>Ми надіслали 6-значний код на вашу пошту!</span>
 
           {error && <div className='auth-error' role="alert">{error}</div>}
 
@@ -107,19 +99,17 @@ export const Cod = () => {
                   key={index}
                   ref={(el) => { inputRefs.current[index] = el }}
                   type="text"
-                  inputMode="numeric"
                   maxLength={1}
                   value={symbol}
                   onChange={(e) => handleChange(e.target.value, index)}
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   className="auth-code-input"
                   disabled={isLoading}
-                  aria-label={`Символ коду ${index + 1}`}
                 />
               ))}
             </div>
             <button type="submit" className='auth-button' disabled={isLoading || code.join('').length < 6}>
-              {isLoading ? 'Зачекайте...' : 'Підтвердити'}
+              {isLoading ? 'Зачекайте...' : 'Підтвердити та увійти'}
             </button>
           </form>
         </div>

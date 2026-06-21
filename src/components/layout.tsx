@@ -134,101 +134,99 @@ export const Layout: React.FC = () => {
   }
 
   return (
-    <div className="app-container">
-      <div className="app-body">
-        <aside className="Sidebar">
-          <div className="SidebarHeader">
-            <img src={Logo} className="Logo" alt="Logo" />
-            <span className="Groovra">GROOVRA</span>
-          </div>
-          
-          <div className={`NavItem ${activeTab === 'Home' ? 'active' : ''}`} onClick={() => handleSidebarClick('Home')}>
-            {activeTab === 'Home' && <div className="ActiveLine" />}
-            <img src={Home} alt="Home" />
-            <span className="NavText">Головна</span>
-          </div>
-          
-          <div className={`NavItem ${activeTab === 'Search' ? 'active' : ''}`} onClick={() => handleSidebarClick('Search')}>
-            {activeTab === 'Search' && <div className="ActiveLine" />}
-            <img src={Search} alt="Search" />
-            <span className="NavText">Пошук</span>
-          </div>
-          
-          <div className={`NavItem ${activeTab === 'Library' ? 'active' : ''}`} onClick={() => handleSidebarClick('Library')}>
-            {activeTab === 'Library' && <div className="ActiveLine" />}
-            <img src={Library} alt="Library" />
-            <span className="NavText">Бібліотека</span>
-          </div>
-          
-          <div className="ContTextColl">
-            <span className="TextColl">Ваші Колекції</span>
-          </div>
-          
-          <div className={`NavItem ${activeTab === 'Playlist' ? 'active' : ''}`} onClick={() => handleSidebarClick('Playlist')}>
-            {activeTab === 'Playlist' && <div className="ActiveLine" />}
-            <img src={Playlist} alt="Playlist" />
-            <span className="NavText">Плейлисти</span>
-          </div>
-          
-          <div className={`NavItem ${activeTab === 'Liked' ? 'active' : ''}`} onClick={() => handleSidebarClick('Liked')}>
-            {activeTab === 'Liked' && <div className="ActiveLine" />}
-            <img src={Liked} alt="Liked" />
-            <span className="NavText">Улюблене</span>
-          </div>
-          
-          <div className={`NavItem ${activeTab === 'AI' ? 'active' : ''}`} onClick={() => handleSidebarClick('AI')}>
-            {activeTab === 'AI' && <div className="ActiveLine" />}
-            <img src={AI} alt="AI mix" />
-            <span className="NavText">AI мікс</span>
-          </div>
-          
-          <div className={`NavItem ${activeTab === 'Downloads' ? 'active' : ''}`} onClick={() => handleSidebarClick('Downloads')}>
-            {activeTab === 'Downloads' && <div className="ActiveLine" />}
-            <img src={Downloads} alt="Downloads" />
-            <span className="NavText">Завантаження</span>
-          </div>
-          
-          <div className={`NavItem ${activeTab === 'Settings' ? 'active' : ''}`} onClick={() => handleSidebarClick('Settings')}>
-            {activeTab === 'Settings' && <div className="ActiveLine" />}
-            <img src={Settings} alt="Settings" />
-            <span className="NavText">Налаштування</span>
-          </div>
-        </aside>
-
-        <div className="main-content-pane">
-          <header className="MainHeader">
-            <div className="ContSearch">
-              <div className="SecContHeader">
-                <img src={HeaderSearch} className="HeaderSearch" alt="Search" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  className="InputSearch"
-                  placeholder="Пошук треків, виконавців або настроїв..."
-                  value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  onFocus={handleSearchFocus}
-                />
-              </div>
-            </div>
-            
-            <div className="UserCont">
-              <button
-                type="button"
-                className="NotificationBtn"
-                onClick={() => alert('Сповіщень поки немає')}
-                title="Сповіщення"
-                aria-label="Сповіщення"
-              >
-                <img src={Notification} className="Notificationicon" alt="Сповіщення" />
-              </button>
-              <UserMenu profileName={profileName} />
-            </div>
-          </header>
-
-          <Outlet />
+    <div className="Main">
+      
+      <aside className="Sidebar">
+        <div className="SidebarHeader">
+          <img src={Logo} className="Logo" alt="Logo" />
+          <span className="Groovra">GROOVRA</span>
         </div>
-      </div>
+        
+        <div className={`NavItem ${activeTab === 'Home' ? 'active' : ''}`} onClick={() => handleSidebarClick('Home')}>
+          {activeTab === 'Home' && <div className="ActiveLine" />}
+          <img src={Home} alt="Home" />
+          <span className="NavText">Головна</span>
+        </div>
+        
+        <div className={`NavItem ${activeTab === 'Search' ? 'active' : ''}`} onClick={() => handleSidebarClick('Search')}>
+          {activeTab === 'Search' && <div className="ActiveLine" />}
+          <img src={Search} alt="Search" />
+          <span className="NavText">Пошук</span>
+        </div>
+        
+        <div className={`NavItem ${activeTab === 'Library' ? 'active' : ''}`} onClick={() => handleSidebarClick('Library')}>
+          {activeTab === 'Library' && <div className="ActiveLine" />}
+          <img src={Library} alt="Library" />
+          <span className="NavText">Бібліотека</span>
+        </div>
+        
+        <div className="ContTextColl">
+          <span className="TextColl">Ваші Колекції</span>
+        </div>
+        
+        <div className={`NavItem ${activeTab === 'Playlist' ? 'active' : ''}`} onClick={() => handleSidebarClick('Playlist')}>
+          {activeTab === 'Playlist' && <div className="ActiveLine" />}
+          <img src={Playlist} alt="Playlist" />
+          <span className="NavText">Плейлисти</span>
+        </div>
+        
+        <div className={`NavItem ${activeTab === 'Liked' ? 'active' : ''}`} onClick={() => handleSidebarClick('Liked')}>
+          {activeTab === 'Liked' && <div className="ActiveLine" />}
+          <img src={Liked} alt="Liked" />
+          <span className="NavText">Улюблене</span>
+        </div>
+        
+        <div className={`NavItem ${activeTab === 'AI' ? 'active' : ''}`} onClick={() => handleSidebarClick('AI')}>
+          {activeTab === 'AI' && <div className="ActiveLine" />}
+          <img src={AI} alt="AI mix" />
+          <span className="NavText">AI мікс</span>
+        </div>
+        
+        <div className={`NavItem ${activeTab === 'Downloads' ? 'active' : ''}`} onClick={() => handleSidebarClick('Downloads')}>
+          {activeTab === 'Downloads' && <div className="ActiveLine" />}
+          <img src={Downloads} alt="Downloads" />
+          <span className="NavText">Завантаження</span>
+        </div>
+        
+        <div className={`NavItem ${activeTab === 'Settings' ? 'active' : ''}`} onClick={() => handleSidebarClick('Settings')}>
+          {activeTab === 'Settings' && <div className="ActiveLine" />}
+          <img src={Settings} alt="Settings" />
+          <span className="NavText">Налаштування</span>
+        </div>
+      </aside>
+    <div className='RightColumn'>
+        <header className="MainHeader">
+          <div className="ContSearch">
+            <div className="SecContHeader">
+              <img src={HeaderSearch} className="HeaderSearch" alt="Search" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="InputSearch"
+                placeholder="Пошук треків, виконавців або настроїв..."
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                onFocus={handleSearchFocus}
+              />
+            </div>
+          </div>
+          
+          <div className="UserCont">
+            <button
+              type="button"
+              className="NotificationBtn"
+              onClick={() => alert('Сповіщень поки немає')}
+              title="Сповіщення"
+              aria-label="Сповіщення"
+            >
+              <img src={Notification} className="Notificationicon" alt="Сповіщення" />
+            </button>
+            <UserMenu profileName={profileName} />
+          </div>
+        </header>
+
+        <Outlet />
+      
 
       <footer className="FooterPlayer">
         <div className="TrackContainer">
@@ -305,6 +303,7 @@ export const Layout: React.FC = () => {
           </button>
         </div>
       </footer>
+    </div>
     </div>
   )
 }

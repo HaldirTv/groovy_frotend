@@ -377,24 +377,29 @@ input, button, textarea, span, div {
 }
 
 .Sidebar {
-  width: 290px;
-  flex-shrink: 0;
-  background-color: #121414;
-  border-right: 1px solid var(--color-accent-blue);
-  display: flex;
-  flex-direction: column;
-  padding: 24px 16px;
-  overflow-y: auto;
-  z-index: 10;
+flex-shrink: 0;
+box-sizing: border-box;
+display: flex;
+flex-direction: column; 
+align-items: flex-start;
+padding: 24px 0px;     
+position: relative;
+width: 290px;
+height: 100%;
+min-height: 100vh;
+background: #121414;
+border-right: 1px solid #72DEEF;
+z-index: 2;
+overflow-y: auto;
 }
 
 .SidebarHeader {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 40px;
-  width: 100%;
+display: flex;
+flex-direction: row; 
+align-items: center;  
+gap: 14px;            
+margin-bottom: 40px;   
+width: 100%;
 }
 
 .Logo {
@@ -435,15 +440,17 @@ input, button, textarea, span, div {
 }
 
 .NavText {
-  font-family: 'SUSE', sans-serif;
-  font-weight: 500;
+  font-family: 'Galindo', sans-serif;
+  font-weight: 400;
   font-size: 20px;
-  color: #A1A1AA;
+  color: #72DEEF;
+  letter-spacing: 1.2px;
   line-height: 1;
 }
 
 .NavItem.active .NavText {
   color: var(--color-accent-blue);
+  opacity: 1;
   text-shadow: 0px 0px 10px rgba(114, 222, 239, 0.6);
 }
 
@@ -462,83 +469,124 @@ input, button, textarea, span, div {
 .ContTextColl {
   display: flex;
   flex-direction: column;
-  padding: 24px 12px 12px 12px;
+  align-items: flex-start;
+  width: 220px;
+  height: 52px;
+  margin-bottom: 16px;
+  padding: 24px 0px 0px;
+}
+
+.RightColumn {
+display: flex;
+flex-direction: column;
+flex: 1;
+min-width: 0;
+height: 100vh;
+position: relative;
+overflow: hidden;
 }
 
 .TextColl {
-  font-family: var(--first-text);
-  font-weight: 500;
-  font-size: 14px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  color: var(--color-accent-purple);
-}
-
-.main-content-pane {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: #16161F;
-  position: relative;
+width: 215px;
+height: 16px;
+white-space: nowrap;
+align-self: center;
+font-family: 'Galdeano', sans-serif;
+font-style: normal;
+font-weight: 400;
+font-size: 24px;
+line-height: 16px;
+margin-left: 40px;
+display: flex;
+align-items: center;
+letter-spacing: 1px;
+color: #A98FDB;
 }
 
 .MainHeader {
-  height: 80px;
-  width: 100%;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 40px;
-  background: rgba(13, 13, 18, 0.7);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(32px);
-  z-index: 5;
+box-sizing: border-box;
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px 24px;
+gap: 108.17px;
+
+position: fixed;
+height: 80px;
+left: 290px;
+right: 0px;
+top: 0px;
+
+background: rgba(13, 13, 18, 0.7);
+border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+backdrop-filter: blur(32px);
+
+z-index: 10;
 }
 
 .ContSearch {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  width: 100%;
-  max-width: 672px;
+  justify-content: center;
+  padding: 0px;
+  isolation: isolate;
+
+  width: 672px;
+  height: 44px;
+
+  border-radius: 12px;
 }
 
 .SecContHeader {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  height: 44px;
-  padding: 0 16px;
-  background: #1A1C1C;
-  border-radius: 12px;
+display: flex;
+justify-content: flex-start;
+align-items: center;
+padding: 13px 16px 14px 48px;
+gap: 12px;
+width: 672px;
+height: 44px;
+padding: 0 16px;
+background: #1A1C1C;
+border-radius: 12px;
 }
 
 .HeaderSearch {
   width: 17px;
   height: 17px;
-  flex-shrink: 0;
+  left: 19.4px;
 }
 
 .InputSearch {
-  flex: 1;
   outline: none;
   border: none;
   background: transparent;
-  color: #E3E2E2;
-  font-family: var(--second-text);
-  font-size: 16px;
-}
-
-.InputSearch::placeholder {
+  box-shadow: none;
+  width: 608px;
+  height: 17px;
   color: rgba(230, 209, 180, 0.5);
+  font-family: var(--second-text);
+  font-style: normal;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 17px;
+  display: flex;
+  align-items: center;
+  letter-spacing: 0.16px;
 }
 
 .UserCont {
-  display: flex;
-  align-items: center;
-  gap: 24px;
+display: flex;
+flex-direction: row;
+align-items: center;
+padding: 0px 0px 0px 24px;
+gap: 24px;
+width: 209.75px;
+height: 23.75px;
+flex: none;
+order: 1;
+flex-grow: 0;
 }
 
 .NotificationBtn {
@@ -569,12 +617,6 @@ input, button, textarea, span, div {
   pointer-events: none;
 }
 
-.profileCont {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
 .AvatarIcon {
   width: 24px;
   height: 24px;
@@ -598,87 +640,133 @@ input, button, textarea, span, div {
   color: #c7b6ec;
 }
 
+.Main {display: flex;
+flex-direction: row;
+align-items: stretch;
+isolation: isolate;
+position: relative;
+width: 100%;
+height: 100vh;
+background: linear-gradient(0deg, #121414, #121414), #FFFFFF;
+overflow: hidden;}
+
 /* Main Content Area */
 .Main2 {
-  flex: 1;
-  overflow-y: auto;
-  padding: 40px 80px;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(102, 102, 102, 0.2) 100%), #16161F;
-  position: relative;
+display: flex;
+flex-direction: column;
+align-items: flex-start;
+padding: 28px 40px 40px 80px;
+gap: 32px;
+isolation: isolate;
+position: relative;
+flex: 1;
+min-width: 0;
+margin-bottom: 96px;
+margin-top: 80px;
+background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(102, 102, 102, 0.2) 100%), #16161F;
+overflow-x: hidden;
+overflow-y: auto;
+width: 100%;
 }
 
 .BackLogo {
-  position: absolute;
-  width: 500px;
-  height: 500px;
-  right: 40px;
-  top: 40px;
-  opacity: 0.15;
-  pointer-events: none;
-  z-index: 0;
+position: absolute;
+width: 825px;
+height: auto;
+max-width: 60%;
+right: -60px;
+top: 80px;
+ 
+opacity: 0.52;
+z-index: 0;
+pointer-events: none;
 }
 
 .ContMainHello {
-  display: flex;
-  flex-direction: row;
-  align-items: baseline;
-  gap: 8px;
-  z-index: 1;
+display: flex;
+flex-direction: row;
+align-items: flex-start;
+flex-wrap: wrap;
+gap: 8px;
+width: 100%;
+white-space: nowrap;
+z-index: 1;
+position: relative;
 }
 
 .MainHeaderText {
   font-family: var(--first-text);
+  font-style: normal;
   font-weight: 700;
   font-size: 48px;
+  line-height: 53px;
+  letter-spacing: -0.96px;
+  white-space: nowrap;
   color: #E3E2E2;
 }
 
 .NameText {
   display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  white-space: nowrap;
   filter: drop-shadow(0px 0px 15px var(--color-accent-blue));
 }
 
 .ProfileText {
   font-family: var(--first-text);
+  font-style: normal;
   font-weight: 700;
   font-size: 48px;
+  line-height: 1.1;
+  letter-spacing: -0.96px;
+  white-space: nowrap;
   color: var(--color-accent-blue);
 }
 
 .OpCont {
+  position: relative;
+  width: 100%;
+  max-width: 576px;
   z-index: 1;
 }
 
 .OpText {
   font-family: var(--second-text);
+  font-style: normal;
+  font-weight: 400;
   font-size: 20px;
+  line-height: 26px;
+  letter-spacing: 0.16px;
   color: var(--color-accent-purple);
 }
 
 .MainLine {
+  position: relative;
+  box-sizing: border-box;
   width: 100%;
   max-width: 547px;
+  height: 0;
   border-bottom: 1px solid var(--color-accent-purple);
   z-index: 1;
 }
 
-/* Trending Block */
 .TrendingNow {
   display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  align-items: flex-end;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
   width: 100%;
-  z-index: 1;
 }
 
 .ContTextTrendingNow {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
   gap: 4px;
+  width: 100%;
 }
 
 .LisNowTrending {
@@ -690,33 +778,47 @@ input, button, textarea, span, div {
 }
 
 .TrendNowText {
-  font-family: var(--first-text);
-  font-weight: 700;
-  font-size: 32px;
-  color: #FFFFFF;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 32px;
+line-height: 38px;
+letter-spacing: -0.32px;
+margin: 0;
+color: #FFFFFF;
+white-space: nowrap;
 }
 
 .ButtonViewAll {
-  background: transparent;
-  border: none;
-  outline: none;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
+border: none;
+outline: none;
+box-shadow: none;
+background: transparent;
+display: flex;
+flex-direction: row;
+align-items: center;
+gap: 8px;
+cursor: pointer;
+flex-shrink: 0;
+height: 26px;
 }
 
 .TextViewAll {
-  font-family: var(--first-text);
-  font-weight: 700;
-  font-size: 16px;
-  color: var(--color-accent-blue);
-  text-transform: uppercase;
+font-family: 'Manrope',sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 16px;
+line-height: 26px;
+letter-spacing: 0.16px;
+text-transform: uppercase;
+margin-left: auto;
+color: #72DEEF;
 }
 
 .ArrowViewAll {
   width: 9px;
   height: 9px;
+  flex-shrink : 0;
 }
 
 /* Music Cards Grid */
@@ -790,16 +892,25 @@ input, button, textarea, span, div {
 
 /* Footer Player Dock */
 .FooterPlayer {
-  height: 96px;
-  width: 100%;
-  background-color: #121414;
-  border-top: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0px -10px 40px rgba(114, 222, 239, 0.15);
-  display: grid;
-  grid-template-columns: 290px 1fr 290px;
-  align-items: center;
-  padding: 0 24px;
-  z-index: 15;
+box-sizing: border-box;
+ 
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+align-items: center;
+padding: 0px 24px;
+position: fixed;
+width: 100%;
+height: 96px;
+left: 0px;
+right: 0px;
+bottom: 0px;
+ 
+background: #121414;
+box-shadow: 0px -10px 40px #72DEEF;
+backdrop-filter: blur(20px);
+ 
+z-index: 10;
 }
 
 .TrackContainer {
@@ -909,8 +1020,8 @@ input, button, textarea, span, div {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 17px;
+  height: 17px;
 }
 
 .LogoRemix {

@@ -13,7 +13,7 @@ const PLAY_ICON_DATA = "data:image/svg+xml,%3csvg%20width='15'%20height='18'%20v
 
 export const Main: React.FC = () => {
   const location = useLocation()
-  
+
   const {
     tracks,
     currentTrack,
@@ -68,47 +68,65 @@ export const Main: React.FC = () => {
     <main className="Main2">
       {activeTab === 'Home' && (
         <>
+          <img src={BackLogo} className="BackLogo"/>
+
+          <div className="ContMainHello">
+            <span className="MainHeaderText">Добрий вечір, </span>
+            <div className="NameText">
+              <span className="ProfileText">{profileName}</span>
+            </div>
+          </div>
+
+          <div className="OpCont">
+            <span className="OpText">Час набирати ауру, оберіть плейлист</span>
+          </div>
+
+          <div className="MainLine"></div>
+
           <div className="TrendingNow">
             <div className="ContTextTrendingNow">
-              <span className="LisNowTrending">Слухають зараз</span>
-              <span className="TrendNowText">У тренді зараз</span>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                <span className="LisNowTrending">Слухають зараз</span>
+                <span className="TrendNowText">У тренді зараз</span>
+              </div>
+              {tracks.length > 0 && !searchQuery.trim() && (
+                <button className="ButtonViewAll" onClick={() => setShowAllTracks(!showAllTracks)}>
+                  <span className="TextViewAll">{showAllTracks ? 'ЗГОРНУТИ' : 'ДИВИТИСЬ ВСІ'}</span>
+                  <img src={Arrow} className="ArrowViewAll" style={{ transform: showAllTracks ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} alt="Toggle" />
+                </button>
+              )}
             </div>
-            {tracks.length > 0 && !searchQuery.trim() && (
-              <button className="ButtonViewAll" onClick={() => setShowAllTracks(!showAllTracks)}>
-                <span className="TextViewAll">{showAllTracks ? 'ЗГОРНУТИ' : 'ДИВИТИСЬ ВСІ'}</span>
-                <img src={Arrow} className="ArrowViewAll" style={{ transform: showAllTracks ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} alt="Toggle" />
-              </button>
-            )}
-          </div>
-          
-          <div className="MusicCardCont">
-            {isLoadingTracks ? (
-              <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Завантаження треків...</div>
-            ) : tracks.length === 0 ? (
-              <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Не знайдено жодного треку</div>
-            ) : (
-              visibleTracks.map((track) => (
-                <div 
-                  key={track.trackId} 
-                  className={`MusicCard ${currentTrack?.trackId === track.trackId ? 'active-track' : ''}`}
-                  onClick={() => selectTrack(track)}
-                >
-                  <div className="OverCover">
-                    <img 
-                      src={track.coverImageUrl || Cover} 
-                      className="CoverImg" 
-                      alt={track.title}
-                      onError={(e) => { (e.target as HTMLImageElement).src = Cover }}
-                    />
+            
+
+            <div className="MusicCardCont">
+              {isLoadingTracks ? (
+                <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Завантаження треків...</div>
+              ) : tracks.length === 0 ? (
+                <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Не знайдено жодного треку</div>
+              ) : (
+                visibleTracks.map((track) => (
+                  <div
+                    key={track.trackId}
+                    className={`MusicCard ${currentTrack?.trackId === track.trackId ? 'active-track' : ''}`}
+                    onClick={() => selectTrack(track)}
+                  >
+                    <div className="OverCover">
+                      <img
+                        src={track.coverImageUrl || Cover}
+                        className="CoverImg"
+                        alt={track.title}
+                        onError={(e) => { (e.target as HTMLImageElement).src = Cover }}
+                      />
+                    </div>
+                    <div className="ContMusicCardText">
+                      <span className="HeadText">{track.title}</span>
+                      <span className="AuthorText">{track.artistName}</span>
+                      <span className="StyleTrack">{track.genre || 'POP'}</span>
+                    </div>
                   </div>
-                  <div className="ContMusicCardText">
-                    <span className="HeadText">{track.title}</span>
-                    <span className="AuthorText">{track.artistName}</span>
-                    <span className="StyleTrack">{track.genre || 'POP'}</span>
-                  </div>
-                </div>
-              ))
-            )}
+                ))
+              )}
+            </div>
           </div>
 
           <AiMixesPanel>
@@ -118,16 +136,16 @@ export const Main: React.FC = () => {
               ) : tracks.length === 0 ? (
                 <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Не знайдено жодного треку</div>
               ) : (
-                visibleTracks.slice(0, 3).map((track) => (
-                  <div 
-                    key={track.trackId} 
+                visibleTracks.map((track) => (
+                  <div
+                    key={track.trackId}
                     className={`MusicCard ${currentTrack?.trackId === track.trackId ? 'active-track' : ''}`}
                     onClick={() => selectTrack(track)}
                   >
                     <div className="OverCover">
-                      <img 
-                        src={track.coverImageUrl || Cover} 
-                        className="CoverImg" 
+                      <img
+                        src={track.coverImageUrl || Cover}
+                        className="CoverImg"
                         alt={track.title}
                         onError={(e) => { (e.target as HTMLImageElement).src = Cover }}
                       />
@@ -142,18 +160,6 @@ export const Main: React.FC = () => {
               )}
             </div>
           </AiMixesPanel>
-
-          <img src={BackLogo} className="BackLogo" alt="Background decoration" />
-          <div className="ContMainHello">
-            <span className="MainHeaderText">Добрий вечір, </span>
-            <div className="NameText">
-              <span className="ProfileText">{profileName}</span>
-            </div>
-          </div>
-          <div className="OpCont">
-            <span className="OpText">Час набирати ауру, оберіть плейлист</span>
-          </div>
-          <div className="MainLine"></div>
         </>
       )}
 
@@ -176,9 +182,9 @@ export const Main: React.FC = () => {
                   { name: 'Classical', color: 'linear-gradient(135deg, #64748b, #475569)' },
                   { name: 'Lo-Fi', color: 'linear-gradient(135deg, #f43f5e, #fb7185)' }
                 ].map(genre => (
-                  <div 
-                    key={genre.name} 
-                    className="GenreCard" 
+                  <div
+                    key={genre.name}
+                    className="GenreCard"
                     style={{ background: genre.color }}
                     onClick={() => handleGenreClick(genre.name)}
                   >
@@ -190,6 +196,7 @@ export const Main: React.FC = () => {
           ) : (
             <div className="SearchResults">
               <span className="SubSectionTitle">Результати пошуку за запитом "{searchQuery}"</span>
+
               <div className="MusicCardCont">
                 {isLoadingTracks ? (
                   <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Завантаження результатів...</div>
@@ -197,15 +204,15 @@ export const Main: React.FC = () => {
                   <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Не знайдено жодного треку за запитом "{searchQuery}"</div>
                 ) : (
                   tracks.map((track) => (
-                    <div 
-                      key={track.trackId} 
+                    <div
+                      key={track.trackId}
                       className={`MusicCard ${currentTrack?.trackId === track.trackId ? 'active-track' : ''}`}
                       onClick={() => selectTrack(track)}
                     >
                       <div className="OverCover">
-                        <img 
-                          src={track.coverImageUrl || Cover} 
-                          className="CoverImg" 
+                        <img
+                          src={track.coverImageUrl || Cover}
+                          className="CoverImg"
                           alt={track.title}
                           onError={(e) => { (e.target as HTMLImageElement).src = Cover }}
                         />
@@ -236,8 +243,8 @@ export const Main: React.FC = () => {
             </div>
             <div className="LibraryTableBody">
               {tracks.map((track, index) => (
-                <div 
-                  key={track.trackId} 
+                <div
+                  key={track.trackId}
                   className={`LibraryRow ${currentTrack?.trackId === track.trackId ? 'active-row' : ''}`}
                   onClick={() => selectTrack(track)}
                 >
@@ -268,9 +275,9 @@ export const Main: React.FC = () => {
               { title: 'Релакс', desc: 'Максимальне розслаблення та спокій', color: 'linear-gradient(135deg, #064e3b, #022c22)', tracksCount: 6 },
               { title: 'AI Рекомендації', desc: 'Згенеровано персонально для вас', color: 'linear-gradient(135deg, #172554, #1e1b4b)', tracksCount: 15 }
             ].map(playlist => (
-              <div 
-                key={playlist.title} 
-                className="PlaylistCard" 
+              <div
+                key={playlist.title}
+                className="PlaylistCard"
                 style={{ background: playlist.color }}
                 onClick={() => {
                   if (tracks.length > 0) {
@@ -308,8 +315,8 @@ export const Main: React.FC = () => {
               </div>
               <div className="LibraryTableBody">
                 {tracks.filter(t => likedTrackIds.includes(t.trackId)).map((track, index) => (
-                  <div 
-                    key={track.trackId} 
+                  <div
+                    key={track.trackId}
                     className={`LibraryRow ${currentTrack?.trackId === track.trackId ? 'active-row' : ''}`}
                     onClick={() => selectTrack(track)}
                   >
@@ -340,8 +347,8 @@ export const Main: React.FC = () => {
             </div>
             <span className="AiTitle">Створити розумний мікс</span>
             <span className="AiDesc">Наш AI проаналізує ваші вподобання та згенерує персональний потік музики на основі вашого поточного настрою.</span>
-            <button 
-              className="AiGenerateBtn" 
+            <button
+              className="AiGenerateBtn"
               onClick={handleAiMixLaunch}
             >
               Запустити AI мікс
@@ -378,11 +385,11 @@ export const Main: React.FC = () => {
           <div className="SettingsForm">
             <div className="SettingsGroup">
               <label className="SettingsLabel" htmlFor="settings-profile-name">Ім'я профілю</label>
-              <input 
+              <input
                 id="settings-profile-name"
-                type="text" 
-                className="SettingsInput" 
-                placeholder="Введіть нове ім'я..." 
+                type="text"
+                className="SettingsInput"
+                placeholder="Введіть нове ім'я..."
                 defaultValue={profileName}
                 onBlur={(e) => {
                   if (e.target.value.trim() !== '') {

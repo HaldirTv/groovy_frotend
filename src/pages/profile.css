@@ -397,3 +397,522 @@
   object-fit: cover;
   display: block;
 }
+
+.EditProfile {
+position: fixed;
+inset: 0;
+width: 100%;
+height: 100%;
+background: rgba(0, 0, 0, 0.7);
+display: flex;
+align-items: center;
+justify-content: center;
+z-index: 1000;
+}
+
+.EditProfileModal {
+position: relative;
+width: 851px;
+max-height: 90vh;
+overflow-y: auto;
+background: #16161F;
+border-radius: 8px;
+padding: 20px 40px 24px;
+display: flex;
+flex-direction: column;
+box-sizing: border-box;
+}
+
+.EditProfileHeader {
+position: relative;
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 24px;
+}
+
+.EditProfileTitle {
+margin: 0;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 20px;
+line-height: 27px;
+color: #FFFFFF;
+}
+
+.EditProfileClose {
+width: 57px;
+height: 57px;
+background: #16161F;
+border: none;
+cursor: pointer;
+padding: 0;
+display: flex;
+align-items: center;
+justify-content: center;
+border-radius: 50%;
+flex-shrink: 0;
+}
+
+.EditProfileCloseIcon {
+width: 29px;
+height: 30px;
+}
+
+.EditProfileTopSection {
+display: flex;
+gap: 26px;
+align-items: flex-start;
+}
+
+.EditProfileAvatarCol {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 16px;
+flex-shrink: 0;
+width: 182px;
+}
+
+.EditProfileAvatar {
+width: 182px;
+height: 182px;
+border-radius: 50%;
+overflow: hidden;
+}
+
+.EditProfileAvatarImg {
+width: 100%;
+height: 100%;
+object-fit: cover;
+}
+
+.ChangePhotoBtn {
+width: 125px;
+height: 31px;
+background: #060709;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+box-sizing: border-box;
+text-align: center;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 14px;
+line-height: 19px;
+color: #FFFFFF;
+}
+ 
+.EditProfileFormCol {
+flex: 1;
+min-width: 0;
+display: flex;
+flex-direction: column;
+gap: 16px;
+}
+ 
+.EditProfileFieldRow {
+display: flex;
+gap: 20px;
+}
+ 
+.EditProfileField {
+flex: 1;
+min-width: 0;
+display: flex;
+flex-direction: column;
+gap: 6px;
+}
+ 
+.EditProfileFieldFull {
+width: 100%;
+}
+ 
+.EditProfileName,
+.EditProfileFirstName,
+.EditProfileLastName,
+.EditProfileCity,
+.EditProfileCountry,
+.EditProfileBio {
+font-family: 'Galdeano', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 16px;
+line-height: 19px;
+color: #A1A1AA;
+}
+ 
+.EditName,
+.EditFirstName,
+.EditLastName,
+.EditCity,
+.EditCountry {
+width: 100%;
+height: 32px;
+background: #0D0D12;
+border: none;
+border-radius: 8px;
+box-sizing: border-box;
+padding: 0 13px;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 19px;
+color: #FFFFFF;
+}
+ 
+.EditProfileTextareaWrap {
+position: relative;
+width: 100%;
+}
+ 
+.EditProfileTextarea {
+width: 100%;
+height: 62px;
+background: #0D0D12;
+border: none;
+border-radius: 8px;
+box-sizing: border-box;
+resize: none;
+padding: 7px 13px;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 19px;
+color: #FFFFFF;
+}
+ 
+.EditProfileResize1 {
+position: absolute;
+right: 7px;
+bottom: 7px;
+width: 10.5px;
+height: 10px;
+border: 1px solid #A1A1AA;
+pointer-events: none;
+}
+ 
+.EditProfileResize2 {
+position: absolute;
+right: 3px;
+bottom: 3px;
+width: 6.5px;
+height: 6px;
+border: 1px solid #A1A1AA;
+pointer-events: none;
+}
+ 
+.EditProfileLinksSection {
+position: relative;
+width: 100%;
+box-sizing: border-box;
+display: flex;
+flex-direction: column;
+margin-top: 26px;
+}
+ 
+.EditProfileLinkTitleRow {
+position: relative;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+ 
+.EditProfileLinkTitle {
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 19px;
+color: #FFFFFF;
+}
+ 
+.EditProfileBadgeBtn {
+position: relative;
+width: 15px;
+height: 15px;
+background: none;
+border: none;
+outline: none;
+cursor: pointer;
+padding: 0;
+flex-shrink: 0;
+}
+ 
+.EditProfileBadge {
+position: absolute;
+left: 0px;
+top: 0px;
+width: 15px;
+height: 15px;
+background: #FFFFFF;
+border-radius: 2px;
+}
+ 
+.EditProfileBadge2 {
+position: absolute;
+left: 2px;
+top: 2px;
+width: 11px;
+height: 11px;
+background: #FF4B4B;
+border-radius: 50%;
+}
+ 
+.EditProfileTooltip {
+box-sizing: border-box;
+position: absolute;
+left: 20px;
+top: -76px;
+width: 290px;
+height: 91px;
+background: #16161F;
+border: 1px solid #A1A1AA;
+border-radius: 8px;
+padding: 13px 21px;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 12px;
+line-height: 16px;
+color: #FFFFFF;
+z-index: 5;
+}
+ 
+.EditProfileAddBtnsRow {
+display: flex;
+align-items: center;
+gap: 16px;
+margin-top: 16px;
+}
+ 
+.EditProfileAddBtn {
+width: 146px;
+height: 31px;
+background: #060709;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+box-sizing: border-box;
+text-align: center;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 14px;
+line-height: 19px;
+color: #FFFFFF;
+}
+ 
+.EditProfileSupportBtn {
+width: 223px;
+height: 31px;
+background: #060709;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+box-sizing: border-box;
+text-align: center;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 14px;
+line-height: 19px;
+color: #FFFFFF;
+}
+ 
+.EditProfileBottomBtnsRow {
+display: flex;
+align-items: center;
+justify-content: flex-end;
+gap: 16px;
+margin-top: 32px;
+}
+ 
+.EditProfileCancelBtn {
+width: 91px;
+height: 31px;
+background: #060709;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+box-sizing: border-box;
+text-align: center;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 14px;
+line-height: 19px;
+color: #FFFFFF;
+}
+ 
+.EditProfileSaveBtn {
+width: 117px;
+height: 31px;
+background: #0D0D12;
+border: none;
+border-radius: 4px;
+box-sizing: border-box;
+text-align: center;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 700;
+font-size: 14px;
+line-height: 19px;
+color: rgba(255, 255, 255, 0.19);
+}
+ 
+.EditProfileSaveBtn.active {
+color: #FFFFFF;
+cursor: pointer;
+}
+ 
+.EditProfWebLink {
+display: flex;
+align-items: center;
+gap: 16px;
+width: 100%;
+margin-top: 16px;
+}
+ 
+.EditProfWebLinkInput {
+position: relative;
+display: flex;
+align-items: center;
+width: 475px;
+height: 32px;
+background: #0D0D12;
+border-radius: 8px;
+flex-shrink: 0;
+}
+ 
+.EditProfWebLinkIcon {
+width: 11px;
+height: 11px;
+margin-left: 16px;
+flex-shrink: 0;
+}
+ 
+.EditProfWebLinkInputField {
+flex: 1;
+height: 100%;
+background: transparent;
+border: none;
+outline: none;
+margin-left: 10px;
+margin-right: 16px;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 19px;
+color: #F5F5F5;
+}
+ 
+.EditProfWebLinkInputField::placeholder {
+color: #A1A1AA;
+}
+ 
+.EditProfWebLinkName {
+width: 205px;
+height: 32px;
+background: #0D0D12;
+border: none;
+border-radius: 8px;
+outline: none;
+padding: 0 16px;
+box-sizing: border-box;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 19px;
+color: #F5F5F5;
+flex-shrink: 0;
+}
+ 
+.EditProfWebLinkName::placeholder {
+color: #A1A1AA;
+}
+ 
+.EditProfWebLinkDeleteBtn {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 37px;
+height: 32px;
+background: #060709;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+flex-shrink: 0;
+}
+ 
+.EditProfWebLinkDeleteIcon {
+width: 16px;
+height: 16px;
+}
+ 
+.EditProfPaypalLink {
+display: flex;
+align-items: center;
+gap: 16px;
+width: 100%;
+margin-top: 16px;
+}
+ 
+.EditProfPaypalLinkInput {
+width: 692px;
+}
+ 
+.EditProfPaypalLinkInputField {
+flex: 1;
+height: 100%;
+background: transparent;
+border: none;
+outline: none;
+margin-left: 10px;
+margin-right: 16px;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 19px;
+color: #F5F5F5;
+}
+ 
+.EditProfPaypalLinkInputField::placeholder {
+color: #A1A1AA;
+}
+ 
+.EditProfPaypalDeleteBtn {
+display: flex;
+align-items: center;
+justify-content: center;
+width: 37px;
+height: 32px;
+background: #060709;
+border: none;
+border-radius: 4px;
+cursor: pointer;
+flex-shrink: 0;
+}
+ 
+.EditProfPaypalDeleteIcon {
+width: 16px;
+height: 16px;
+}
+ 
+.EditProfPaypalHint {
+width: 100%;
+margin: 12px 0 0;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 14px;
+line-height: 19px;
+color: #A1A1AA;
+}

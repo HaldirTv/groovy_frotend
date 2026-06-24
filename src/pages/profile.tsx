@@ -8,6 +8,8 @@ import ProfileAvatar from '../assets/avatartest.jpg'
 import ProfileBanner from '../assets/bannertest.jpg'
 import '../app.css'
 import './profile.css'
+import { EditProfile } from './editprofile'
+import type { ProfileData } from './editprofile'
 
 const profileTabs = [
   'Мій акаунт',
@@ -45,9 +47,12 @@ const User = {
   email: "test@gmail.com",
   country: "Україна",
   memberSince: "Квітень 2023",
+  firstName: "",
+  lastName: "",
+  city: "",
 }
 
-type UserType = {
+type User = {
   name: string
   handle: string
   bio: string
@@ -59,24 +64,29 @@ type UserType = {
   email: string
   country: string
   memberSince: string
+  firstName: string;
+  lastName: string;
+  city: string;
 }
 
 type ProfileProps = {
-  user?: UserType
+  user?: User
 }
 
-export const Profile = ({ user = User }: ProfileProps) => {
+export const Profile = ({ user:initialUser = User }: ProfileProps) => {
   const navigate = useNavigate()
   const { setActiveTab } = usePlayer()
   
   const [activeAccountSection, setActiveAccountSection] = useState('Огляд акаунта')
   const [activeProfileTab, setActiveProfileTab] = useState('Мій акаунт')
+
+  const [user, setUser] = useState(initialUser)
+  const [EditProfileOpen, setEditProfileOpen] = useState(false)
   
   const [profileName, setProfileName] = useState(() => {
     const stored = localStorage.getItem('profileName')
     if (stored) return stored
     
-    // Decode username from token if present
     const token = getAccessToken()
     if (token) {
       try {
@@ -100,7 +110,6 @@ export const Profile = ({ user = User }: ProfileProps) => {
   const [isEditingName, setIsEditingName] = useState(false)
   const [tempName, setTempName] = useState('')
 
-  // Decode token helper
   const decodeToken = (t: string) => {
     try {
       const base64Url = t.split('.')[1]
@@ -119,7 +128,6 @@ export const Profile = ({ user = User }: ProfileProps) => {
   const finalName = profileName || user.name
   const handle = payload?.unique_name ? `@${payload.unique_name}` : `@${finalName.toLowerCase().replace(/\s+/g, '_')}`
 
-  // Get registration date or use default
   const getMemberSince = () => {
     if (payload?.nbf) {
       try {
@@ -144,6 +152,25 @@ export const Profile = ({ user = User }: ProfileProps) => {
       localStorage.setItem('profileName', trimmed)
     }
     setIsEditingName(false)
+  }
+
+  const handleSaveProfile = (data: ProfileData) => {
+    const trimmedName = data.displayName.trim()
+    if (trimmedName) {
+      setProfileName(trimmedName)
+      localStorage.setItem('profileName', trimmedName)
+  }
+
+  setUser((prev) => ({
+    ...prev,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    city: data.city,
+    country: data.country,
+    bio: data.bio,
+    avatar: data.avatarPreviewUrl,
+  }))
+    setEditProfileOpen(false)
   }
 
   const handleTabClick = (tab: string) => {
@@ -182,7 +209,7 @@ export const Profile = ({ user = User }: ProfileProps) => {
           <span className="ProfBio">{user.bio}</span>
         </div>
 
-        <button className="ProfEditButton" onClick={() => { setTempName(finalName); setIsEditingName(true) }} type="button">
+        <button className="ProfEditButton" onClick={() => {setEditProfileOpen(true)}}>
           <span className="ProfEditButtonText">Редагувати профіль</span>
         </button>
 
@@ -350,11 +377,27 @@ export const Profile = ({ user = User }: ProfileProps) => {
         <div className="ProfRecentGrid">
           {recentlyPlayed.map((item) => (
             <div className="ProfRecentCard" key={item.id}>
-              <img src={item.cover} className="ProfRecentCardImg" alt="Cover" />
+              <img src={item.cover} className="ProfRecentCardImg" />
             </div>
           ))}
         </div>
       </div>
+      {EditProfileOpen && (
+        <EditProfile
+        user={{
+          avatar: user.avatar,
+          name: finalName,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          city: user.city,
+          country: user.country,
+          bio: user.bio,
+        }}
+        onClose={() => setEditProfileOpen(false)}
+        onSave={handleSaveProfile}
+        />
+      )}
+
     </div>
   )
 }

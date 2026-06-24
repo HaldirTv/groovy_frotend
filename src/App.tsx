@@ -9,6 +9,7 @@ import { Forgot } from './pages/forgot-password'
 import { Cod } from './pages/email-code'
 import { Recovery } from './pages/password-recovery'
 import { Main } from './pages/main-page'
+import { AiMixPage } from './pages/ai-mix'
 import { AuthCallback } from './pages/auth-callback'
 import { ProtectedRoute } from './components/protected-route'
 import { PublicRoute } from './components/public-route'
@@ -61,6 +62,7 @@ export const App = () => {
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route path='/profile' element={<Profile />} />
             <Route path='/main' element={<Main />} />
+            <Route path='/ai-mix' element={<AiMixPage />} />
           </Route>
           
           {/* Wildcard/Fallback */}

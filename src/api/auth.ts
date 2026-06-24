@@ -1,7 +1,7 @@
 import { GATEWAY_URL, clearAuth } from './api-client'
 
 export interface RegisterData {
-  username?: string
+  username: string
   email: string
   password: string
   role?: string

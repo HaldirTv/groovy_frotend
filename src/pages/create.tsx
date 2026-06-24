@@ -6,6 +6,7 @@ import { GATEWAY_URL, getOrCreateDeviceId, setAccessToken } from '../api/api-cli
 
 export const Create = () => {
   const navigate = useNavigate()
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
@@ -21,6 +22,21 @@ export const Create = () => {
   const handleContinue = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+
+    if (username.length < 3) {
+      setError('Ім\'я користувача має містити не менше 3 символів!')
+      return
+    }
+
+    if (username.length > 50) {
+      setError('Ім\'я користувача має містити не більше 50 символів!')
+      return
+    }
+
+    if (!/^[a-zA-Z0-9_.-]+$/.test(username)) {
+      setError('Ім\'я користувача може містити лише латинські літери, цифри, _, . та -')
+      return
+    }
 
     if (password.length < 8) {
       setError('Пароль має містити не менше 8 символів!')
@@ -46,7 +62,7 @@ export const Create = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ email, password, deviceId }),
+        body: JSON.stringify({ email, username, password, deviceId }),
       })
 
       const data = await response.json()
@@ -88,6 +104,22 @@ export const Create = () => {
           {error && <div className='auth-error' role="alert">{error}</div>}
 
           <form onSubmit={handleContinue} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div className='auth-form-group'>
+              <label htmlFor="create-username" className='auth-label'>Ім'я користувача</label>
+              <div className='auth-input-wrapper'>
+                <input
+                  id="create-username"
+                  type="text"
+                  placeholder="Уведіть ім'я користувача"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  disabled={isLoading}
+                  required
+                />
+              </div>
+              <span className='auth-hint'>Від 3 до 50 символів (літери, цифри, _, . або -)</span>
+            </div>
+
             <div className='auth-form-group'>
               <label htmlFor="create-password" className='auth-label'>Пароль</label>
               <div className='auth-input-wrapper'>

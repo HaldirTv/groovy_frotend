@@ -916,3 +916,106 @@ font-size: 14px;
 line-height: 19px;
 color: #A1A1AA;
 }
+
+.BannerEditWrap {
+position: absolute;
+right: 32px;
+top: 38px;
+z-index: 3;
+}
+
+.BannerEditButton {
+box-sizing: border-box;
+width: 209px;
+height: 43px;
+background: #16161F;
+border: 2px solid #72DEEF;
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+}
+ 
+.BannerEditButtonText {
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 20px;
+line-height: 27px;
+color: #72DEEF;
+white-space: nowrap;
+}
+ 
+.BannerEditMenu {
+box-sizing: border-box;
+position: absolute;
+right: 0;
+top: 49px;
+width: 167px;
+background: #16161F;
+border: 2px solid #72DEEF;
+border-radius: 8px;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+padding: 10px 0;
+}
+ 
+.BannerEditMenuItem {
+width: 100%;
+height: 31px;
+background: transparent;
+border: none;
+cursor: pointer;
+box-sizing: border-box;
+padding: 0 11px;
+text-align: left;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 20px;
+line-height: 27px;
+color: #72DEEF;
+white-space: nowrap;
+}
+ 
+.BannerEditMenuItem:hover {
+background: #34454B;
+}
+ 
+.BannerEditMenuItemActive {
+background: #34454B;
+}
+
+.ProfPasswordInput {
+flex: 1;
+height: 30px;
+background: transparent;
+border: none;
+border-bottom: none;
+outline: none;
+font-family: 'Galdeano', sans-serif;
+font-weight: 400;
+font-size: 16px;
+line-height: 17px;
+color: #FFFFFF;
+letter-spacing: 2px;
+}
+
+.ProfPasswordInput::placeholder {
+color: #A1A1AA;
+letter-spacing: 2px;
+}
+
+.BtnInput {
+background: #13131D;
+border: 1px solid #72DEEF;
+border-radius: 8px;
+color: #F5F5F5;
+padding: 4px 12px;
+font-family: 'Manrope', sans-serif;
+font-size: 16px;
+outline: none;
+width: 200px;
+}

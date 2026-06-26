@@ -58,7 +58,7 @@ export const App = () => {
           <Route path='/auth/callback' element={<PublicRoute><AuthCallback /></PublicRoute>} />
           
           {/* Protected Routes inside persistent layout with global audio */}
-          <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
+          <Route element={<Layout />}>
             <Route path='/profile' element={<Profile />} />
             <Route path='/main' element={<Main />} />
           </Route>

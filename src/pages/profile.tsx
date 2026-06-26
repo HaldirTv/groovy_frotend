@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePlayer } from '../context/player-context'
 import { logoutUser } from '../api/auth'
@@ -50,6 +50,10 @@ const User = {
   firstName: "",
   lastName: "",
   city: "",
+  phone: "",
+  birthday: "",
+  gender: "",
+  username: "",
 }
 
 type User = {
@@ -67,11 +71,17 @@ type User = {
   firstName: string;
   lastName: string;
   city: string;
+  phone: string;
+  birthday: string;
+  gender: string;
+  username: string;
 }
 
 type ProfileProps = {
   user?: User
 }
+
+type EditableField = 'username' | 'phone' | 'country' |'city' | 'birthday' | 'gender'
 
 export const Profile = ({ user:initialUser = User }: ProfileProps) => {
   const navigate = useNavigate()
@@ -83,6 +93,49 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
   const [user, setUser] = useState(initialUser)
   const [EditProfileOpen, setEditProfileOpen] = useState(false)
   
+  const [BannerMenuOpen, setBannerMenuOpen] = useState(false)
+  const bannerMenuRef = useRef<HTMLDivElement>(null)
+  const bannerFileInputRef = useRef<HTMLInputElement>(null)
+
+  const [currentPassword, setCurrentPassword] = useState('')
+  const [newPassword, setNewPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+
+  const [connectedAccounts, setConnectedAccounts] = useState({
+    google: false,
+    appleIdd: false,
+    facebook: false,
+    discord: false,
+  })
+
+  const [editingField, setEditingField] = useState<EditableField | null> (null)
+  const [tempFieldValue, setTempFieldValue] = useState('')
+
+  useEffect(() => {
+    if (!BannerMenuOpen) return
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (bannerMenuRef.current && !bannerMenuRef.current.contains(e.target as Node)) {
+        setBannerMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleOutsideClick)
+    return () => document.removeEventListener('mousedown', handleOutsideClick)
+  }, [BannerMenuOpen])
+
+  const handleBannerFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    const previewUrl = URL.createObjectURL(file)
+    setUser((prev) => ({ ...prev, banner: previewUrl}))
+    setBannerMenuOpen(false)
+  }
+
+  const handleRemoveBanner = () => {
+    setUser((prev) => ({...prev, banner: ''}))
+    setBannerMenuOpen(false)
+  }
+
   const [profileName, setProfileName] = useState(() => {
     const stored = localStorage.getItem('profileName')
     if (stored) return stored
@@ -128,6 +181,8 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
   const finalName = profileName || user.name
   const handle = payload?.unique_name ? `@${payload.unique_name}` : `@${finalName.toLowerCase().replace(/\s+/g, '_')}`
 
+  const personalUsername = user.username || handle
+
   const getMemberSince = () => {
     if (payload?.nbf) {
       try {
@@ -152,6 +207,22 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
       localStorage.setItem('profileName', trimmed)
     }
     setIsEditingName(false)
+  }
+
+  const handleFieldEditStart = (field: EditableField, currentValue: string) => {
+    setTempFieldValue(currentValue)
+    setEditingField(field)
+  }
+
+  const handleFieldSave = () => {
+    if (!editingField) return
+    const trimmed = tempFieldValue.trim()
+    setUser((prev) => ({...prev, [editingField]: trimmed}))
+    setEditingField(null)
+  }
+
+  const handleFieldCancel = () => {
+    setEditingField(null)
   }
 
   const handleSaveProfile = (data: ProfileData) => {
@@ -193,14 +264,65 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
     }
   }
 
+  const toggleConnectedAccount = (account: keyof typeof connectedAccounts) => {
+    setConnectedAccounts((prev) => ({ ...prev, [account]: !prev[account] }))
+  }
+
+  const renderEditableRow = (label: string, field: EditableField, value:string) => (
+    <div className='ProfInfoRow'>
+      <span className='ProfInfoLabel'>{label}</span>
+      {editingField === field ? (
+        <div style={{display: 'flex', gap: '8px', flex: 1, alignItems: 'center'}}>
+          <input type="text" className='BtnInput' value={tempFieldValue} onChange={(e) => setTempFieldValue(e.target.value)} onKeyDown={(e) => { 
+            if (e.key === 'Enter') handleFieldSave()
+            if (e.key === 'Escape') handleFieldCancel()
+          }} autoFocus />
+          <button onClick={handleFieldSave} className='ProfInfoChange' style={{background: '#72DEEF', color: '#16161F'}}>
+            Зберегти
+          </button>
+          <button onClick={handleFieldCancel} className='ProfInfoChange' style={{borderColor: '#EF4444', color: '#EF4444'}}>
+            Скасувати
+          </button>
+        </div>
+  ) : (
+    <>
+    <span className='ProfInfoValue'>{value || '-'}</span>
+    <button className='ProfInfoChange' onClick={() => handleFieldEditStart(field, value)}>
+      Змінити
+    </button>
+    </>
+  )}
+    </div>
+  )
+
   return (
     <div className="ProfMain2">
       <div className="ProfileUser">
-        <img src={user.banner} className="ProfileUserBg" alt="User Banner" />
+        <img src={user.banner} className="ProfileUserBg" />
         <div className="ProfileUserOverlay"></div>
 
+        <div className='BannerEditWrap' ref={bannerMenuRef}>
+          <button className='BannerEditButton' onClick={() => setBannerMenuOpen((prev) => !prev)}>
+            <span className='BannerEditButtonText'>Редагувати банер</span>
+          </button>
+        
+
+        {BannerMenuOpen && (
+          <div className='BannerEditMenu'>
+            <button className='BannerEditMenuItem BannerEditMenuItemActive' onClick={() => bannerFileInputRef.current?.click()}>
+              Замінити фото
+            </button>
+            <button className='BannerEditMenuItem' onClick={handleRemoveBanner}>
+              Видалити фото
+            </button>
+          </div>
+        )}
+
+        <input type="file" accept='image/*' ref={bannerFileInputRef} onChange={handleBannerFileChange} style={{display: 'none'}} />
+        </div>
+        
         <div className="ProfAvatarWrap">
-          <img src={user.avatar} className="ProfAvatarImg" alt="User Avatar" />
+          <img src={user.avatar} className="ProfAvatarImg" />
         </div>
 
         <div className="ProfNameBlock">
@@ -256,10 +378,10 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
         </div>
 
         <div className="ProfPanel">
-          <span className="ProfPanelTitle">{activeAccountSection}</span>
           
           {activeAccountSection === 'Огляд акаунта' && (
             <>
+              <span className="ProfPanelTitle">Огляд акаунта</span>
               <p className="ProfPanelSubtitle">Керуйте своїм профілем та налаштуваннями акаунта</p>
               
               <div className="ProfInfoRow">
@@ -268,17 +390,7 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
                   <div style={{ display: 'flex', gap: '8px', flex: 1, alignItems: 'center' }}>
                     <input
                       type="text"
-                      style={{
-                        background: '#13131D',
-                        border: '1px solid #72DEEF',
-                        borderRadius: '8px',
-                        color: '#F5F5F5',
-                        padding: '4px 12px',
-                        fontFamily: 'Manrope, sans-serif',
-                        fontSize: '16px',
-                        outline: 'none',
-                        width: '200px'
-                      }}
+                      className='BtnInput'
                       value={tempName}
                       onChange={(e) => setTempName(e.target.value)}
                       onKeyDown={(e) => {
@@ -287,13 +399,13 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
                       }}
                       autoFocus
                     />
-                    <button onClick={handleNameChange} className="ProfInfoChange" style={{ background: '#72DEEF', color: '#16161F' }} type="button">Зберегти</button>
-                    <button onClick={() => setIsEditingName(false)} className="ProfInfoChange" style={{ borderColor: '#ef4444', color: '#ef4444' }} type="button">Скасувати</button>
+                    <button onClick={handleNameChange} className="ProfInfoChange" style={{ background: '#72DEEF', color: '#16161F' }}>Зберегти</button>
+                    <button onClick={() => setIsEditingName(false)} className="ProfInfoChange" style={{ borderColor: '#ef4444', color: '#ef4444' }}>Скасувати</button>
                   </div>
                 ) : (
                   <>
                     <span className="ProfInfoValue">{finalName}</span>
-                    <button className="ProfInfoChange" onClick={() => { setTempName(finalName); setIsEditingName(true) }} type="button">Змінити</button>
+                    <button className="ProfInfoChange" onClick={() => { setTempName(finalName); setIsEditingName(true) }}>Змінити</button>
                   </>
                 )}
               </div>
@@ -309,66 +421,155 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
                 <span className="ProfInfoLabel">Учасник з</span>
                 <span className="ProfInfoValue">{memberSince}</span>
               </div>
+
+              <button className="ProfManageSub" onClick={() => alert('Преміум-підписка тимчасово недоступна')}>
+                <span className='ProfManageSubText'>Керувати підпискою</span>
+              </button>
             </>
           )}
 
           {activeAccountSection === 'Особиста інформація' && (
             <>
-              <p className="ProfPanelSubtitle">Ваші контактні дані та особисті налаштування</p>
+              <span className="ProfPanelTitle">Особиста інформація</span>
+              <p className="ProfPanelSubtitle">Оновіть свої особисті дані, зображення профілю, ім'я користувача, адресу електронної пошти та інформацію про країну.</p>
               <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Електронна пошта</span>
-                <span className="ProfInfoValue">{email}</span>
+                <span className="ProfInfoLabel">Повне Ім'я</span>
+                {isEditingName ?  (
+                  <div style={{display:'flex', gap:'8px', flex:1, alignItems:'center'}}>
+                    <input type="text" className='BtnInput' value={tempName} onChange={(e) => setTempName(e.target.value)} onKeyDown={(e) => {
+                      if (e.key === 'Enter') handleNameChange()
+                      if (e.key === 'Escape') setIsEditingName(false) 
+                    }} autoFocus/>
+                    <button onClick={handleNameChange} className="ProfInfoChange" style={{ background: '#72DEEF', color: '#16161F' }}>
+                      Зберегти
+                    </button>
+                    <button onClick={() => setIsEditingName(false)} className="ProfInfoChange" style={{ borderColor: '#ef4444', color: '#ef4444' }}>
+                      Скасувати
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                  <span className='ProfInfoValue'>{finalName}</span>
+                  <button className='ProfInfoChange' onClick={() => {setTempName(finalName); setIsEditingName(true)}}>
+                    Змінити
+                  </button>
+              </>
+              )}
               </div>
-              <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Країна</span>
-                <span className="ProfInfoValue">{user.country}</span>
-              </div>
-              <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Дата реєстрації</span>
-                <span className="ProfInfoValue">{memberSince}</span>
+
+              {renderEditableRow("Ім'я користувача", 'username', personalUsername)}
+              {renderEditableRow("Номер телефону", 'phone', user.phone)}
+              {renderEditableRow("Краіна", 'country', user.country)}
+
+              {renderEditableRow('Місто', 'city', user.city)}
+              {renderEditableRow('День народження', 'birthday', user.birthday)}
+              {renderEditableRow('Стать', 'gender', user.gender)}
+
+              <div className='ProfInfoRow'>
+                <span className='ProfInfoLabel'>Дата реєстрації</span>
+                <span className='ProfInfoValue'>{memberSince}</span>
               </div>
             </>
           )}
 
           {activeAccountSection === 'Підключені акаунти' && (
             <>
-              <p className="ProfPanelSubtitle">Керуйте підключеними сторонніми сервісами</p>
-              <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Google</span>
-                <span className="ProfInfoValue" style={{ color: '#10b981' }}>Підключено</span>
-              </div>
-              <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Telegram</span>
-                <span className="ProfInfoValue" style={{ color: '#a1a1aa' }}>Не підключено</span>
-              </div>
+            <span className='ProfPanelTitle'>Підключені акаунти</span>
+              <p className="ProfPanelSubtitle">Керуйте пов'язаними сервісами та обліковими записами соціальних мереж, підключеними до вашого профілю Groovra.</p>
+              {(
+                [
+                  {key: 'google', label: 'Google'},
+                  {key: 'appleId', label: 'Apple ID'},
+                  {key: 'facebook', label: 'Facebook'},
+                  {key: 'discord', label: 'Discord'},
+                ] as {key: keyof typeof connectedAccounts; label: string } []
+              ).map(({key, label}) => (
+                <div className='ProfInfoRow' key={key}>
+                  <span className='ProfInfoLabel'>{label}</span>
+                  <span className='ProfInfoValue' />
+                  <button className='ProfInfoChange' style={connectedAccounts[key] ? {borderColor: '#8BEF72', color: '#8BEF72'} : {borderColor: '#EF7274', color: '#EF7274'}} onClick={() => toggleConnectedAccount(key)}>
+                    {connectedAccounts[key] ? 'Підключено' : 'Підключити'}
+                  </button>
+                </div>
+              ))}
             </>
           )}
 
           {activeAccountSection === 'Підписка' && (
             <>
-              <p className="ProfPanelSubtitle">Інформація про ваш поточний тарифний план</p>
+              <span className='ProfPanelTitle'>Підписка</span>
+              <p className="ProfPanelSubtitle">Перегляньте свій поточний план підписки, платіжну інформацію та історію платежів.</p>
               <div className="ProfInfoRow">
                 <span className="ProfInfoLabel">Поточний тариф</span>
                 <span className="ProfInfoValue">Безкоштовна версія (Listener)</span>
+                <button className='ProfInfoChange' onClick={() => alert('Зміна тарифу тимчасово недоступна')}>
+                  Змінити
+                </button>
               </div>
-              <button className="ProfManageSub" onClick={() => alert('Преміум-підписка тимчасово недоступна')} type="button">
+              <div className='ProfInfoRow'>
+                <span className='ProfInfoLabel'>Спосіб оплати</span>
+                <span className='ProfInfoValue'>Не вказано</span>
+                <button className='ProfInfoChange' onClick={() => alert('Вибір способу оплати тимчасово недоступний')}>
+                  Обрати
+                </button>
+              </div>
+              <div className='ProfInfoRow'>
+                <span className='ProfInfoLabel'>Історія платежів</span>
+                <span className='ProfInfoValue'></span>
+                <button className='ProfInfoChange' onClick={() => alert('Історія платежів тимчасово недоступна')}>
+                  Переглянути
+                </button>
+              </div>
+              <button className="ProfManageSub" onClick={() => alert('Преміум-підписка тимчасово недоступна')}>
                 <span className="ProfManageSubText">Керувати підпискою</span>
               </button>
             </>
           )}
 
           {activeAccountSection === 'Конфіденційність' && (
-            <>
-              <p className="ProfPanelSubtitle">Налаштування приватності вашого профілю</p>
-              <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Видимість профілю</span>
-                <span className="ProfInfoValue">Публічний (усі користувачі бачать ваші плейлити)</span>
+          <div style={{ display: 'flex', gap: '32px', alignItems: 'flex-start', width: '100%' }}>
+            <div style={{flex:1, minWidth: 0}}>
+              <span className='ProfPanelTitle'>Конфіденційність та безпека</span>
+              <p className='ProfPanelSubtitle'>Захистіть свій обліковий запис і контролюйте, як поширюється ваша інформація.</p>
+
+              <div className='ProfInfoRow'>
+                <span className='ProfInfoLabel'>Поточний пароль</span>
+                <input type="text" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder='********' className='ProfPasswordInput' />
               </div>
-              <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Файли cookie</span>
-                <span className="ProfInfoValue">Дозволено для покращення роботи сервісу</span>
+              <div className='ProfInfoRow'>
+                <span className='ProfInfoLabel'>Новий пароль</span>
+                <input type="text" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder='********' className='ProfPasswordInput' />
               </div>
-            </>
+              <div className='ProfInfoRow'>
+                <span className='ProfInfoLabel'>Підтвердьте пароль</span>
+                <input type="text" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} placeholder='********' className='ProfPasswordInput' />
+              </div>
+              <div>
+                <button className='ProfInfoChange' onClick={() => {if (newPassword && newPassword === confirmPassword) {
+                  alert('Пароль змінено!')
+                  setCurrentPassword('')
+                  setNewPassword('')
+                  setConfirmPassword('')
+                } else {
+                  alert('Паролі не збігаються або порожні')
+                }}}>
+                  Зберегти пароль
+                </button>
+              </div>
+            </div>
+            <div style={{width: '380px', flexShrink: 0, borderLeft: '1px solid #A1A1AA', paddingLeft: '32px'}}>
+              <span className='ProfPanelTitle'>Двофакторна автентифікація</span>
+              <p style={{fontFamily: 'Manrope, sans-serif', fontWeight: 500, fontSize: '20px', lineHeight: '27px', color: '#72DEEF', margin: '8px 0 16px'}}>
+                Статус: Вимкнено
+              </p>
+              <p style={{fontFamily: 'Manrope, sans-serif', fontWeight: 500, fontSize: '16px', lineHeight: '22px', color: '#A1A1AA', margin: 0}}>
+                Додайте додатковий рівень безпеки до свого облікового запису, увімкнувши двофакторну автентифікацію.
+              </p>
+              <button className='ProfInfoChange' onClick={() => alert('Налаштування 2FA тимчасово недоступне')}>
+                Налаштувати 2FA
+              </button>
+            </div>
+          </div>
           )}
         </div>
       </div>

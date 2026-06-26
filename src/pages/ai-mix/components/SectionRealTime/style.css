@@ -1,4 +1,4 @@
-/* ── Wrapper ───────────────────────────────────────────────── */
+
 .section-real-time {
   position: relative;
   display: flex;
@@ -17,7 +17,7 @@
   box-sizing: border-box;
 }
 
-/* ── Gradient background ──────────────────────────────────── */
+
 .srt-gradient {
   position: absolute;
   inset: 0;
@@ -27,7 +27,7 @@
   pointer-events: none;
 }
 
-/* ── Left block ───────────────────────────────────────────── */
+
 .srt-left {
   display: flex;
   align-items: center;
@@ -36,7 +36,7 @@
   z-index: 1;
 }
 
-/* ── Circular icon ────────────────────────────────────────── */
+
 .srt-icon-circle {
   position: relative;
   display: flex;
@@ -63,7 +63,7 @@
   opacity: 0.2;
 }
 
-/* ── Text block ───────────────────────────────────────────── */
+
 .srt-text-block {
   display: flex;
   flex-direction: column;
@@ -89,7 +89,7 @@
   margin: 0;
 }
 
-/* ── Badges row ───────────────────────────────────────────── */
+
 .srt-badges {
   display: inline-flex;
   align-items: center;
@@ -98,7 +98,7 @@
   z-index: 1;
 }
 
-/* ── Single badge ─────────────────────────────────────────── */
+
 .srt-badge {
   display: inline-flex;
   align-items: center;

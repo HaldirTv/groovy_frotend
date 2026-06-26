@@ -1,4 +1,4 @@
-/* ── Section wrapper ──────────────────────────────────────── */
+
 .ai-mixes-section {
   display: flex;
   flex-direction: column;
@@ -7,7 +7,7 @@
   position: relative;
 }
 
-/* ── Header row ───────────────────────────────────────────── */
+
 .ams-header {
   align-items: flex-end;
   display: flex;
@@ -16,7 +16,7 @@
   width: 100%;
 }
 
-/* Heading left */
+
 .ams-heading {
   align-items: center;
   display: inline-flex;
@@ -52,7 +52,7 @@
   width: fit-content;
 }
 
-/* Link right */
+
 .ams-link {
   align-items: center;
   display: inline-flex;
@@ -95,7 +95,7 @@
   position: relative;
 }
 
-/* ── Cards row ────────────────────────────────────────────── */
+
 .ams-cards {
   display: flex;
   align-items: flex-start;
@@ -110,7 +110,7 @@
   display: none;
 }
 
-/* ── Mix card ─────────────────────────────────────────────── */
+
 .ams-mix-card {
   -webkit-backdrop-filter: blur(20px) brightness(100%);
   align-items: flex-start;
@@ -136,7 +136,7 @@
   box-shadow: 0 8px 24px rgba(89, 232, 255, 0.1);
 }
 
-/* Card background texture */
+
 .ams-mask-group {
   height: calc(100% - 1px);
   left: 1px;
@@ -147,7 +147,7 @@
   z-index: 0;
 }
 
-/* Cover wrapper */
+
 .ams-cover-wrapper {
   align-items: flex-start;
   align-self: stretch;
@@ -170,11 +170,11 @@
   height: 222px;
   position: relative;
   width: 100%;
-  /* Fallback gradient until image is provided */
+  
   background-color: #1a0a3a;
 }
 
-/* Hover overlay on cover */
+
 .ams-overlay {
   background-color: #00000066;
   height: 100%;
@@ -190,7 +190,7 @@
   opacity: 1;
 }
 
-/* Track info */
+
 .ams-info {
   align-items: flex-start;
   align-self: stretch;

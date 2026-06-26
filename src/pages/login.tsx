@@ -42,7 +42,7 @@ export const Log = () => {
         body: JSON.stringify({ email, password, deviceId }),
       })
 
-      const data = await response.json()
+      const data = await response.json().catch(() => ({}))
 
       if (!response.ok) {
         throw new Error(data.message || 'Помилка авторизації')

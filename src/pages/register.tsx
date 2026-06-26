@@ -30,7 +30,7 @@ export const Reg = () => {
           body: JSON.stringify({ code: codeResponse.code, deviceId }),
         })
 
-        const data = await response.json()
+        const data = await response.json().catch(() => ({}))
 
         if (!response.ok) {
           throw new Error(data.message || 'Помилка реєстрації через Google')

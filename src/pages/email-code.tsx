@@ -19,20 +19,20 @@ export const Cod = () => {
   }, [navigate])
 
   const handleChange = (value: string, index: number) => {
-    // Приймаємо лише одну цифру/літеру
+    
     const sanitized = value.replace(/[^0-9a-zA-Z]/g, '').slice(-1)
     const newCode = [...code]
     newCode[index] = sanitized
     setCode(newCode)
 
-    // Автоматичний перехід до наступного поля
+    
     if (sanitized && index < 5) {
       inputRefs.current[index + 1]?.focus()
     }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, index: number) => {
-    // Повертаємося назад за допомогою Backspace, якщо поле порожнє
+    
     if (e.key === 'Backspace' && !code[index] && index > 0) {
       inputRefs.current[index - 1]?.focus()
     }

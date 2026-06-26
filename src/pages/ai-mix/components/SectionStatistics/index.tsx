@@ -1,15 +1,15 @@
 import React from "react"
 import "./style.css"
 
-// SVG assets — розмісти у цій папці:
-//   icon.svg        → іконка AI мікс
-//   icon-2.svg      → іконка альбомів
-//   icon-3.svg      → іконка годин
-//   image.svg       → іконка пісень
-//   mask-group.svg  → фон картки AI Мікс
-//   mask-group-2.svg → фон картки Пісні
-//   mask-group-3.svg → фон картки Альбоми
-//   mask-group-4.svg → фон картки Години
+
+
+
+
+
+
+
+
+
 
 const ASSETS = "/src/pages/ai-mix/components/SectionStatistics"
 

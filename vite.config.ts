@@ -1,14 +1,14 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
+
 export default defineConfig({
   plugins: [react()],
   server: {
     port: 5178,
     proxy: {
-      // Проксіюємо всі /music/* запити через API Gateway (http),
-      // щоб уникнути mixed-content та самопідписаного сертифікату https://localhost:7176
+      
+      
       '/music': {
         target: 'http://localhost:5274',
         changeOrigin: true,

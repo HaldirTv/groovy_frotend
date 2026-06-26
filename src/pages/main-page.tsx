@@ -9,6 +9,7 @@ import Arrow from '../assets/IconArrow.svg'
 import Cover from '../assets/Cover.svg'
 import '../app.css'
 
+
 const PLAY_ICON_DATA = "data:image/svg+xml,%3csvg%20width='15'%20height='18'%20viewBox='0%200%2015%2018'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%2018V0L15%209L0%2018Z'%20fill='%230D0D12'/%3e%3c/svg%3e"
 
 export const Main: React.FC = () => {
@@ -33,7 +34,7 @@ export const Main: React.FC = () => {
   })
   const [showAllTracks, setShowAllTracks] = useState(false)
 
-  // Sync activeTab if passed from navigation state
+  
   useEffect(() => {
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab)
@@ -357,27 +358,6 @@ export const Main: React.FC = () => {
         </div>
       )}
 
-      {activeTab === 'Downloads' && (
-        <div className="DownloadsTabContent">
-          <span className="SectionTitle">Завантаження</span>
-          <div className="DownloadsContainer">
-            <div className="DownloadsStatus">
-              <span className="StatusTitle">Офлайн режим готовий</span>
-              <span className="StatusDesc">Ви можете завантажити будь-який трек для прослуховування без інтернету.</span>
-            </div>
-            {tracks.slice(0, 3).map((track, index) => (
-              <div key={track.trackId} className="DownloadRow">
-                <span className="DownloadRowHash">{index + 1}</span>
-                <div className="DownloadRowInfo">
-                  <span className="DownloadRowTitle">{track.title}</span>
-                  <span className="DownloadRowArtist">{track.artistName}</span>
-                </div>
-                <span className="DownloadRowStatus">Завантажено ({(track.fileSizeBytes / (1024 * 1024)).toFixed(2)} MB)</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
 
       {activeTab === 'Settings' && (
         <div className="SettingsTabContent">

@@ -77,7 +77,7 @@
   flex-grow: 1;
   position: relative;
   width: 100%;
-  /* Fallback gradient until image is provided */
+  
   background-color: #1a0a3a;
   background-image:
     radial-gradient(ellipse at 30% 50%, rgba(87, 27, 193, 0.6) 0%, transparent 60%),

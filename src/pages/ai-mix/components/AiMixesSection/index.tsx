@@ -1,15 +1,15 @@
 import React from "react"
 import "./style.css"
 
-// SVG / PNG assets — розмісти у цій папці:
-//   icon.svg         → іконка заголовка "Рекомендовані ШІ Мікси"
-//   image.svg        → стрілка-іконка посилання "ВСІ МІКСИ"
-//   mask-group.svg   → фонова текстура картки (спільна для всіх)
-//   mix-cover-1.png  → обкладинка "Digital Pulse"
-//   mix-cover-2.png  → обкладинка "Neural Flow"
-//   mix-cover-3.png  → обкладинка "Quantum Echo"
-//   mix-cover-4.png  → обкладинка "Digital Echo"
-//   mix-cover-5.png  → обкладинка "Sound Pulse"
+
+
+
+
+
+
+
+
+
 
 const ASSETS = "/src/pages/ai-mix/components/AiMixesSection"
 

@@ -1,4 +1,4 @@
-/* ── Section wrapper ──────────────────────────────────────── */
+
 .new-how-ai-creates {
   align-items: flex-start;
   display: flex;
@@ -9,7 +9,7 @@
   width: 100%;
 }
 
-/* ── Horizontal divider ───────────────────────────────────── */
+
 .nhac-divider {
   background: linear-gradient(
     90deg,
@@ -25,7 +25,7 @@
   pointer-events: none;
 }
 
-/* ── Header block ─────────────────────────────────────────── */
+
 .nhac-header {
   align-items: center;
   align-self: stretch;
@@ -76,7 +76,7 @@
   width: fit-content;
 }
 
-/* ── Steps row ────────────────────────────────────────────── */
+
 .nhac-steps {
   align-items: flex-start;
   align-self: stretch;
@@ -88,7 +88,7 @@
   width: 100%;
 }
 
-/* ── Single step ──────────────────────────────────────────── */
+
 .nhac-step {
   align-items: center;
   display: flex;
@@ -99,7 +99,7 @@
   position: relative;
 }
 
-/* ── Icon box ─────────────────────────────────────────────── */
+
 .nhac-icon-box {
   -webkit-backdrop-filter: blur(20px) brightness(100%);
   align-items: center;
@@ -130,10 +130,10 @@
 
 .nhac-icon {
   position: relative;
-  /* width/height set via inline style per step */
+  
 }
 
-/* ── Step text block ──────────────────────────────────────── */
+
 .nhac-text {
   align-items: flex-start;
   display: inline-flex;

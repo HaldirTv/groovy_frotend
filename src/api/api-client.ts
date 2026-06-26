@@ -2,10 +2,7 @@ import { getAccessToken, storeAccessToken, clearAccessToken } from './token-stor
 
 export const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL || 'http://localhost:5274'
 
-/**
- * Повертає існуючий DeviceId з localStorage або генерує та зберігає новий.
- * Спільний для всіх сторінок авторизації для уникнення дублювання.
- */
+
 export const getOrCreateDeviceId = (): string => {
   let deviceId = localStorage.getItem('DeviceId')
   if (!deviceId) {
@@ -15,10 +12,7 @@ export const getOrCreateDeviceId = (): string => {
   return deviceId
 }
 
-/**
- * Безпечно декодує корисне навантаження JWT та витягує email користувача.
- * НЕ перевіряє підпис — суто для покращення UX (збереження email для оновлення).
- */
+
 export const decodeTokenEmail = (token: string): string | null => {
   try {
     const base64Url = token.split('.')[1]

@@ -1,4 +1,4 @@
-/* ── Section wrapper ──────────────────────────────────────── */
+
 .new-ai-albums {
   display: flex;
   flex-direction: column;
@@ -7,7 +7,7 @@
   position: relative;
 }
 
-/* ── Header row ───────────────────────────────────────────── */
+
 .naa-header {
   align-items: flex-end;
   display: flex;
@@ -16,7 +16,7 @@
   width: 100%;
 }
 
-/* Heading left */
+
 .naa-heading {
   align-items: center;
   display: inline-flex;
@@ -52,7 +52,7 @@
   width: fit-content;
 }
 
-/* Link right */
+
 .naa-link {
   align-items: center;
   display: inline-flex;
@@ -95,7 +95,7 @@
   position: relative;
 }
 
-/* ── Album grid ───────────────────────────────────────────── */
+
 .naa-grid {
   align-items: flex-start;
   display: flex;
@@ -105,7 +105,7 @@
   width: 100%;
 }
 
-/* ── Album card ───────────────────────────────────────────── */
+
 .naa-album-card {
   -webkit-backdrop-filter: blur(20px) brightness(100%);
   align-items: flex-start;
@@ -132,7 +132,7 @@
     0 8px 24px rgba(89, 232, 255, 0.1);
 }
 
-/* Cover */
+
 .naa-cover-wrapper {
   align-items: flex-start;
   align-self: stretch;
@@ -153,11 +153,11 @@
   height: auto;
   position: relative;
   width: 100%;
-  /* Fallback gradient until image is provided */
+  
   background-color: #1a0a3a;
 }
 
-/* Info block */
+
 .naa-info {
   align-items: flex-start;
   align-self: stretch;
@@ -209,7 +209,7 @@
   position: relative;
 }
 
-/* Meta: tracks + genre tag */
+
 .naa-meta {
   align-items: flex-start;
   align-self: stretch;
@@ -265,7 +265,7 @@
   white-space: nowrap;
 }
 
-/* Card background mask */
+
 .naa-mask-group {
   height: calc(100% - 1px);
   left: 1px;

@@ -1,7 +1,7 @@
-/* Import Fonts */
+
 @import url('https://fonts.googleapis.com/css2?family=Galdeano&family=Manrope:wght@400;500;600;700&family=SUSE:wght@400;600&display=swap');
 
-/* CSS Variables & Custom System */
+
 :root {
   --bg: #121414;
   --bg-dop: #16161F;
@@ -16,7 +16,7 @@
   --second-text: 'Galdeano', sans-serif;
 }
 
-/* Global Reset & Base Elements */
+
 *, *::before, *::after {
   margin: 0;
   padding: 0;
@@ -36,14 +36,12 @@ input, button, textarea, span, div {
   font-family: inherit;
 }
 
-/* Base Topbar font override */
+
 .TopBarSearchIn {
   font-family: var(--second-text) !important;
 }
 
-/* ==========================================================================
-   1. Unified Responsive Authorization Styling (.auth-*)
-   ========================================================================== */
+
 
 .auth-wrapper {
   width: 100%;
@@ -355,9 +353,7 @@ input, button, textarea, span, div {
   }
 }
 
-/* ==========================================================================
-   2. Modern Dashboard / Main Page Styling
-   ========================================================================== */
+
 
 .app-container {
   display: flex;
@@ -650,7 +646,7 @@ height: 100vh;
 background: linear-gradient(0deg, #121414, #121414), #FFFFFF;
 overflow: hidden;}
 
-/* Main Content Area */
+
 .Main2 {
 display: flex;
 flex-direction: column;
@@ -821,7 +817,7 @@ color: #72DEEF;
   flex-shrink : 0;
 }
 
-/* Music Cards Grid */
+
 .MusicCardCont {
   display: flex;
   flex-direction: row;
@@ -890,7 +886,7 @@ color: #72DEEF;
   color: rgba(114, 222, 239, 0.71);
 }
 
-/* Footer Player Dock */
+
 .FooterPlayer {
 box-sizing: border-box;
  
@@ -980,7 +976,7 @@ z-index: 10;
   transform: scale(0.95);
 }
 
-/* Серце заповнене — додати до улюбленого */
+
 .IconLiked.liked {
   background: rgba(114, 222, 239, 0.15);
 }
@@ -1105,7 +1101,7 @@ z-index: 10;
   width: 0%;
 }
 
-/* === Активні стани shuffle/repeat === */
+
 .ButtonRemix,
 .RefButton {
   position: relative;
@@ -1124,7 +1120,7 @@ z-index: 10;
   opacity: 0.85;
 }
 
-/* Активний стан: світлий фон кнопки + повна опаціть іконки */
+
 .ButtonRemix.active,
 .RefButton.active {
   background: rgba(114, 222, 239, 0.18);
@@ -1137,7 +1133,7 @@ z-index: 10;
   filter: drop-shadow(0 0 4px rgba(114, 222, 239, 0.9));
 }
 
-/* Точка-індикатор під кнопкою при активному стані */
+
 .ButtonRemix.active::after,
 .RefButton.active::after {
   content: '';
@@ -1173,7 +1169,7 @@ z-index: 10;
   padding: 0;
 }
 
-/* Кнопка mute/unmute */
+
 .MuteButton {
   background: transparent;
   border: none;
@@ -1216,7 +1212,7 @@ z-index: 10;
   border-radius: 3px;
   cursor: pointer;
   position: relative;
-  /* overflow: visible щоб thumb-кружечок виступав */
+  
 }
 
 .ContVolume:hover {
@@ -1232,7 +1228,7 @@ z-index: 10;
   pointer-events: none;
 }
 
-/* Thumb-кружечок на кінці повзунка */
+
 .VolumeFill::after {
   content: '';
   position: absolute;
@@ -1252,9 +1248,7 @@ z-index: 10;
   opacity: 1;
 }
 
-/* ==========================================================================
-   3. Tabbed Views (Search, Library, Playlists, Liked, AI, Settings)
-   ========================================================================== */
+
 
 .SectionTitle {
   font-family: var(--first-text);
@@ -1274,7 +1268,7 @@ z-index: 10;
   display: block;
 }
 
-/* --- Search Page --- */
+
 .SearchTabContent {
   display: flex;
   flex-direction: column;
@@ -1327,7 +1321,7 @@ z-index: 10;
   z-index: 1;
 }
 
-/* --- Library & Liked Table --- */
+
 .LibraryTabContent, .LikedTabContent {
   display: flex;
   flex-direction: column;
@@ -1443,7 +1437,7 @@ z-index: 10;
   border: 1px dashed rgba(255, 255, 255, 0.1);
 }
 
-/* --- Playlist Page --- */
+
 .PlaylistTabContent {
   display: flex;
   flex-direction: column;
@@ -1534,7 +1528,7 @@ z-index: 10;
   transform: scale(1.1);
 }
 
-/* --- AI Page --- */
+
 .AiTabContent {
   display: flex;
   flex-direction: column;
@@ -1641,7 +1635,7 @@ z-index: 10;
   transform: translateY(0);
 }
 
-/* --- Downloads Page --- */
+
 .DownloadsTabContent {
   display: flex;
   flex-direction: column;
@@ -1722,7 +1716,7 @@ z-index: 10;
   border-radius: 20px;
 }
 
-/* --- Settings Page --- */
+
 .SettingsTabContent {
   display: flex;
   flex-direction: column;
@@ -1798,14 +1792,14 @@ z-index: 10;
   color: #FFFFFF;
 }
 
-/* Loader Styles */
+
 .Loader {
   font-family: var(--first-text);
   font-weight: 600;
   font-size: 18px;
 }
 
-/* Layout Responsiveness */
+
 @media (max-width: 1024px) {
   .Sidebar {
     width: 80px;
@@ -1882,9 +1876,7 @@ z-index: 10;
   }
 }
 
-/* ==========================================================================
-   3. AI Mixes Panel & User Menu Styling
-   ========================================================================== */
+
 
 .AiMixesBlock {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
@@ -1928,7 +1920,7 @@ z-index: 10;
   gap: 16px;
 }
 
-/* User Menu Dropdown */
+
 .profileCont {
   position: relative;
   cursor: pointer;
@@ -1999,3 +1991,241 @@ z-index: 10;
   background: rgba(255, 255, 255, 0.08);
   margin: 4px 6px;
 }
+
+
+
+.NotificationContainer {
+  position: relative;
+  display: inline-block;
+  z-index: 100;
+}
+
+.NotificationBtn.active {
+  background: rgba(169, 143, 219, 0.2);
+  box-shadow: 0 0 12px rgba(169, 143, 219, 0.4);
+}
+
+.div-wrapper {
+  position: absolute;
+  top: calc(100% + 16px);
+  right: 0;
+  background-color: #0d0d12;
+  border: 13px solid #2c3339;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 424px;
+  height: 606px;
+  box-sizing: border-box;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(169, 143, 219, 0.15);
+  z-index: 100;
+  padding: 24px 18px 24px 24px;
+  transform-origin: top right;
+  animation: notificationDropdownOpen 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+
+.div-wrapper.empty-state {
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  gap: 15px;
+}
+
+.div-wrapper .text-wrapper {
+  color: #f5f5f5;
+  font-family: "Manrope", sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: normal;
+  text-align: center;
+  width: 100%;
+  margin-top: auto;
+  padding: 0 10px;
+}
+
+.div-wrapper .div {
+  color: rgba(245, 245, 245, 0.7);
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-align: center;
+  width: 100%;
+  margin-bottom: auto;
+  padding: 0 10px;
+}
+
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.notification-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #f5f5f5;
+}
+
+.notification-clear-btn {
+  background: transparent;
+  border: none;
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #A98FDB;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.notification-clear-btn:hover {
+  background: rgba(169, 143, 219, 0.1);
+  color: #c7b6ec;
+}
+
+.notification-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding-right: 6px;
+}
+
+
+.notification-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(169, 143, 219, 0.3);
+}
+
+
+.notification-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.notification-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(169, 143, 219, 0.25);
+  transform: translateY(-1px);
+}
+
+.notification-avatar {
+  width: 51px;
+  height: 51px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  user-select: none;
+}
+
+.notification-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-item-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #f5f5f5;
+  line-height: 1.3;
+}
+
+.notification-item-desc {
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(245, 245, 245, 0.5);
+  line-height: 1.35;
+}
+
+.notification-delete-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  align-self: flex-start;
+  margin-top: -2px;
+}
+
+.notification-delete-btn:hover {
+  color: #FF6B6B;
+  background: rgba(255, 107, 107, 0.1);
+}
+
+
+@keyframes notificationDropdownOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes bellRing {
+  0% { transform: rotate(0); }
+  15% { transform: rotate(10deg) scale(1.1); }
+  30% { transform: rotate(-10deg) scale(1.1); }
+  45% { transform: rotate(6deg) scale(1.1); }
+  60% { transform: rotate(-6deg) scale(1.1); }
+  75% { transform: rotate(3deg) scale(1.1); }
+  90% { transform: rotate(-3deg) scale(1.1); }
+  100% { transform: rotate(0) scale(1.1); }
+}
+
+.NotificationBtn:hover .Notificationicon {
+  animation: bellRing 0.7s ease-in-out;
+  filter: drop-shadow(0 0 8px rgba(169, 143, 219, 0.8));
+}
+

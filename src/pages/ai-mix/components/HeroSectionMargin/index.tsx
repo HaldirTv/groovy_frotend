@@ -1,22 +1,22 @@
 import React from "react"
 import "./style.css"
 
-// SVG assets — заміни файли коли будуть готові
-// Очікувані файли в цій папці:
-//   icon.svg        → AI-бейдж іконка
-//   icon-2.svg      → іконка годинника
-//   icon-3.svg      → іконка відтворення (play)
-//   icon-4.svg      → іконка лайку/серця
-//   icon-5.svg      → іконка "ще" (три крапки)
-//   image.svg       → іконка слухачів
-//   mask-group.svg  → фонове зображення секції
-//   AI-generated-playlist-cover.png → обкладинка плейлиста
+
+
+
+
+
+
+
+
+
+
 
 export const HeroSectionMargin = (): React.JSX.Element => {
   return (
     <div className="hero-section-margin">
       <div className="hero-section">
-        {/* Background: replace src with actual file when available */}
+        
         <img
           className="mask-group"
           alt="Background"
@@ -26,16 +26,16 @@ export const HeroSectionMargin = (): React.JSX.Element => {
         <div className="gradient" />
 
         <div className="container">
-          {/* Cover Image */}
+          
           <div className="cover-image">
             <div className="AI-generated" />
             <div className="div" />
           </div>
 
-          {/* Playlist Details */}
+          
           <div className="playlist-details">
 
-            {/* Top badges row */}
+            
             <div className="container-2">
               <div className="overlay-border">
                 <div className="container-3">
@@ -53,12 +53,12 @@ export const HeroSectionMargin = (): React.JSX.Element => {
               </div>
             </div>
 
-            {/* Title */}
+            
             <div className="heading">
               <div className="text-wrapper-3">Кіберпанк ШІ: Нейронні Біти</div>
             </div>
 
-            {/* Description */}
+            
             <div className="groovra-AI-core-wrapper">
               <p className="groovra-AI-core">
                 Пориньте у синтетичні звукові ландшафти, згенеровані нашою найновішою моделлю <br />
@@ -66,7 +66,7 @@ export const HeroSectionMargin = (): React.JSX.Element => {
               </p>
             </div>
 
-            {/* Stats */}
+            
             <div className="margin">
               <div className="container-4">
                 <div className="container-5">
@@ -93,7 +93,7 @@ export const HeroSectionMargin = (): React.JSX.Element => {
               </div>
             </div>
 
-            {/* Action Buttons */}
+            
             <div className="container-wrapper">
               <div className="container-6">
                 <button className="button" type="button" aria-label="Слухати плейлист">

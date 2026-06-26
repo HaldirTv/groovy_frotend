@@ -1,17 +1,17 @@
 import React from "react"
 import "./style.css"
 
-// SVG / PNG assets — розмісти у цій папці:
-//   icon.svg              → іконка заголовка "Трендові ШІ Альбоми"
-//   image.svg             → стрілка-іконка посилання "БІЛЬШЕ АЛЬБОМІВ"
-//   mask-group.svg        → фон картки 1 (Neural Odyssey)
-//   mask-group-2.svg      → фон картки 2 (Silicon Soul — image.svg у Figma)
-//   mask-group-3.svg      → фон картки 3 (Echoes of Void)
-//   mask-group-4.svg      → фон картки 4 (Cyber Synthesis)
-//   AI-album-cover.png    → обкладинка картки 1
-//   AI-album-cover-2.png  → обкладинка картки 3
-//   AI-album-cover-3.png  → обкладинка картки 4
-//   image.png             → обкладинка картки 2 (Silicon Soul)
+
+
+
+
+
+
+
+
+
+
+
 
 const ASSETS = "/src/pages/ai-mix/components/NewAiAlbums"
 

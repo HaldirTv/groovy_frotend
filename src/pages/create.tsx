@@ -65,7 +65,7 @@ export const Create = () => {
         body: JSON.stringify({ email, username, password, deviceId }),
       })
 
-      const data = await response.json()
+      const data = await response.json().catch(() => ({}))
 
       if (!response.ok) {
         throw new Error(data.message || 'Помилка реєстрації')

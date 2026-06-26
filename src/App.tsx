@@ -10,6 +10,7 @@ import { Cod } from './pages/email-code'
 import { Recovery } from './pages/password-recovery'
 import { Main } from './pages/main-page'
 import { AiMixPage } from './pages/ai-mix'
+import { DownloadsPage } from './pages/downloads'
 import { AuthCallback } from './pages/auth-callback'
 import { ProtectedRoute } from './components/protected-route'
 import { PublicRoute } from './components/public-route'
@@ -49,7 +50,7 @@ export const App = () => {
         <Routes>
           <Route path='/' element={<Navigate to='/main' replace />} />
           
-          {/* Public Routes (only for unauthenticated users) */}
+          
           <Route path='/reg' element={<PublicRoute><Reg /></PublicRoute>} />
           <Route path='/login' element={<PublicRoute><Log /></PublicRoute>} />
           <Route path='/create' element={<PublicRoute><Create /></PublicRoute>} />
@@ -58,14 +59,15 @@ export const App = () => {
           <Route path='/passwordrecovery' element={<PublicRoute><Recovery /></PublicRoute>} />
           <Route path='/auth/callback' element={<PublicRoute><AuthCallback /></PublicRoute>} />
           
-          {/* Protected Routes inside persistent layout with global audio */}
+          
           <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
             <Route path='/profile' element={<Profile />} />
             <Route path='/main' element={<Main />} />
             <Route path='/ai-mix' element={<AiMixPage />} />
+            <Route path='/downloads' element={<DownloadsPage />} />
           </Route>
           
-          {/* Wildcard/Fallback */}
+          
           <Route path='*' element={<Navigate to='/main' replace />} />
         </Routes>
       </Router>

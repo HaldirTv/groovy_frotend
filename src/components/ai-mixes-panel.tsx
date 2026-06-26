@@ -9,7 +9,7 @@ interface AiMixesPanelProps {
 export const AiMixesPanel: React.FC<AiMixesPanelProps> = ({ children }) => {
   return (
     <div className='AiMixesBlock'>
-      {/* Верхняя панель карточки: Иконка + Тексты */}
+      
       <div className='AiHeaderTop'>
         <img src={AiIcon} className='AiCardIcon' alt="AI-Icon" />
         
@@ -19,7 +19,7 @@ export const AiMixesPanel: React.FC<AiMixesPanelProps> = ({ children }) => {
         </div>
       </div>
 
-      {/* Плейсхолдер под твое содержимое */}
+      
       <div className='AiCardContentPlaceholder'>
         {children || (
           <span style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'SUSE, sans-serif' }}>

@@ -19,7 +19,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ profileName }) => {
     await logoutUser()
   }
 
-  // Закриття по клику вне меню
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -38,7 +38,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ profileName }) => {
         {profileName}
       </button>
 
-      {/* Стрелочка */}
+      
       <svg className={`ArrowDown ${isOpen ? 'open' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
       </svg>

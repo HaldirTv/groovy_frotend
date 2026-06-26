@@ -1,8 +1,8 @@
 import React from "react"
 import "./style.css"
 
-// SVG assets — розмісти у цій папці:
-//   icon.svg → іконка ШІ (ліва кругла кнопка)
+
+
 
 const ASSETS = "/src/pages/ai-mix/components/SectionRealTime"
 
@@ -27,12 +27,12 @@ export const SectionRealTime = (): React.JSX.Element => {
 
   return (
     <div className="section-real-time">
-      {/* Gradient background */}
+      
       <div className="srt-gradient" />
 
-      {/* Left: icon + title + subtitle */}
+      
       <div className="srt-left">
-        {/* Circular icon */}
+        
         <div className="srt-icon-circle" aria-hidden="true">
           <img
             className="srt-icon"

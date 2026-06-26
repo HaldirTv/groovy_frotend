@@ -1,11 +1,11 @@
 import React from "react"
 import "./style.css"
 
-// SVG assets — розмісти у цій папці:
-//   icon.svg   → іконка кроку 1 (Нейронний аналіз) — 30×30
-//   image.svg  → іконка кроку 2 (Мелодія та Гармонія) — 30×30
-//   icon-2.svg → іконка кроку 3 (Аранжування) — 30×31.75
-//   icon-3.svg → іконка кроку 4 (Мастерінг) — 26.67×26.67
+
+
+
+
+
 
 const ASSETS = "/src/pages/ai-mix/components/NewHowAiCreates"
 

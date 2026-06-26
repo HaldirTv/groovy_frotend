@@ -1,26 +1,26 @@
 import React from "react"
 import "./style.css"
 
-// SVG / PNG assets — розмісти у цій папці:
-//
-// Для треків:
-//   icon.svg         → play-іконка (11.67×9.17)
-//   icon-2.svg       → more-іконка (16.67×15.29)
-//   image.svg        → like-іконка (16.67×15.29)
-//   track-cover-1.png → обкладинка "Synthetic Dawn"
-//   track-cover-2.png → обкладинка "Ghost in the Shell (Remix)"
-//
-// Для AI-моделей:
-//   model-icon-1.svg  → іконка Groovra AI Core (18×18)
-//   model-icon-2.svg  → іконка Quantum Sound Engine (19.01×20)
-//   model-icon-3.svg  → іконка DeepAudio V5 (20×16)
-//   mask-group.svg    → фон картки Groovra AI Core
-//   mask-group-2.svg  → фон картки Quantum Sound Engine
-//   mask-group-3.svg  → фон картки DeepAudio V5
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const ASSETS = "/src/pages/ai-mix/components/ContentGridAi"
 
-// ── Track types ──────────────────────────────────────────────
+
 interface TrackData {
   id: string
   title: string

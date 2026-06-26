@@ -17,7 +17,7 @@
   box-sizing: border-box;
 }
 
-/* Background decorative glows */
+
 .ai-mix-page .bg-glow {
   position: absolute;
   border-radius: 9999px;
@@ -51,7 +51,7 @@
   right: -100px;
 }
 
-/* Ensure sections sit on top of glows */
+
 .hero-section-margin,
 .section-statistics,
 .section-real-time,

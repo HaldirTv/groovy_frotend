@@ -29,7 +29,7 @@ const PLAY_ICON_DATA = "data:image/svg+xml,%3csvg%20width='15'%20height='18'%20v
 export const Layout: React.FC = () => {
   const navigate = useNavigate()
   const location = useLocation()
-  
+
   const {
     currentTrack,
     isPlaying,
@@ -135,66 +135,66 @@ export const Layout: React.FC = () => {
 
   return (
     <div className="Main">
-      
+
       <aside className="Sidebar">
         <div className="SidebarHeader">
           <img src={Logo} className="Logo" alt="Logo" />
           <span className="Groovra">GROOVRA</span>
         </div>
-        
+
         <div className={`NavItem ${activeTab === 'Home' ? 'active' : ''}`} onClick={() => handleSidebarClick('Home')}>
           {activeTab === 'Home' && <div className="ActiveLine" />}
           <img src={Home} alt="Home" />
           <span className="NavText">Головна</span>
         </div>
-        
+
         <div className={`NavItem ${activeTab === 'Search' ? 'active' : ''}`} onClick={() => handleSidebarClick('Search')}>
           {activeTab === 'Search' && <div className="ActiveLine" />}
           <img src={Search} alt="Search" />
           <span className="NavText">Пошук</span>
         </div>
-        
+
         <div className={`NavItem ${activeTab === 'Library' ? 'active' : ''}`} onClick={() => handleSidebarClick('Library')}>
           {activeTab === 'Library' && <div className="ActiveLine" />}
           <img src={Library} alt="Library" />
           <span className="NavText">Бібліотека</span>
         </div>
-        
+
         <div className="ContTextColl">
           <span className="TextColl">Ваші Колекції</span>
         </div>
-        
+
         <div className={`NavItem ${activeTab === 'Playlist' ? 'active' : ''}`} onClick={() => handleSidebarClick('Playlist')}>
           {activeTab === 'Playlist' && <div className="ActiveLine" />}
           <img src={Playlist} alt="Playlist" />
           <span className="NavText">Плейлисти</span>
         </div>
-        
+
         <div className={`NavItem ${activeTab === 'Liked' ? 'active' : ''}`} onClick={() => handleSidebarClick('Liked')}>
           {activeTab === 'Liked' && <div className="ActiveLine" />}
           <img src={Liked} alt="Liked" />
           <span className="NavText">Улюблене</span>
         </div>
-        
+
         <div className={`NavItem ${activeTab === 'AI' ? 'active' : ''}`} onClick={() => handleSidebarClick('AI')}>
           {activeTab === 'AI' && <div className="ActiveLine" />}
           <img src={AI} alt="AI mix" />
           <span className="NavText">AI мікс</span>
         </div>
-        
+
         <div className={`NavItem ${activeTab === 'Downloads' ? 'active' : ''}`} onClick={() => handleSidebarClick('Downloads')}>
           {activeTab === 'Downloads' && <div className="ActiveLine" />}
           <img src={Downloads} alt="Downloads" />
           <span className="NavText">Завантаження</span>
         </div>
-        
+
         <div className={`NavItem ${activeTab === 'Settings' ? 'active' : ''}`} onClick={() => handleSidebarClick('Settings')}>
           {activeTab === 'Settings' && <div className="ActiveLine" />}
           <img src={Settings} alt="Settings" />
           <span className="NavText">Налаштування</span>
         </div>
       </aside>
-    <div className='RightColumn'>
+      <div className='RightColumn'>
         <header className="MainHeader">
           <div className="ContSearch">
             <div className="SecContHeader">
@@ -210,7 +210,7 @@ export const Layout: React.FC = () => {
               />
             </div>
           </div>
-          
+
           <div className="UserCont">
             <button
               type="button"
@@ -226,84 +226,84 @@ export const Layout: React.FC = () => {
         </header>
 
         <Outlet />
-      
 
-      <footer className="FooterPlayer">
-        <div className="TrackContainer">
-          <div className="CurrentPlaying">
-            <img
-              src={currentTrack?.coverImageUrl || Cover}
-              className="CoverImg"
-              style={{ borderRadius: '8px' }}
-              alt="Cover"
-              onError={(e) => { (e.target as HTMLImageElement).src = Cover }}
-            />
-          </div>
-          
-          <span className="NameOfTrack">{currentTrack ? currentTrack.title : 'Трек'}</span>
-          <span className="Author">{currentTrack ? currentTrack.artistName : 'Виконавець'}</span>
 
-          <button
-            className={`IconLiked ${isLiked ? 'liked' : ''}`}
-            onClick={toggleLiked}
-            title={isLiked ? 'Видалити з улюбленого' : 'Додати до улюбленого'}
-          >
-            <img src={Liked} alt="Like icon" />
-          </button>
-        </div>
-
-        <div className="ContPlayBack">
-          <div className="PlayeerCont">
-            <button className={`ButtonRemix ${isShuffle ? 'active' : ''}`} onClick={toggleShuffle} title="Перемішати">
-              <img src={Remix} className="LogoRemix" alt="Shuffle" />
-            </button>
-            <button className="LeftArrowButton" onClick={playPrevious} title="Попередній трек">
-              <img src={LeftArrow} className="LeftArrow" alt="Previous" />
-            </button>
-            <button className="PauseButton" onClick={togglePlayPause} title={isPlaying ? 'Пауза' : 'Грати'}>
-              <img src={isPlaying ? Pause : PLAY_ICON_DATA} className="PauseLogo" style={isPlaying ? undefined : { marginLeft: '2px' }} alt="Play/Pause" />
-            </button>
-            <button className="ButtonRightArrow" onClick={playNext} title="Наступний трек">
-              <img src={RightArrow} className="RightArrowLogo" alt="Next" />
-            </button>
-            <button className={`RefButton ${isRepeat ? 'active' : ''}`} onClick={toggleRepeat} title={isRepeat ? 'Повтор увімкнено' : 'Увімкнути повтор'}>
-              <img src={Ref} className="RefLogo" alt="Repeat" />
-            </button>
-          </div>
-
-          <div className="ContStartTime">
-            <span className="StartTime">{formatTime(currentTime)}</span>
-            <div className="PlayBackLine" ref={timelineRef} onClick={handleTimelineClick}>
-              <div className="PlayBackFill" style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}></div>
+        <footer className="FooterPlayer">
+          <div className="TrackContainer">
+            <div className="CurrentPlaying">
+              <img
+                src={currentTrack?.coverImageUrl || Cover}
+                className="CoverImg"
+                style={{ borderRadius: '8px' }}
+                alt="Cover"
+                onError={(e) => { (e.target as HTMLImageElement).src = Cover }}
+              />
             </div>
-            <span className="EndTime">{formatTime(duration)}</span>
-          </div>
-        </div>
 
-        <div className="Volume">
-          <button
-            className={`MuteButton ${isMuted ? 'muted' : ''}`}
-            onClick={toggleMute}
-            title={isMuted ? 'Увімкнути звук' : 'Вимкнути звук'}
-          >
-            <img src={Button} className="MuteIcon" alt="Mute" />
-          </button>
-          <img src={Volume} className="VolumeIcon" alt="Volume" />
-          <div
-            className="ContVolume"
-            ref={trackRef}
-            onClick={handleSliderClick}
-            onMouseDown={handleVolumeMouseDown}
-            style={{ cursor: 'pointer', userSelect: 'none' }}
-          >
-            <div className="VolumeFill" style={{ width: `${isMuted ? 0 : volume}%` }}></div>
+            <span className="NameOfTrack">{currentTrack ? currentTrack.title : 'Трек'}</span>
+            <span className="Author">{currentTrack ? currentTrack.artistName : 'Виконавець'}</span>
+
+            <button
+              className={`IconLiked ${isLiked ? 'liked' : ''}`}
+              onClick={toggleLiked}
+              title={isLiked ? 'Видалити з улюбленого' : 'Додати до улюбленого'}
+            >
+              <img src={Liked} alt="Like icon" />
+            </button>
           </div>
-          <button className="ButtonRight" onClick={toggleFullscreen} title="Режим на весь екран">
-            <img src={Right} alt="Fullscreen" />
-          </button>
-        </div>
-      </footer>
-    </div>
+
+          <div className="ContPlayBack">
+            <div className="PlayeerCont">
+              <button className={`ButtonRemix ${isShuffle ? 'active' : ''}`} onClick={toggleShuffle} title="Перемішати">
+                <img src={Remix} className="LogoRemix" alt="Shuffle" />
+              </button>
+              <button className="LeftArrowButton" onClick={playPrevious} title="Попередній трек">
+                <img src={LeftArrow} className="LeftArrow" alt="Previous" />
+              </button>
+              <button className="PauseButton" onClick={togglePlayPause} title={isPlaying ? 'Пауза' : 'Грати'}>
+                <img src={isPlaying ? Pause : PLAY_ICON_DATA} className="PauseLogo" style={isPlaying ? undefined : { marginLeft: '2px' }} alt="Play/Pause" />
+              </button>
+              <button className="ButtonRightArrow" onClick={playNext} title="Наступний трек">
+                <img src={RightArrow} className="RightArrowLogo" alt="Next" />
+              </button>
+              <button className={`RefButton ${isRepeat ? 'active' : ''}`} onClick={toggleRepeat} title={isRepeat ? 'Повтор увімкнено' : 'Увімкнути повтор'}>
+                <img src={Ref} className="RefLogo" alt="Repeat" />
+              </button>
+            </div>
+
+            <div className="ContStartTime">
+              <span className="StartTime">{formatTime(currentTime)}</span>
+              <div className="PlayBackLine" ref={timelineRef} onClick={handleTimelineClick}>
+                <div className="PlayBackFill" style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}></div>
+              </div>
+              <span className="EndTime">{formatTime(duration)}</span>
+            </div>
+          </div>
+
+          <div className="Volume">
+            <button
+              className={`MuteButton ${isMuted ? 'muted' : ''}`}
+              onClick={toggleMute}
+              title={isMuted ? 'Увімкнути звук' : 'Вимкнути звук'}
+            >
+              <img src={Button} className="MuteIcon" alt="Mute" />
+            </button>
+            <img src={Volume} className="VolumeIcon" alt="Volume" />
+            <div
+              className="ContVolume"
+              ref={trackRef}
+              onClick={handleSliderClick}
+              onMouseDown={handleVolumeMouseDown}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
+              <div className="VolumeFill" style={{ width: `${isMuted ? 0 : volume}%` }}></div>
+            </div>
+            <button className="ButtonRight" onClick={toggleFullscreen} title="Режим на весь екран">
+              <img src={Right} alt="Fullscreen" />
+            </button>
+          </div>
+        </footer>
+      </div>
     </div>
   )
 }

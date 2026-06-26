@@ -61,9 +61,14 @@ export const Cod = () => {
         body: JSON.stringify({ email, code: fullCode }),
       })
 
+      const data = await response.json().catch(() => ({}))
+
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
         throw new Error(data.message || 'Невірний код підтвердження')
+      }
+
+      if (data.Token || data.token) {
+        localStorage.setItem('RecoveryToken', data.Token || data.token)
       }
 
       navigate('/passwordrecovery')

@@ -13,7 +13,8 @@ export const Recovery = () => {
 
   useEffect(() => {
     const email = localStorage.getItem('RecoveryEmail')
-    if (!email) {
+    const token = localStorage.getItem('RecoveryToken')
+    if (!email || !token) {
       navigate('/forgotpassword')
     }
   }, [navigate])
@@ -33,8 +34,9 @@ export const Recovery = () => {
     }
 
     const email = localStorage.getItem('RecoveryEmail')
-    if (!email) {
-      setError('Email не знайдено. Почніть відновлення знову.')
+    const token = localStorage.getItem('RecoveryToken')
+    if (!email || !token) {
+      setError('Дані відновлення не знайдено. Почніть відновлення знову.')
       navigate('/forgotpassword')
       return
     }
@@ -44,7 +46,7 @@ export const Recovery = () => {
       const response = await fetch(`${GATEWAY_URL}/auth/reset-password`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, token, newPassword: password }),
       })
 
       if (!response.ok) {
@@ -54,6 +56,7 @@ export const Recovery = () => {
 
       // Очищаємо дані відновлення
       localStorage.removeItem('RecoveryEmail')
+      localStorage.removeItem('RecoveryToken')
       navigate('/login')
     } catch (err: unknown) {
       if (err instanceof Error) {

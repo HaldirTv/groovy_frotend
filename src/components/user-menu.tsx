@@ -7,9 +7,10 @@ import '../app.css'
 
 interface UserMenuProps {
   profileName: string
+  avatarUrl?: string | null
 }
 
-export const UserMenu: React.FC<UserMenuProps> = ({ profileName }) => {
+export const UserMenu: React.FC<UserMenuProps> = ({ profileName, avatarUrl }) => {
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
@@ -32,7 +33,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ profileName }) => {
 
   return (
     <div className="profileCont" ref={menuRef} onClick={() => setIsOpen(!isOpen)}>
-      <img src={Avatar} className="AvatarIcon" alt="Avatar" />
+      <img src={avatarUrl || Avatar} className="AvatarIcon" alt="Avatar" />
       
       <button className="ButtonProfile" type="button">
         {profileName}

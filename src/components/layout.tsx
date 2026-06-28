@@ -22,6 +22,7 @@ import Pause from '../assets/IconPause.svg'
 import RightArrow from '../assets/RightArrowLogo.svg'
 import Ref from '../assets/IconRef.svg'
 import Cover from '../assets/Cover.svg'
+import { useProfile } from '../context/profile context'
 import '../app.css'
 
 const PLAY_ICON_DATA = "data:image/svg+xml,%3csvg%20width='15'%20height='18'%20viewBox='0%200%2015%2018'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%2018V0L15%209L0%2018Z'%20fill='%230D0D12'/%3e%3c/svg%3e"
@@ -61,7 +62,7 @@ export const Layout: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const isDraggingVolume = useRef(false)
 
-  const profileName = localStorage.getItem('profileName') || 'Profile'
+  const { profileName, avatarUrl } = useProfile()
 
   useEffect(() => {
     if (activeTab === 'Search' && searchInputRef.current && location.pathname === '/main') {
@@ -221,7 +222,7 @@ export const Layout: React.FC = () => {
             >
               <img src={Notification} className="Notificationicon" alt="Сповіщення" />
             </button>
-            <UserMenu profileName={profileName} />
+            <UserMenu profileName={profileName} avatarUrl={avatarUrl} />
           </div>
         </header>
 

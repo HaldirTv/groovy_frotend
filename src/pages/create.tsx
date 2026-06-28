@@ -71,14 +71,7 @@ export const Create = () => {
         throw new Error(data.message || 'Помилка реєстрації')
       }
 
-      if (data.token) {
-        localStorage.setItem('UserEmail', email)
-        setAccessToken(data.token)
-      }
-
-      // Очищаємо тимчасові дані реєстрації
-      localStorage.removeItem('RegistrationEmail')
-      navigate('/main')
+      navigate('/confirm-reg')
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message)

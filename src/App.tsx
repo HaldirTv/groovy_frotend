@@ -15,7 +15,9 @@ import { ProtectedRoute } from './components/protected-route'
 import { PublicRoute } from './components/public-route'
 import { Layout } from './components/layout'
 import { PlayerProvider } from './context/player-context'
+import { ProfileProvider } from './context/profile context'
 import './app.css'
+import { ConfirmReg } from './pages/confirm-reg'
 
 export const App = () => {
   const [isInitializing, setIsInitializing] = useState(true)
@@ -44,32 +46,35 @@ export const App = () => {
   }
 
   return (
-    <PlayerProvider>
-      <Router>
-        <Routes>
-          <Route path='/' element={<Navigate to='/main' replace />} />
-          
-          {/* Public Routes (only for unauthenticated users) */}
-          <Route path='/reg' element={<PublicRoute><Reg /></PublicRoute>} />
-          <Route path='/login' element={<PublicRoute><Log /></PublicRoute>} />
-          <Route path='/create' element={<PublicRoute><Create /></PublicRoute>} />
-          <Route path='/forgotpassword' element={<PublicRoute><Forgot /></PublicRoute>} />
-          <Route path='/emailcod' element={<PublicRoute><Cod /></PublicRoute>} />
-          <Route path='/passwordrecovery' element={<PublicRoute><Recovery /></PublicRoute>} />
-          <Route path='/auth/callback' element={<PublicRoute><AuthCallback /></PublicRoute>} />
-          
-          {/* Protected Routes inside persistent layout with global audio */}
-          <Route element={<Layout />}>
-            <Route path='/profile' element={<Profile />} />
-            <Route path='/main' element={<Main />} />
-            <Route path='/ai-mix' element={<AiMixPage />} />
-          </Route>
-          
-          {/* Wildcard/Fallback */}
-          <Route path='*' element={<Navigate to='/main' replace />} />
-        </Routes>
-      </Router>
-    </PlayerProvider>
+    <ProfileProvider>
+      <PlayerProvider>
+        <Router>
+          <Routes>
+            <Route path='/' element={<Navigate to='/main' replace />} />
+            
+            {/* Public Routes (only for unauthenticated users) */}
+            <Route path='/reg' element={<PublicRoute><Reg /></PublicRoute>} />
+            <Route path='/login' element={<PublicRoute><Log /></PublicRoute>} />
+            <Route path='/create' element={<PublicRoute><Create /></PublicRoute>} />
+            <Route path='/confirm-reg' element={<PublicRoute><ConfirmReg /></PublicRoute>} />
+            <Route path='/forgotpassword' element={<PublicRoute><Forgot /></PublicRoute>} />
+            <Route path='/emailcod' element={<PublicRoute><Cod /></PublicRoute>} />
+            <Route path='/passwordrecovery' element={<PublicRoute><Recovery /></PublicRoute>} />
+            <Route path='/auth/callback' element={<PublicRoute><AuthCallback /></PublicRoute>} />
+            
+            {/* Protected Routes inside persistent layout with global audio */}
+            <Route element={<Layout />}>
+              <Route path='/profile' element={<Profile />} />
+              <Route path='/main' element={<Main />} />
+              <Route path='/ai-mix' element={<AiMixPage />} />
+            </Route>
+            
+            {/* Wildcard/Fallback */}
+            <Route path='*' element={<Navigate to='/main' replace />} />
+          </Routes>
+        </Router>
+      </PlayerProvider>
+    </ProfileProvider>
   )
 }
 

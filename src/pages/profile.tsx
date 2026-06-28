@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { usePlayer } from '../context/player-context'
 import { logoutUser } from '../api/auth'
 import { getAccessToken } from '../api/api-client'
+import { updateProfile, uploadAvatar, uploadBanner, deleteBanner as deleteBannerApi, resolveMediaUrl } from '../api/profile'
 import Cover from '../assets/Cover.svg'
 import ProfileAvatar from '../assets/avatartest.jpg'
 import ProfileBanner from '../assets/bannertest.jpg'
@@ -10,6 +11,7 @@ import '../app.css'
 import './profile.css'
 import { EditProfile } from './editprofile'
 import type { ProfileData } from './editprofile'
+import { useProfile } from '../context/profile context'
 
 const profileTabs = [
   'Мій акаунт',
@@ -41,9 +43,9 @@ const User = {
   bio: "Musik is the soundtrack of my life.",
   avatar: ProfileAvatar,
   banner: ProfileBanner,
-  playlists: 35,
-  following: 59,
-  followers: 355,
+  playlists: 0,
+  following: 0,
+  followers: 0,
   email: "test@gmail.com",
   country: "Україна",
   memberSince: "Квітень 2023",
@@ -86,11 +88,43 @@ type EditableField = 'username' | 'phone' | 'country' |'city' | 'birthday' | 'ge
 export const Profile = ({ user:initialUser = User }: ProfileProps) => {
   const navigate = useNavigate()
   const { setActiveTab } = usePlayer()
-  
+
+  const {
+    profileName, setProfileName,
+    avatarUrl, setAvatarUrl,
+    bannerUrl, setBannerUrl,
+    profileData, setProfileData,
+  } = useProfile()
+
   const [activeAccountSection, setActiveAccountSection] = useState('Огляд акаунта')
   const [activeProfileTab, setActiveProfileTab] = useState('Мій акаунт')
 
-  const [user, setUser] = useState(initialUser)
+  const [user, setUser] = useState({
+    ...initialUser,
+    firstName: profileData.firstName || initialUser.firstName,
+    lastName: profileData.lastName || initialUser.lastName,
+    city: profileData.city || initialUser.city,
+    country: profileData.country || initialUser.country,
+    bio: profileData.bio || initialUser.bio,
+    phone: profileData.phone || initialUser.phone,
+    birthday: profileData.birthday || initialUser.birthday,
+    gender: profileData.gender || initialUser.gender,
+  })
+
+  useEffect(() => {
+    setUser((prev) => ({
+      ...prev,
+      firstName: profileData.firstName || prev.firstName,
+      lastName: profileData.lastName || prev.lastName,
+      city: profileData.city || prev.city,
+      country: profileData.country || prev.country,
+      bio: profileData.bio || prev.bio,
+      phone: profileData.phone || prev.phone,
+      birthday: profileData.birthday || prev.birthday,
+      gender: profileData.gender || prev.gender,
+    }))
+  }, [profileData])
+
   const [EditProfileOpen, setEditProfileOpen] = useState(false)
   
   const [BannerMenuOpen, setBannerMenuOpen] = useState(false)
@@ -111,6 +145,8 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
   const [editingField, setEditingField] = useState<EditableField | null> (null)
   const [tempFieldValue, setTempFieldValue] = useState('')
 
+  const [saveError, setSaveError] = useState('')
+
   useEffect(() => {
     if (!BannerMenuOpen) return
     const handleOutsideClick = (e: MouseEvent) => {
@@ -123,42 +159,34 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
     return () => document.removeEventListener('mousedown', handleOutsideClick)
   }, [BannerMenuOpen])
 
-  const handleBannerFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBannerFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+
     const previewUrl = URL.createObjectURL(file)
-    setUser((prev) => ({ ...prev, banner: previewUrl}))
+    setUser((prev) => ({ ...prev, banner: previewUrl }))
     setBannerMenuOpen(false)
-  }
 
-  const handleRemoveBanner = () => {
-    setUser((prev) => ({...prev, banner: ''}))
-    setBannerMenuOpen(false)
-  }
-
-  const [profileName, setProfileName] = useState(() => {
-    const stored = localStorage.getItem('profileName')
-    if (stored) return stored
-    
-    const token = getAccessToken()
-    if (token) {
-      try {
-        const base64Url = token.split('.')[1]
-        if (base64Url) {
-          const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
-          const payload = JSON.parse(window.atob(base64))
-          const name = payload.unique_name || payload.name || payload['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name']
-          if (name) {
-            localStorage.setItem('profileName', name)
-            return name
-          }
-        }
-      } catch (e) {
-        console.error(e)
-      }
+    try {
+      const { bannerUrl: newBannerUrl } = await uploadBanner(file)
+      setBannerUrl(resolveMediaUrl(newBannerUrl) || newBannerUrl)
+    } catch (err) {
+      console.error('Не вдалося завантажити банер:', err)
+      setSaveError(err instanceof Error ? err.message : 'Не вдалося завантажити банер')
     }
-    return user.name
-  })
+  }
+
+  const handleRemoveBanner = async () => {
+    setUser((prev) => ({...prev, banner: ''}))
+    setBannerUrl('')
+    setBannerMenuOpen(false)
+
+    try {
+      await deleteBannerApi()
+    } catch (err) {
+      console.error('Не вдалося видалити банер на сервері:', err)
+    }
+  }
 
   const [isEditingName, setIsEditingName] = useState(false)
   const [tempName, setTempName] = useState('')
@@ -182,6 +210,7 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
   const handle = payload?.unique_name ? `@${payload.unique_name}` : `@${finalName.toLowerCase().replace(/\s+/g, '_')}`
 
   const personalUsername = user.username || handle
+  const currentAvatar = avatarUrl || user.avatar
 
   const getMemberSince = () => {
     if (payload?.nbf) {
@@ -200,11 +229,16 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
   }
   const memberSince = getMemberSince()
 
-  const handleNameChange = () => {
+  const handleNameChange = async () => {
     const trimmed = tempName.trim()
     if (trimmed) {
       setProfileName(trimmed)
-      localStorage.setItem('profileName', trimmed)
+      try {
+        await updateProfile({ displayName: trimmed })
+      } catch (err) {
+        console.error('Не вдалося зберегти ім\'я на сервері:', err)
+        setSaveError(err instanceof Error ? err.message : 'Не вдалося зберегти ім\'я')
+      }
     }
     setIsEditingName(false)
   }
@@ -214,10 +248,29 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
     setEditingField(field)
   }
 
-  const handleFieldSave = () => {
+  const fieldToPayloadKey: Record<EditableField, string> = {
+    username: 'displayName', 
+    phone: 'phone',
+    country: 'country',
+    city: 'city',
+    birthday: 'birthday',
+    gender: 'gender',
+  }
+
+  const handleFieldSave = async () => {
     if (!editingField) return
     const trimmed = tempFieldValue.trim()
     setUser((prev) => ({...prev, [editingField]: trimmed}))
+
+    if (editingField !== 'username') {
+      try {
+        await updateProfile({ [fieldToPayloadKey[editingField]]: trimmed })
+      } catch (err) {
+        console.error('Не вдалося зберегти поле на сервері:', err)
+        setSaveError(err instanceof Error ? err.message : 'Не вдалося зберегти зміни')
+      }
+    }
+
     setEditingField(null)
   }
 
@@ -225,23 +278,49 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
     setEditingField(null)
   }
 
-  const handleSaveProfile = (data: ProfileData) => {
+  const handleSaveProfile = async (data: ProfileData) => {
+    setSaveError('')
+
     const trimmedName = data.displayName.trim()
     if (trimmedName) {
       setProfileName(trimmedName)
-      localStorage.setItem('profileName', trimmedName)
-  }
+    }
 
-  setUser((prev) => ({
-    ...prev,
-    firstName: data.firstName,
-    lastName: data.lastName,
-    city: data.city,
-    country: data.country,
-    bio: data.bio,
-    avatar: data.avatarPreviewUrl,
-  }))
-    setEditProfileOpen(false)
+    setUser((prev) => ({
+      ...prev,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      city: data.city,
+      country: data.country,
+      bio: data.bio,
+      avatar: data.avatarPreviewUrl,
+    }))
+
+    try {
+      await updateProfile({
+        displayName: trimmedName,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        city: data.city,
+        country: data.country,
+        bio: data.bio,
+        linkUrl: data.linkUrl,
+        linkLabel: data.linkLabel,
+        supportLink: data.supportLink,
+      })
+
+      if (data.avatarFile) {
+        const { avatarUrl: newAvatarUrl } = await uploadAvatar(data.avatarFile)
+        setAvatarUrl(resolveMediaUrl(newAvatarUrl) || newAvatarUrl)
+      } else {
+        setAvatarUrl(data.avatarPreviewUrl)
+      }
+
+      setEditProfileOpen(false)
+    } catch (err) {
+      console.error('Не вдалося зберегти профіль на сервері:', err)
+      setSaveError(err instanceof Error ? err.message : 'Не вдалося зберегти профіль')
+    }
   }
 
   const handleTabClick = (tab: string) => {
@@ -297,8 +376,13 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
 
   return (
     <div className="ProfMain2">
+      {saveError && (
+        <div className="auth-error" role="alert" style={{ width: '100%' }}>
+          {saveError}
+        </div>
+      )}
       <div className="ProfileUser">
-        <img src={user.banner} className="ProfileUserBg" />
+        <img src={bannerUrl || user.banner} className="ProfileUserBg" />
         <div className="ProfileUserOverlay"></div>
 
         <div className='BannerEditWrap' ref={bannerMenuRef}>
@@ -322,7 +406,7 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
         </div>
         
         <div className="ProfAvatarWrap">
-          <img src={user.avatar} className="ProfAvatarImg" />
+          <img src={currentAvatar} className="ProfAvatarImg" />
         </div>
 
         <div className="ProfNameBlock">
@@ -578,7 +662,6 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
         <div className="ProfRecentGrid">
           {recentlyPlayed.map((item) => (
             <div className="ProfRecentCard" key={item.id}>
-              <img src={item.cover} className="ProfRecentCardImg" />
             </div>
           ))}
         </div>
@@ -586,7 +669,7 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
       {EditProfileOpen && (
         <EditProfile
         user={{
-          avatar: user.avatar,
+          avatar: currentAvatar,
           name: finalName,
           firstName: user.firstName,
           lastName: user.lastName,

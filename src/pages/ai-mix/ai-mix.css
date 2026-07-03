@@ -1,0 +1,66 @@
+.ai-mix-page {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 28px 40px 40px 80px;
+  gap: 32px;
+  isolation: isolate;
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 96px;
+  margin-top: 80px;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.2) 0%, rgba(102, 102, 102, 0.2) 100%), #16161F;
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Background decorative glows */
+.ai-mix-page .bg-glow {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(140px);
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.35;
+}
+
+.ai-mix-page .bg-glow-1 {
+  background: radial-gradient(circle, #a98fdb 0%, rgba(169, 143, 219, 0) 70%);
+  width: 500px;
+  height: 500px;
+  top: -100px;
+  right: -50px;
+}
+
+.ai-mix-page .bg-glow-2 {
+  background: radial-gradient(circle, #72deef 0%, rgba(114, 222, 239, 0) 70%);
+  width: 600px;
+  height: 600px;
+  top: 400px;
+  left: -200px;
+}
+
+.ai-mix-page .bg-glow-3 {
+  background: radial-gradient(circle, #a98fdb 0%, rgba(169, 143, 219, 0) 70%);
+  width: 550px;
+  height: 550px;
+  bottom: 200px;
+  right: -100px;
+}
+
+/* Ensure sections sit on top of glows */
+.hero-section-margin,
+.section-statistics,
+.section-real-time,
+.new-ai-albums,
+.new-how-ai-creates,
+.ai-mixes-section,
+.content-grid-ai,
+.footer-from-json {
+  position: relative;
+  z-index: 1;
+}
+

@@ -10,6 +10,7 @@ import Arrow from '../assets/IconArrow.svg'
 import Cover from '../assets/Cover.svg'
 import '../app.css'
 import { Pagination } from '../components/pagination'
+import { useProfile } from '../context/profile context'
 
 export interface PlaylistListItem {
   id: string;
@@ -68,7 +69,7 @@ export const Main: React.FC = () => {
     fetchTracks,
   } = usePlayer()
 
-  const [profileName, setProfileName] = useState(() => localStorage.getItem('profileName') || 'Profile')
+  const { profileName, setProfileName: setProfileNameContext } = useProfile()
   const [showAllTracks, setShowAllTracks] = useState(false)
 
   const [playlists, setPlaylists] = useState<PlaylistListItem[]>([])
@@ -79,7 +80,6 @@ export const Main: React.FC = () => {
   const [showPlaylistModal, setShowPlaylistModal] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; visible: boolean } | null>(null)
 
-  // ========== HISTORY STATE (перемещено в Library) ==========
   const [historyItems, setHistoryItems] = useState<Track[]>([])
   const [historyTotalCount, setHistoryTotalCount] = useState(0)
   const [historyPage, setHistoryPage] = useState(1)
@@ -131,14 +131,12 @@ export const Main: React.FC = () => {
     }
   }
 
-  // Завантажуємо історію при переході на вкладку Library
   useEffect(() => {
     if (activeTab === 'Library') {
       fetchHistory(1, false)
     }
   }, [activeTab])
 
-  // Оновлюємо історію після зміни треку, але тільки якщо ми на Library
   useEffect(() => {
     if (currentTrack && activeTab === 'Library') {
       const timer = setTimeout(() => {
@@ -147,7 +145,6 @@ export const Main: React.FC = () => {
       return () => clearTimeout(timer)
     }
   }, [currentTrack, activeTab])
-  // ========== КІНЕЦЬ БЛОКУ ІСТОРІЇ ==========
 
   const showToast = (message: string) => {
     setToast({ message, visible: true })
@@ -199,7 +196,7 @@ export const Main: React.FC = () => {
     } else if (['Home', 'Search'].includes(activeTab)) {
       fetchTracks(activeTab === 'Search' ? searchQuery : '', 1, false)
     }
-    // Library теперь не вызывает fetchTracks, чтобы не конфликтовать с историей
+    
   }, [activeTab])
 
   useEffect(() => {
@@ -350,8 +347,7 @@ export const Main: React.FC = () => {
   }
 
   const handleProfileNameChange = (name: string) => {
-    setProfileName(name)
-    localStorage.setItem('profileName', name)
+    setProfileNameContext(name)
   }
 
   const handleLogout = async () => await logoutUser()
@@ -576,7 +572,6 @@ export const Main: React.FC = () => {
         </div>
       )}
 
-      {/* ========== ВКЛАДКА LIBRARY з історією ========== */}
       {activeTab === 'Library' && (
         <div className="LibraryTabContent">
           <span className="SectionTitle">Ваша медіатека</span>
@@ -616,7 +611,6 @@ export const Main: React.FC = () => {
             </div>
           </div>
 
-          {/* ===== Блок історії прослуховування ===== */}
           <div style={{ marginTop: '48px' }}>
             <div className="TrendingNow">
               <div className="ContTextTrendingNow">
@@ -735,19 +729,15 @@ export const Main: React.FC = () => {
         ) : (
           <div className="PlaylistGrid">
             {playlists.map((playlist) => {
-              // Функция для получения полного URL обложки
               const getCoverUrl = (url: string | null | undefined) => {
                 if (!url) return Cover;
                 if (url.startsWith('http://') || url.startsWith('https://')) return url;
-                // Для относительных путей (локальные файлы)
                 return `${GATEWAY_URL}/music/files/${url.replace(/\\/g, '/')}`;
               };
 
-              // Подготавливаем 4 элемента для коллажа (заполняем null, если не хватает)
-              const coverItems = [...playlist.collageCovers];
+              const coverItems: (string | null)[] = [...playlist.collageCovers];
               while (coverItems.length < 4) coverItems.push(null);
 
-              // Проверяем, есть ли хоть одна обложка
               const hasAnyCover = coverItems.some(url => url !== null);
 
               return (
@@ -757,7 +747,6 @@ export const Main: React.FC = () => {
                   style={{ cursor: 'pointer', background: 'transparent', border: 'none' }}
                   onClick={() => fetchPlaylistById(playlist.id)}
                 >
-                  {/* Блок коллажа */}
                   <div className="PlaylistCollage">
                     {coverItems.map((url, idx) => (
                       <div key={idx} className="PlaylistCollageItem">
@@ -772,15 +761,12 @@ export const Main: React.FC = () => {
                         )}
                       </div>
                     ))}
-                    {/* Если нет ни одной обложки, показываем иконку ноты */}
                     {!hasAnyCover && (
                       <div className="PlaylistCollageEmptyIcon">
                         <span className="PlaylistEmptyNote">♪</span>
                       </div>
                     )}
                   </div>
-
-                  {/* Текстовая информация */}
                   <div className="PlaylistCardContent" style={{ marginTop: '12px' }}>
                     <span className="PlaylistCardTitle">{playlist.title}</span>
                     <span className="PlaylistCardDesc">
@@ -795,7 +781,6 @@ export const Main: React.FC = () => {
         )}
       </>
     ) : (
-      // === Детальный просмотр плейлиста ===
       <>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>

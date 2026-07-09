@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { usePlayer } from '../context/player-context'
 import { logoutUser } from '../api/auth'
@@ -7,6 +8,7 @@ import { updateProfile, uploadAvatar, uploadBanner, deleteBanner as deleteBanner
 import Cover from '../assets/Cover.svg'
 import ProfileAvatar from '../assets/avatartest.jpg'
 import ProfileBanner from '../assets/bannertest.jpg'
+import CloseIcon from '../assets/Closeicon.svg'
 import '../app.css'
 import './profile.css'
 import { EditProfile } from './editprofile'
@@ -35,6 +37,55 @@ const accountSideNav = [
 
 const recentlyPlayed = [
   { id: 1, cover: Cover }
+]
+
+const subscriptionPlans = [
+  {
+    key: 'free',
+    title: 'Groovra Free',
+    price: '$0 / місяць',
+    buttonText: 'Поточний план',
+    features: [
+      'Стандартний план для всіх користувачів Groovra',
+      'Реклама між треками',
+      'Стандартна якість звуку (160 kbps)',
+      'Створення та збереження плейлистів',
+      'Базові музичні рекомендації',
+      'Обмежена кількість пропусків треків',
+    ],
+  },
+  {
+    key: 'plus',
+    title: 'Groovra Plus',
+    price: '$5.99 / місяць',
+    buttonText: 'Оформити Plus',
+    footnote: 'Скасовуйте підписку будь-коли. Перші 7 днів Plus — безкоштовно',
+    features: [
+      'Ідеально для щоденного прослуховування музики',
+      'Без реклами',
+      'Висока якість звуку (320 kbps)',
+      'Необмежена кількість пропусків треків',
+      'Фонове відтворення',
+      'Прослуховування на 2 пристроях одночасно',
+      'Ранній доступ до нових функцій',
+    ],
+  },
+  {
+    key: 'premium',
+    title: 'Groovra Premium',
+    price: '$11.99 / місяць',
+    buttonText: 'Перейти на Premium',
+    footnote: 'Скасовуйте підписку будь-коли. Перші 7 днів Premium — безкоштовно',
+    features: [
+      'Максимум можливостей для справжніх меломанів.',
+      'Усі переваги Plus',
+      'Lossless Audio (Hi-Fi якість)',
+      'Необмежений доступ до AI Mix',
+      'Синхронізація між усіма пристроями',
+      'Ексклюзивні плейлисти та добірки',
+      'Значок Premium у профілі',
+    ],
+  },
 ]
 
 const User = {
@@ -98,6 +149,9 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
 
   const [activeAccountSection, setActiveAccountSection] = useState('Огляд акаунта')
   const [activeProfileTab, setActiveProfileTab] = useState('Мій акаунт')
+
+  const [showPlansModal, setShowPlansModal] = useState(false)
+  const [showLogoutModal, setShowLogoutModal] = useState(false)
 
   const [user, setUser] = useState({
     ...initialUser,
@@ -343,15 +397,21 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
     }
   }
 
+  const confirmLogout = () => {
+    setShowLogoutModal(false)
+    logoutUser()
+  }
+
   const handleTabClick = (tab: string) => {
     if (tab === 'Вийти') {
-      logoutUser()
+      setShowLogoutModal(true)
     } else if (tab === 'Завантаження') {
-      setActiveTab('Downloads')
-      navigate('/main')
+      navigate('/downloads')
     } else if (tab === 'Мої плейлисти') {
       setActiveTab('Playlist')
       navigate('/main')
+    } else if (tab === 'Преміум-підписка') {
+      setShowPlansModal(true)
     } else if (
       tab === 'Мій акаунт' ||
       tab === 'Стати виконавцем' ||
@@ -527,7 +587,7 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
                 <span className="ProfInfoValue">{memberSince}</span>
               </div>
 
-              <button className="ProfManageSub" onClick={() => alert('Преміум-підписка тимчасово недоступна')}>
+              <button className="ProfManageSub" onClick={() => setShowPlansModal(true)}>
                 <span className='ProfManageSubText'>Керувати підпискою</span>
               </button>
             </>
@@ -607,7 +667,7 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
               <div className="ProfInfoRow">
                 <span className="ProfInfoLabel">Поточний тариф</span>
                 <span className="ProfInfoValue">Безкоштовна версія (Listener)</span>
-                <button className='ProfInfoChange' onClick={() => alert('Зміна тарифу тимчасово недоступна')}>
+                <button className='ProfInfoChange' onClick={() => setShowPlansModal(true)}>
                   Змінити
                 </button>
               </div>
@@ -625,7 +685,7 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
                   Переглянути
                 </button>
               </div>
-              <button className="ProfManageSub" onClick={() => alert('Преміум-підписка тимчасово недоступна')}>
+              <button className="ProfManageSub" onClick={() => setShowPlansModal(true)}>
                 <span className="ProfManageSubText">Керувати підпискою</span>
               </button>
             </>
@@ -843,7 +903,50 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
         onSave={handleSaveProfile}
         />
       )}
-
+      {showPlansModal && createPortal(
+        <div className="PlansModalOverlay" onClick={() => setShowPlansModal(false)}>
+          <div className="PlansModalGrid" onClick={(e) => e.stopPropagation()}>
+            {subscriptionPlans.map((plan) => (
+              <div className="PlanCard" key={plan.key}>
+                <span className="PlanCardTitle">{plan.title}</span>
+                <ul className="PlanCardFeatures">
+                  {plan.features.map((feature) => (
+                    <li key={feature}>{feature}</li>
+                  ))}
+                </ul>
+                <span className="PlanCardPrice">{plan.price}</span>
+                <button
+                  className="PlanCardButton"
+                  onClick={() => {
+                    alert(`Оформлення "${plan.title}" тимчасово недоступне`)
+                    setShowPlansModal(false)
+                  }}
+                >
+                  {plan.buttonText}
+                </button>
+                {plan.footnote && <span className="PlanCardFootnote">{plan.footnote}</span>}
+              </div>
+            ))}
+          </div>
+        </div>,
+        document.body
+      )}
+      {showLogoutModal && createPortal(
+        <div className="LogoutModalOverlay" onClick={() => setShowLogoutModal(false)}>
+          <div className="LogoutModalBox" onClick={(e) => e.stopPropagation()}>
+            <button className="LogoutModalClose" onClick={() => setShowLogoutModal(false)}>
+              <img src={CloseIcon} className="LogoutModalCloseIcon" />
+            </button>
+ 
+            <span className="LogoutModalText">Ви впевнені що хочете вийти?</span>
+ 
+            <button className="LogoutModalConfirm" onClick={confirmLogout}>
+              <span className="LogoutModalConfirmText">Так</span>
+            </button>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   )
 }

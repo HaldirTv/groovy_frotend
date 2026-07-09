@@ -5,8 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    port: 5178, // Фронтенд железно сидит на этом порту
-    // Прокси удален. Теперь все запросы идут напрямую.
+    port: 5178, 
   },
   build: {
     chunkSizeWarningLimit: 600,

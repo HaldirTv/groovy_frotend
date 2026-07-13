@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlayer, type Track } from '../context/player-context'
 import { logoutUser } from '../api/auth'
 import { apiFetch, GATEWAY_URL } from '../api/api-client'
@@ -50,6 +51,7 @@ export interface PlaylistDetail {
 
 
 export const Main: React.FC = () => {
+  const { t } = useTranslation()
   const location = useLocation()
   const {
     tracks,
@@ -369,24 +371,32 @@ export const Main: React.FC = () => {
           <img src={BackLogo} className="BackLogo" alt="Background decoration" />
 
           <div className="ContMainHello">
-            <span className="MainHeaderText">Добрий вечір, </span>
+            <span className="MainHeaderText">
+              {(() => {
+                const hours = new Date().getHours()
+                if (hours >= 5 && hours < 12) return t('greetings.morning')
+                if (hours >= 12 && hours < 18) return t('greetings.afternoon')
+                if (hours >= 18 && hours < 23) return t('greetings.evening')
+                return t('greetings.night')
+              })()}
+            </span>
             <div className="NameText">
               <span className="ProfileText">{profileName}</span>
             </div>
           </div>
           <div className="OpCont">
-            <span className="OpText">Час набирати ауру, оберіть плейлист</span>
+            <span className="OpText">{t('main.hello_sub')}</span>
           </div>
           <div className="MainLine"></div>
 
           <div className="TrendingNow">
             <div className="ContTextTrendingNow">
-              <span className="LisNowTrending">Слухають зараз</span>
-              <span className="TrendNowText">У тренді зараз</span>
+              <span className="LisNowTrending">{t('main.trending_listening')}</span>
+              <span className="TrendNowText">{t('main.trending_now')}</span>
             </div>
             {tracks.length > 6 && !searchQuery.trim() && (
               <button className="ButtonViewAll" onClick={() => setShowAllTracks(!showAllTracks)}>
-                <span className="TextViewAll">{showAllTracks ? 'ЗГОРНУТИ' : 'ДИВИТИСЬ ВСІ'}</span>
+                <span className="TextViewAll">{showAllTracks ? t('main.collapse') : t('main.view_all')}</span>
                 <img src={Arrow} className="ArrowViewAll" style={{ transform: showAllTracks ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} alt="Toggle" />
               </button>
             )}
@@ -394,9 +404,9 @@ export const Main: React.FC = () => {
 
           <div className="MusicCardCont">
             {isLoadingTracks ? (
-              <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Завантаження треків...</div>
+              <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>{t('main.loading_tracks')}</div>
             ) : tracks.length === 0 ? (
-              <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Не знайдено жодного треку</div>
+              <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>{t('main.not_found_tracks')}</div>
             ) : (
               homeTracks.map((track) => (
                 <div
@@ -421,7 +431,7 @@ export const Main: React.FC = () => {
                   <button
                     className="AddToPlaylistBtn"
                     onClick={(e) => { e.stopPropagation(); openAddTrackModal(track.trackId) }}
-                    title="Додати до плейлиста"
+                    title={t('trackPage.add')}
                   >
                     +
                   </button>
@@ -433,9 +443,9 @@ export const Main: React.FC = () => {
           <AiMixesPanel>
             <div className="MusicCardCont" style={{ border: 'none', padding: 0, background: 'transparent', margin: 0 }}>
               {isLoadingTracks ? (
-                <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Завантаження треків...</div>
+                <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>{t('main.loading_tracks')}</div>
               ) : tracks.length === 0 ? (
-                <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Не знайдено жодного треку</div>
+                <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>{t('main.not_found_tracks')}</div>
               ) : (
                 tracks.slice(0, 3).map((track) => (
                   <div
@@ -694,13 +704,13 @@ export const Main: React.FC = () => {
     {!activePlaylistDetail ? (
       <>
         <div className="SearchHeader" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span className="SectionTitle">Ваші Плейлисти</span>
+          <span className="SectionTitle">{t('main.playlists_title')}</span>
           <button
             className="AiGenerateBtn"
             style={{ width: 'auto', padding: '10px 20px', marginTop: 0 }}
             onClick={() => setIsCreatingPlaylist(!isCreatingPlaylist)}
           >
-            {isCreatingPlaylist ? 'Скасувати' : '+ Створити'}
+            {isCreatingPlaylist ? t('profile.cancel_btn') : `+ ${t('main.playlists_title').slice(0, -1)}`}
           </button>
         </div>
 

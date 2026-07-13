@@ -76,9 +76,16 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState('Home')
 
-  const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  const [likedTrackIds, setLikedTrackIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('likedTrackIds')
+      return saved ? JSON.parse(saved) : []
+    } catch {
+      return []
+    }
+  })
 
-  const [likedTrackIds, setLikedTrackIds] = useState<string[]>([])
+  const [blobUrl, setBlobUrl] = useState<string | null>(null)
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const isLiked = currentTrack ? likedTrackIds.includes(currentTrack.trackId) : false

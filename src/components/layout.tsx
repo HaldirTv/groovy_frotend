@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback } from 'react'
+import React, { useState, useRef, useEffect, useCallback } from 'react'
 import { Outlet, useNavigate, useLocation } from 'react-router-dom'
 import { usePlayer } from '../context/player-context'
 import { UserMenu } from './user-menu'
@@ -23,6 +23,7 @@ import RightArrow from '../assets/RightArrowLogo.svg'
 import Ref from '../assets/IconRef.svg'
 import Cover from '../assets/Cover.svg'
 import { useProfile } from '../context/profile context'
+import { NotificationDropdown } from './notification-dropdown'
 import '../app.css'
 
 const PLAY_ICON_DATA = "data:image/svg+xml,%3csvg%20width='15'%20height='18'%20viewBox='0%200%2015%2018'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%2018V0L15%209L0%2018Z'%20fill='%230D0D12'/%3e%3c/svg%3e"
@@ -62,6 +63,9 @@ export const Layout: React.FC = () => {
   const searchInputRef = useRef<HTMLInputElement>(null)
   const isDraggingVolume = useRef(false)
 
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const notificationRef = useRef<HTMLDivElement>(null)
+
   const { profileName, avatarUrl } = useProfile()
 
   useEffect(() => {
@@ -70,10 +74,40 @@ export const Layout: React.FC = () => {
     }
   }, [activeTab, location.pathname])
 
+  useEffect(() => {
+    if (location.pathname === '/downloads') {
+      setActiveTab('Downloads')
+    } else if (location.pathname === '/ai-mix') {
+      setActiveTab('AI')
+    } else if (location.pathname === '/profile') {
+      setActiveTab('Profile')
+    } else if (location.pathname === '/main') {
+      if (activeTab === 'Downloads' || activeTab === 'AI' || activeTab === 'Profile') {
+        setActiveTab('Home')
+      }
+    }
+  }, [location.pathname, setActiveTab])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationRef.current && !notificationRef.current.contains(event.target as Node)) {
+        setIsNotificationOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
   const handleSidebarClick = (tab: string) => {
     setActiveTab(tab)
-    if (location.pathname !== '/main') {
-      navigate('/main')
+    if (tab === 'Downloads') {
+      navigate('/downloads')
+    } else if (tab === 'AI') {
+      navigate('/ai-mix')
+    } else {
+      if (location.pathname !== '/main') {
+        navigate('/main')
+      }
     }
   }
 
@@ -213,6 +247,19 @@ export const Layout: React.FC = () => {
           </div>
 
           <div className="UserCont">
+            <div className="NotificationContainer" ref={notificationRef}>
+              <button
+                type="button"
+                className={`NotificationBtn ${isNotificationOpen ? 'active' : ''}`}
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                title="Сповіщення"
+                aria-label="Сповіщення"
+              >
+                <img src={Notification} className="Notificationicon" alt="Сповіщення" />
+              </button>
+              <NotificationDropdown isOpen={isNotificationOpen} />
+            </div>
+            <UserMenu profileName={profileName} avatarUrl={avatarUrl} />
             <button
               type="button"
               className="NotificationBtn"

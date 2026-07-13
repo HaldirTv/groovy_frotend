@@ -79,6 +79,76 @@ export const Main: React.FC = () => {
   const [showPlaylistModal, setShowPlaylistModal] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; visible: boolean } | null>(null)
 
+  // ========== HISTORY STATE (перемещено в Library) ==========
+  const [historyItems, setHistoryItems] = useState<Track[]>([])
+  const [historyTotalCount, setHistoryTotalCount] = useState(0)
+  const [historyPage, setHistoryPage] = useState(1)
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false)
+  const [hasMoreHistory, setHasMoreHistory] = useState(true)
+  const [showAllHistory, setShowAllHistory] = useState(false)
+  const HISTORY_PAGE_SIZE = 10
+
+  const fetchHistory = async (page: number = 1, append: boolean = false) => {
+    if (isLoadingHistory) return
+    setIsLoadingHistory(true)
+    try {
+      const url = `${GATEWAY_URL}/api/history?pageNumber=${page}&pageSize=${HISTORY_PAGE_SIZE}`
+      const response = await apiFetch(url)
+      if (response.ok) {
+        const data = await response.json()
+        const mappedTracks: Track[] = data.items.map((item: any) => ({
+          trackId: item.trackId,
+          title: item.title,
+          artistName: item.artistName,
+          durationSeconds: item.durationSeconds || 0,
+          audioUrl: item.audioUrl || `${GATEWAY_URL}/music/tracks/${item.trackId}/stream`,
+          coverImageUrl: item.coverImageUrl || Cover,
+          fileSizeBytes: item.fileSizeBytes || 0,
+          contentType: item.contentType || 'audio/mpeg',
+          uploadedAt: item.uploadedAt || new Date().toISOString(),
+          playCount: item.playCount || 0,
+          genre: item.genre || 'POP',
+        }))
+        if (append) {
+          setHistoryItems(prev => [...prev, ...mappedTracks])
+        } else {
+          setHistoryItems(mappedTracks)
+        }
+        setHistoryTotalCount(data.totalCount)
+        setHasMoreHistory(page * HISTORY_PAGE_SIZE < data.totalCount)
+        setHistoryPage(page)
+      }
+    } catch (error) {
+      console.error('Помилка завантаження історії:', error)
+    } finally {
+      setIsLoadingHistory(false)
+    }
+  }
+
+  const loadMoreHistory = () => {
+    if (!isLoadingHistory && hasMoreHistory) {
+      fetchHistory(historyPage + 1, true)
+    }
+  }
+
+  // Завантажуємо історію при переході на вкладку Library
+  useEffect(() => {
+    if (activeTab === 'Library') {
+      fetchHistory(1, false)
+    }
+  }, [activeTab])
+
+  // Оновлюємо історію після зміни треку, але тільки якщо ми на Library
+  useEffect(() => {
+    if (currentTrack && activeTab === 'Library') {
+      const timer = setTimeout(() => {
+        fetchHistory(1, false)
+      }, 2000)
+      return () => clearTimeout(timer)
+    }
+  }, [currentTrack, activeTab])
+  // ========== КІНЕЦЬ БЛОКУ ІСТОРІЇ ==========
+
   const showToast = (message: string) => {
     setToast({ message, visible: true })
     setTimeout(() => {
@@ -126,9 +196,10 @@ export const Main: React.FC = () => {
     } else if (activeTab === 'Playlist') {
       fetchPlaylists()
       setActivePlaylistDetail(null)
-    } else if (['Home', 'Library', 'Search'].includes(activeTab)) {
+    } else if (['Home', 'Search'].includes(activeTab)) {
       fetchTracks(activeTab === 'Search' ? searchQuery : '', 1, false)
     }
+    // Library теперь не вызывает fetchTracks, чтобы не конфликтовать с историей
   }, [activeTab])
 
   useEffect(() => {
@@ -505,6 +576,7 @@ export const Main: React.FC = () => {
         </div>
       )}
 
+      {/* ========== ВКЛАДКА LIBRARY з історією ========== */}
       {activeTab === 'Library' && (
         <div className="LibraryTabContent">
           <span className="SectionTitle">Ваша медіатека</span>
@@ -543,147 +615,267 @@ export const Main: React.FC = () => {
               ))}
             </div>
           </div>
+
+          {/* ===== Блок історії прослуховування ===== */}
+          <div style={{ marginTop: '48px' }}>
+            <div className="TrendingNow">
+              <div className="ContTextTrendingNow">
+                <span className="LisNowTrending">Історія прослуховування</span>
+                <span className="TrendNowText">Ваші нещодавно прослухані треки</span>
+              </div>
+              {historyItems.length > 6 && (
+                <button className="ButtonViewAll" onClick={() => setShowAllHistory(!showAllHistory)}>
+                  <span className="TextViewAll">{showAllHistory ? 'ЗГОРНУТИ' : 'ДИВИТИСЬ ВСІ'}</span>
+                  <img
+                    src={Arrow}
+                    className="ArrowViewAll"
+                    style={{
+                      transform: showAllHistory ? 'rotate(180deg)' : 'none',
+                      transition: 'transform 0.2s',
+                    }}
+                    alt="Toggle"
+                  />
+                </button>
+              )}
+            </div>
+
+            <div className="MusicCardCont">
+              {isLoadingHistory && historyItems.length === 0 ? (
+                <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>
+                  Завантаження історії...
+                </div>
+              ) : historyItems.length === 0 ? (
+                <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>
+                  Історія порожня. Слухайте музику!
+                </div>
+              ) : (
+                (showAllHistory ? historyItems : historyItems.slice(0, 6)).map((track) => (
+                  <div
+                    key={track.trackId}
+                    className={`MusicCard ${currentTrack?.trackId === track.trackId ? 'active-track' : ''}`}
+                    onClick={() => selectTrack(track)}
+                    style={{ position: 'relative' }}
+                  >
+                    <div className="OverCover">
+                      <img
+                        src={track.coverImageUrl || Cover}
+                        className="CoverImg"
+                        alt={track.title}
+                        onError={(e) => { (e.target as HTMLImageElement).src = Cover }}
+                      />
+                    </div>
+                    <div className="ContMusicCardText">
+                      <span className="HeadText">{track.title}</span>
+                      <span className="AuthorText">{track.artistName}</span>
+                      <span className="StyleTrack">{track.genre || 'POP'}</span>
+                    </div>
+                    <button
+                      className="AddToPlaylistBtn"
+                      onClick={(e) => { e.stopPropagation(); openAddTrackModal(track.trackId) }}
+                      title="Додати до плейлиста"
+                    >
+                      +
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            {showAllHistory && hasMoreHistory && (
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '20px' }}>
+                <button
+                  className="AiGenerateBtn"
+                  style={{ width: 'auto', padding: '10px 24px' }}
+                  onClick={loadMoreHistory}
+                  disabled={isLoadingHistory}
+                >
+                  {isLoadingHistory ? 'Завантаження...' : 'Завантажити ще'}
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       )}
 
       {activeTab === 'Playlist' && (
-        <div className="PlaylistTabContent">
-          {!activePlaylistDetail ? (
-            <>
-              <div className="SearchHeader" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span className="SectionTitle">Ваші Плейлисти</span>
-                <button
-                  className="AiGenerateBtn"
-                  style={{ width: 'auto', padding: '10px 20px', marginTop: 0 }}
-                  onClick={() => setIsCreatingPlaylist(!isCreatingPlaylist)}
+  <div className="PlaylistTabContent">
+    {!activePlaylistDetail ? (
+      <>
+        <div className="SearchHeader" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span className="SectionTitle">Ваші Плейлисти</span>
+          <button
+            className="AiGenerateBtn"
+            style={{ width: 'auto', padding: '10px 20px', marginTop: 0 }}
+            onClick={() => setIsCreatingPlaylist(!isCreatingPlaylist)}
+          >
+            {isCreatingPlaylist ? 'Скасувати' : '+ Створити'}
+          </button>
+        </div>
+
+        {isCreatingPlaylist && (
+          <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+            <input
+              type="text"
+              className="SettingsInput"
+              placeholder="Введіть назву плейлиста..."
+              value={newPlaylistTitle}
+              onChange={(e) => setNewPlaylistTitle(e.target.value)}
+              style={{ maxWidth: '300px' }}
+            />
+            <button className="AiGenerateBtn" style={{ width: 'auto' }} onClick={handleCreatePlaylist}>
+              Зберегти
+            </button>
+          </div>
+        )}
+
+        {isLoadingPlaylists ? (
+          <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Завантаження плейлистів...</div>
+        ) : playlists.length === 0 ? (
+          <div className="EmptyStateText">У вас ще немає плейлистів. Створіть свій перший!</div>
+        ) : (
+          <div className="PlaylistGrid">
+            {playlists.map((playlist) => {
+              // Функция для получения полного URL обложки
+              const getCoverUrl = (url: string | null | undefined) => {
+                if (!url) return Cover;
+                if (url.startsWith('http://') || url.startsWith('https://')) return url;
+                // Для относительных путей (локальные файлы)
+                return `${GATEWAY_URL}/music/files/${url.replace(/\\/g, '/')}`;
+              };
+
+              // Подготавливаем 4 элемента для коллажа (заполняем null, если не хватает)
+              const coverItems = [...playlist.collageCovers];
+              while (coverItems.length < 4) coverItems.push(null);
+
+              // Проверяем, есть ли хоть одна обложка
+              const hasAnyCover = coverItems.some(url => url !== null);
+
+              return (
+                <div
+                  key={playlist.id}
+                  className="PlaylistCard"
+                  style={{ cursor: 'pointer', background: 'transparent', border: 'none' }}
+                  onClick={() => fetchPlaylistById(playlist.id)}
                 >
-                  {isCreatingPlaylist ? 'Скасувати' : '+ Створити'}
-                </button>
-              </div>
-
-              {isCreatingPlaylist && (
-                <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
-                  <input
-                    type="text"
-                    className="SettingsInput"
-                    placeholder="Введіть назву плейлиста..."
-                    value={newPlaylistTitle}
-                    onChange={(e) => setNewPlaylistTitle(e.target.value)}
-                    style={{ maxWidth: '300px' }}
-                  />
-                  <button className="AiGenerateBtn" style={{ width: 'auto' }} onClick={handleCreatePlaylist}>
-                    Зберегти
-                  </button>
-                </div>
-              )}
-
-              {isLoadingPlaylists ? (
-                <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Завантаження плейлистів...</div>
-              ) : playlists.length === 0 ? (
-                <div className="EmptyStateText">У вас ще немає плейлистів. Створіть свій перший!</div>
-              ) : (
-                <div className="PlaylistGrid">
-                  {playlists.map(playlist => (
-                    <div
-                      key={playlist.id}
-                      className="PlaylistCard"
-                      style={{ background: 'linear-gradient(135deg, #1e1b4b, #311042)', cursor: 'pointer' }}
-                      onClick={() => fetchPlaylistById(playlist.id)}
-                    >
-                      <div className="PlaylistCardContent">
-                        <span className="PlaylistCardTitle">{playlist.title}</span>
-                        <span className="PlaylistCardDesc">{playlist.description || (playlist.isPrivate ? '🔒 Приватний' : '🌍 Публічний')}</span>
-                        <span className="PlaylistCardCount">{playlist.trackCount} треків</span>
-                      </div>
-                      <div className="PlaylistPlayButton">
-                        <img src={PLAY_ICON_DATA} alt="Play" style={{ width: '12px', height: '14px', marginLeft: '2px' }} />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : (
-            <>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                  <button
-                    style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px' }}
-                    onClick={() => setActivePlaylistDetail(null)}
-                  >
-                    <img src={BackLogo} alt="Back" style={{ width: '24px', transform: 'rotate(180deg)' }} />
-                  </button>
-                  <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    <span className="SectionTitle" style={{ marginBottom: 0 }}>
-                      {activePlaylistDetail.title} {activePlaylistDetail.isPrivate ? '🔒' : '🌍'}
-                    </span>
-                    <span style={{ color: '#A1A1AA', fontSize: '14px', fontFamily: 'SUSE, sans-serif' }}>
-                      {activePlaylistDetail.trackCount} треків • {formatTime(activePlaylistDetail.totalDurationSeconds)}
-                    </span>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <button
-                    className="ActionBtn"
-                    onClick={() => handleTogglePrivacy(activePlaylistDetail.id, activePlaylistDetail.isPrivate)}
-                  >
-                    Зробити {activePlaylistDetail.isPrivate ? 'Публічним' : 'Приватним'}
-                  </button>
-                  <button
-                    className="ActionBtn"
-                    style={{ backgroundColor: '#ef4444', color: 'white' }}
-                    onClick={() => handleDeletePlaylist(activePlaylistDetail.id)}
-                  >
-                    Видалити
-                  </button>
-                </div>
-              </div>
-
-              {activePlaylistDetail.tracks.length === 0 ? (
-                <div className="EmptyStateText">У цьому плейлисті поки немає треків.</div>
-              ) : (
-                <div className="LibraryTrackList">
-                  <div className="LibraryTableHeader">
-                    <span className="ColHash">#</span>
-                    <span className="ColTitle">Назва</span>
-                    <span className="ColGenre">Дії</span>
-                    <span className="ColDuration">Тривалість</span>
-                  </div>
-                  <div className="LibraryTableBody">
-                    {activePlaylistDetail.tracks.map((track, index) => (
-                      <div
-                        key={track.trackId}
-                        className={`LibraryRow ${currentTrack?.trackId === track.trackId ? 'active-row' : ''}`}
-                        onClick={() => handlePlayPlaylistTrack(track, index)}
-                      >
-                        <span className="ColHash">{index + 1}</span>
-                        <div className="ColTitleDetail">
-                          <img src={track.coverUrl || Cover} className="LibraryRowCover" alt="Cover" />
-                          <div className="LibraryRowInfo">
-                            <span className="RowTitle">{track.title}</span>
-                            <span className="RowArtist">{track.artistName}</span>
-                          </div>
-                        </div>
-                        <span className="ColGenre">
-                          <button
-                            className="ActionBtn"
-                            style={{ padding: '4px 8px', fontSize: '12px', background: '#3f3f46' }}
-                            onClick={(e) => { e.stopPropagation(); handleRemoveTrackFromPlaylist(activePlaylistDetail.id, track.trackId) }}
-                          >
-                            Видалити
-                          </button>
-                        </span>
-                        <span className="ColDuration">{formatTime(track.durationSeconds)}</span>
+                  {/* Блок коллажа */}
+                  <div className="PlaylistCollage">
+                    {coverItems.map((url, idx) => (
+                      <div key={idx} className="PlaylistCollageItem">
+                        {url ? (
+                          <img
+                            src={getCoverUrl(url)}
+                            alt="cover"
+                            onError={(e) => (e.currentTarget.src = Cover)}
+                          />
+                        ) : (
+                          <div className="PlaylistCollagePlaceholder" />
+                        )}
                       </div>
                     ))}
+                    {/* Если нет ни одной обложки, показываем иконку ноты */}
+                    {!hasAnyCover && (
+                      <div className="PlaylistCollageEmptyIcon">
+                        <span className="PlaylistEmptyNote">♪</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Текстовая информация */}
+                  <div className="PlaylistCardContent" style={{ marginTop: '12px' }}>
+                    <span className="PlaylistCardTitle">{playlist.title}</span>
+                    <span className="PlaylistCardDesc">
+                      {playlist.description || (playlist.isPrivate ? '🔒 Приватний' : '🌍 Публічний')}
+                    </span>
+                    <span className="PlaylistCardCount">{playlist.trackCount} треків</span>
                   </div>
                 </div>
-              )}
-            </>
-          )}
+              );
+            })}
+          </div>
+        )}
+      </>
+    ) : (
+      // === Детальный просмотр плейлиста ===
+      <>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+            <button
+              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px' }}
+              onClick={() => setActivePlaylistDetail(null)}
+            >
+              <img src={BackLogo} alt="Back" style={{ width: '24px', transform: 'rotate(180deg)' }} />
+            </button>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              <span className="SectionTitle" style={{ marginBottom: 0 }}>
+                {activePlaylistDetail.title} {activePlaylistDetail.isPrivate ? '🔒' : '🌍'}
+              </span>
+              <span style={{ color: '#A1A1AA', fontSize: '14px', fontFamily: 'SUSE, sans-serif' }}>
+                {activePlaylistDetail.trackCount} треків • {formatTime(activePlaylistDetail.totalDurationSeconds)}
+              </span>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              className="ActionBtn"
+              onClick={() => handleTogglePrivacy(activePlaylistDetail.id, activePlaylistDetail.isPrivate)}
+            >
+              Зробити {activePlaylistDetail.isPrivate ? 'Публічним' : 'Приватним'}
+            </button>
+            <button
+              className="ActionBtn"
+              style={{ backgroundColor: '#ef4444', color: 'white' }}
+              onClick={() => handleDeletePlaylist(activePlaylistDetail.id)}
+            >
+              Видалити
+            </button>
+          </div>
         </div>
-      )}
+
+        {activePlaylistDetail.tracks.length === 0 ? (
+          <div className="EmptyStateText">У цьому плейлисті поки немає треків.</div>
+        ) : (
+          <div className="LibraryTrackList">
+            <div className="LibraryTableHeader">
+              <span className="ColHash">#</span>
+              <span className="ColTitle">Назва</span>
+              <span className="ColGenre">Дії</span>
+              <span className="ColDuration">Тривалість</span>
+            </div>
+            <div className="LibraryTableBody">
+              {activePlaylistDetail.tracks.map((track, index) => (
+                <div
+                  key={track.trackId}
+                  className={`LibraryRow ${currentTrack?.trackId === track.trackId ? 'active-row' : ''}`}
+                  onClick={() => handlePlayPlaylistTrack(track, index)}
+                >
+                  <span className="ColHash">{index + 1}</span>
+                  <div className="ColTitleDetail">
+                    <img src={track.coverUrl || Cover} className="LibraryRowCover" alt="Cover" />
+                    <div className="LibraryRowInfo">
+                      <span className="RowTitle">{track.title}</span>
+                      <span className="RowArtist">{track.artistName}</span>
+                    </div>
+                  </div>
+                  <span className="ColGenre">
+                    <button
+                      className="ActionBtn"
+                      style={{ padding: '4px 8px', fontSize: '12px', background: '#3f3f46' }}
+                      onClick={(e) => { e.stopPropagation(); handleRemoveTrackFromPlaylist(activePlaylistDetail.id, track.trackId) }}
+                    >
+                      Видалити
+                    </button>
+                  </span>
+                  <span className="ColDuration">{formatTime(track.durationSeconds)}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </>
+    )}
+  </div>
+)}
 
       {activeTab === 'Liked' && (
         <div className="LikedTabContent">

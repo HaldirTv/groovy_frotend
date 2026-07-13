@@ -15,6 +15,7 @@ import { ProtectedRoute } from './components/protected-route'
 import { PublicRoute } from './components/public-route'
 import { Layout } from './components/layout'
 import { PlayerProvider } from './context/player-context'
+import { DownloadsPage } from './pages/downloads'
 import { ProfileProvider } from './context/profile context'
 import './app.css'
 import { ConfirmReg } from './pages/confirm-reg'
@@ -68,6 +69,7 @@ export const App = () => {
               <Route path='/profile' element={<Profile />} />
               <Route path='/main' element={<Main />} />
               <Route path='/ai-mix' element={<AiMixPage />} />
+              <Route path='/downloads' element={<DownloadsPage />} />
             </Route>
             
             {/* Wildcard/Fallback */}

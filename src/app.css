@@ -602,19 +602,8 @@ flex-grow: 0;
   transition: background 0.2s ease, transform 0.15s ease;
 }
 
-.NotificationBtn:hover {
-  background: rgba(169, 143, 219, 0.12);
-  transform: scale(1.1);
-}
-
 .NotificationBtn:active {
   transform: scale(0.95);
-}
-
-.Notificationicon {
-  width: 15px;
-  height: 19px;
-  pointer-events: none;
 }
 
 .AvatarIcon {
@@ -4082,6 +4071,235 @@ z-index: 10;
   transform: translateX(-50%) translateY(20px);
 }
 
+.NotificationContainer {
+  position: relative;
+  display: inline-block;
+  z-index: 100;
+}
+
+.NotificationBtn.active {
+  background: rgba(169, 143, 219, 0.2);
+  box-shadow: 0 0 12px rgba(169, 143, 219, 0.4);
+}
+
+.div-wrapper {
+  position: absolute;
+  top: calc(100% + 16px);
+  right: 0;
+  background-color: #0d0d12;
+  border: 13px solid #2c3339;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  width: 424px;
+  height: 606px;
+  box-sizing: border-box;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), 0 0 30px rgba(169, 143, 219, 0.15);
+  z-index: 100;
+  padding: 24px 18px 24px 24px;
+  transform-origin: top right;
+  animation: notificationDropdownOpen 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.div-wrapper.empty-state {
+  justify-content: center;
+  align-items: center;
+  padding: 30px;
+  gap: 15px;
+}
+
+.div-wrapper .text-wrapper {
+  color: #f5f5f5;
+  font-family: "Manrope", sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: normal;
+  text-align: center;
+  width: 100%;
+  margin-top: auto;
+  padding: 0 10px;
+}
+
+.div-wrapper .div {
+  color: rgba(245, 245, 245, 0.7);
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-align: center;
+  width: 100%;
+  margin-bottom: auto;
+  padding: 0 10px;
+}
+
+.notification-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding-bottom: 16px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.notification-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #f5f5f5;
+}
+
+.notification-clear-btn {
+  background: transparent;
+  border: none;
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: #A98FDB;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.notification-clear-btn:hover {
+  background: rgba(169, 143, 219, 0.1);
+  color: #c7b6ec;
+}
+
+.notification-list {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  padding-right: 6px;
+}
+
+.notification-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.notification-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.notification-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(169, 143, 219, 0.3);
+}
+
+.notification-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.notification-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(169, 143, 219, 0.25);
+  transform: translateY(-1px);
+}
+
+.notification-avatar {
+  width: 51px;
+  height: 51px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  user-select: none;
+}
+
+.notification-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.notification-item-title {
+  font-family: "Manrope", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #f5f5f5;
+  line-height: 1.3;
+}
+
+.notification-item-desc {
+  font-family: "Manrope", sans-serif;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(245, 245, 245, 0.5);
+  line-height: 1.35;
+}
+
+.notification-delete-btn {
+  background: transparent;
+  border: none;
+  font-size: 18px;
+  color: rgba(255, 255, 255, 0.25);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.2s;
+  align-self: flex-start;
+  margin-top: -2px;
+}
+
+.notification-delete-btn:hover {
+  color: #FF6B6B;
+  background: rgba(255, 107, 107, 0.1);
+}
+
+.NotificationBtn:hover .Notificationicon {
+  animation: bellRing 0.7s ease-in-out;
+  filter: drop-shadow(0 0 8px rgba(169, 143, 219, 0.8));
+}
+
+@keyframes bellRing {
+  0% { transform: rotate(0); }
+  15% { transform: rotate(10deg) scale(1.1); }
+  30% { transform: rotate(-10deg) scale(1.1); }
+  45% { transform: rotate(6deg) scale(1.1); }
+  60% { transform: rotate(-6deg) scale(1.1); }
+  75% { transform: rotate(3deg) scale(1.1); }
+  90% { transform: rotate(-3deg) scale(1.1); }
+  100% { transform: rotate(0) scale(1.1); }
+}
+
+@keyframes notificationDropdownOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
 
 /* Responsiveness adjustments for dashboard */
 @media (max-width: 1024px) {
@@ -4140,3 +4358,60 @@ z-index: 10;
   }
 }
 
+/* ===== Collage для плейлистов ===== */
+.PlaylistCollage {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 2px;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 16px;
+  overflow: hidden;
+  background: #1e1b4b; /* фон по умолчанию, если нет картинок */
+}
+
+.PlaylistCollageItem {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #2a2744;
+}
+
+.PlaylistCollageItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.PlaylistCollagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at 30% 30%, #3b3a5a, #1e1b4b);
+  opacity: 0.4;
+}
+
+/* Если плейлист пуст — можно показать иконку через псевдоэлемент */
+.PlaylistCollage:has(.PlaylistCollagePlaceholder:only-child) {
+  /* Если все 4 ячейки пустые — можно сделать специальный фон */
+  background: linear-gradient(135deg, #2a2744, #1a1733);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.PlaylistCollage:has(.PlaylistCollagePlaceholder:only-child)::after {
+  content: '♪';
+  font-size: 48px;
+  color: rgba(255, 255, 255, 0.15);
+  position: absolute;
+}
+
+/* Адаптация для мобильных */
+@media (max-width: 640px) {
+  .PlaylistCollage {
+    border-radius: 12px;
+  }
+}

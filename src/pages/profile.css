@@ -1,4 +1,6 @@
-
+/* ============================================
+   PROFILE PAGE STYLES — from archive App.css
+   ============================================ */
 
 .ProfMain2 {
   display: flex;
@@ -913,4 +915,353 @@ font-weight: 500;
 font-size: 14px;
 line-height: 19px;
 color: #A1A1AA;
+}
+
+.BannerEditWrap {
+position: absolute;
+right: 32px;
+top: 38px;
+z-index: 3;
+}
+
+.BannerEditButton {
+box-sizing: border-box;
+width: 209px;
+height: 43px;
+background: #16161F;
+border: 2px solid #72DEEF;
+border-radius: 8px;
+display: flex;
+align-items: center;
+justify-content: center;
+cursor: pointer;
+}
+ 
+.BannerEditButtonText {
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 20px;
+line-height: 27px;
+color: #72DEEF;
+white-space: nowrap;
+}
+ 
+.BannerEditMenu {
+box-sizing: border-box;
+position: absolute;
+right: 0;
+top: 49px;
+width: 167px;
+background: #16161F;
+border: 2px solid #72DEEF;
+border-radius: 8px;
+overflow: hidden;
+display: flex;
+flex-direction: column;
+padding: 10px 0;
+}
+ 
+.BannerEditMenuItem {
+width: 100%;
+height: 31px;
+background: transparent;
+border: none;
+cursor: pointer;
+box-sizing: border-box;
+padding: 0 11px;
+text-align: left;
+font-family: 'Manrope', sans-serif;
+font-style: normal;
+font-weight: 500;
+font-size: 20px;
+line-height: 27px;
+color: #72DEEF;
+white-space: nowrap;
+}
+ 
+.BannerEditMenuItem:hover {
+background: #34454B;
+}
+ 
+.BannerEditMenuItemActive {
+background: #34454B;
+}
+
+.ProfPasswordInput {
+flex: 1;
+height: 30px;
+background: transparent;
+border: none;
+border-bottom: none;
+outline: none;
+font-family: 'Galdeano', sans-serif;
+font-weight: 400;
+font-size: 16px;
+line-height: 17px;
+color: #FFFFFF;
+letter-spacing: 2px;
+}
+
+.ProfPasswordInput::placeholder {
+color: #A1A1AA;
+letter-spacing: 2px;
+}
+
+.BtnInput {
+background: #13131D;
+border: 1px solid #72DEEF;
+border-radius: 8px;
+color: #F5F5F5;
+padding: 4px 12px;
+font-family: 'Manrope', sans-serif;
+font-size: 16px;
+outline: none;
+width: 200px;
+}
+
+.ArtistApplyPanel {
+position: relative;
+display: flex;
+gap: 40px;
+width: 100%;
+align-items: flex-start;
+background: #16161F;
+border-radius: 8px;
+padding: 20px 24px 70px;
+box-sizing: border-box;
+}
+
+.ArtistApplyFormCol {
+flex: 1 1 62%;
+min-width: 0;
+}
+
+.ArtistApplyInput {
+flex: 1;
+max-width: 320px;
+width: auto;
+background: transparent;
+border: none;
+border-bottom: none;
+border-radius: 0;
+color: #F5F5F5;
+font-family: 'Manrope', sans-serif;
+font-size: 16px;
+padding: 4px 0;
+outline: none;
+}
+
+.ArtistApplyInput::placeholder {
+color: #A1A1AA;
+}
+
+.ArtistApplyAgreements {
+display: flex;
+gap: 48px;
+margin-top: 24px;
+}
+ 
+.ArtistApplyAgreementLabel {
+display: flex;
+align-items: flex-start;
+justify-content: space-between;
+gap: 12px;
+color: #A98FDB;
+font-family: 'Galdeano', sans-serif;
+font-size: 18px;
+line-height: 22px;
+max-width: 260px;
+cursor: pointer;
+}
+
+.ArtistApplyCheckbox {
+appearance: none;
+-webkit-appearance: none;
+width: 18px;
+height: 18px;
+border: 1px solid #A98FDB;
+border-radius: 2px;
+background: transparent;
+cursor: pointer;
+flex-shrink: 0;
+margin-top: 2px;
+}
+
+.ArtistApplyCheckbox:checked {
+background: transparent;
+border-color: #A98FDB;
+}
+
+.ArtistApplyCheckbox:checked::after {
+content: '';
+display: block;
+width: 5px;
+height: 10px;
+border: 1px solid #A98FDB;
+border-top: none;
+border-left: none;
+transform: rotate(45deg);
+margin: 1px 0 0 5px;
+}
+ 
+.ArtistApplyButtonsRow {
+position: absolute;
+right: 24px;
+bottom: 24px;
+display: flex;
+gap: 12px;
+}
+
+.ArtistApplyButtonsRow .ProfInfoChange {
+padding: 6px 20px;
+font-size: 16px;
+white-space: nowrap;
+}
+ 
+.ArtistApplySubmitBtn {
+background: #16161F;
+color: #72DEEF;
+border-color: #72DEEF;
+font-family: 'Manrope', sans-serif;
+font-size: 16px;
+}
+ 
+.ArtistApplyPerksCol {
+flex: 0 0 34%;
+border-left: 1px solid #A1A1AA;
+padding-left: 24px;
+display: flex;
+flex-direction: column;
+min-width: 0;
+}
+
+.ArtistApplyRow {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 10px 0;
+border-bottom: 1px solid #A1A1AA;
+gap: 16px;
+}
+
+.ArtistApplyRow .ProfInfoLabel {
+flex-shrink: 0;
+width: 160px;
+}
+ 
+.ArtistApplyPerksTitle {
+color: #72DEEF;
+font-family: 'Manrope', sans-serif;
+font-size: 24px;
+line-height: 33px;
+margin-bottom: 16px;
+}
+ 
+.ArtistApplyPerksList {
+display: flex;
+flex-direction: column;
+gap: 12px;
+}
+ 
+.ArtistApplyPerkItem {
+color: #A1A1AA;
+font-family: 'Manrope', sans-serif;
+font-weight: 500;
+font-size: 16px;
+line-height: 22px;
+}
+ 
+.SettingsPanel {
+display: flex;
+gap: 32px;
+width: 100%;
+align-items: flex-start;
+}
+ 
+.SettingsFormCol {
+flex: 1;
+min-width: 0;
+}
+ 
+.SettingsOptionLabel {
+flex: 1;
+}
+ 
+.SettingsCheckbox {
+appearance: none;
+-webkit-appearance: none;
+width: 32px;
+height: 32px;
+cursor: pointer;
+color: #72DEEF;
+border: 2px solid #72DEEF;
+border-radius: 4px;
+background: transparent;
+position:relative ;
+flex-shrink: 0;
+}
+
+.SettingsCheckbox:checked {
+background-image: url('../assets/Gal.svg'); 
+background-size: cover;
+background-repeat: no-repeat;
+background-position: center;
+border-color: #72DEEF;
+}
+
+.SettingsCheckbox:checked::after {
+display: none;
+}
+ 
+.SettingsLanguageButtons {
+display: flex;
+gap: 12px;
+}
+ 
+.SettingsLangBtn {
+transition: border-color 0.2s ease, color 0.2s ease;
+}
+ 
+.SettingsLangBtnActiveUk {
+border-color: #80EF72;
+color: #FFFFFF;
+}
+ 
+.SettingsLangBtnActiveEn {
+border-color: #EF7274;
+color: #FFFFFF;
+}
+ 
+.ProfRecentEmptyText {
+color: #A1A1AA;
+font-family: 'Galdeano', sans-serif;
+}
+ 
+.ProfRecentCardClickable {
+cursor: pointer;
+transition: transform 0.2s ease;
+}
+ 
+.ProfRecentCardClickable:hover {
+transform: translateY(-2px);
+}
+ 
+.ProfRecentCardTitle {
+display: block;
+color: #F5F5F5;
+font-family: 'Manrope', sans-serif;
+font-size: 14px;
+margin-top: 8px;
+}
+ 
+.ProfRecentCardArtist {
+display: block;
+color: rgba(245, 245, 245, 0.5);
+font-family: 'Galdeano', sans-serif;
+font-size: 12px;
+}
+
+.ProfSaveError {
+width: 100%;
 }

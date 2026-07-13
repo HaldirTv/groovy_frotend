@@ -1,12 +1,15 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import LogoReg from '../assets/LogoReg.svg'
 import MiddleLogo from '../assets/MiddleLogo.svg'
 import Google from '../assets/Google.svg'
 import { Link, useNavigate } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
 import { setAccessToken, GATEWAY_URL, getOrCreateDeviceId, decodeTokenEmail } from '../api/api-client'
+import { translateServerError } from '../api/error-translator'
 
 export const Reg = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
@@ -33,7 +36,7 @@ export const Reg = () => {
         const data = await response.json().catch(() => ({}))
 
         if (!response.ok) {
-          throw new Error(data.message || 'Помилка реєстрації через Google')
+          throw new Error(data.message || t('errors.google_failed'))
         }
 
         if (data.token) {
@@ -47,22 +50,22 @@ export const Reg = () => {
         navigate('/main')
       } catch (err: unknown) {
         if (err instanceof Error) {
-          setError(err.message || 'Сталася помилка при реєстрації')
+          setError(translateServerError(err.message, t))
         } else {
-          setError('Сталася невідома помилка')
+          setError(t('errors.unknown'))
         }
       } finally {
         setIsLoading(false)
       }
     },
     onError: () => {
-      setError('Не вдалося зареєструватися через Google')
+      setError(t('errors.google_failed'))
     }
   })
 
   const handleGoogleClick = () => {
     if (!hasGoogleClientId) {
-      setError('Реєстрація через Google не налаштована (відсутній VITE_GOOGLE_CLIENT_ID).')
+      setError(t('errors.google_not_configured'))
       return
     }
     loginWithGoogle()
@@ -71,10 +74,9 @@ export const Reg = () => {
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault()
     if (!email) {
-      setError('Будь ласка, введіть email')
+      setError(t('errors.email_required'))
       return
     }
-    // Save email for next step (create.tsx)
     localStorage.setItem('RegistrationEmail', email)
     navigate('/create')
   }
@@ -88,18 +90,18 @@ export const Reg = () => {
       <div className='auth-content'>
         <div className='auth-container'>
           <img src={MiddleLogo} className='auth-middle-logo' alt='MiddleLogo' />
-          <span className='auth-title'>Доєднайся до нашої музичної спільноти!</span>
+          <span className='auth-title'>{t('auth.title_reg')}</span>
 
           {error && <div className='auth-error' role="alert">{error}</div>}
 
           <form onSubmit={handleContinue} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div className='auth-form-group'>
-              <label htmlFor="reg-email" className='auth-label'>E-Mail</label>
+              <label htmlFor="reg-email" className='auth-label'>{t('auth.email')}</label>
               <div className='auth-input-wrapper'>
                 <input
                   id="reg-email"
                   type="email"
-                  placeholder='Уведіть пошту'
+                  placeholder={t('auth.enter_email')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -110,20 +112,20 @@ export const Reg = () => {
             </div>
 
             <button type="submit" className='auth-button' disabled={isLoading}>
-              Продовжити
+              {t('auth.continue')}
             </button>
           </form>
 
-          <span className='auth-or-text'>Або</span>
+          <span className='auth-or-text'>{t('auth.or')}</span>
 
           <button className='auth-google-btn' onClick={handleGoogleClick} disabled={isLoading} type="button">
             <img src={Google} alt='Google' />
-            <span>Зареєструватися через Google</span>
+            <span>{t('auth.google_reg')}</span>
           </button>
 
           <div className='auth-footer'>
-            <span className='auth-footer-text'>Вже маєте акаунт?</span>
-            <Link to="/login" className="auth-footer-link">Увійти</Link>
+            <span className='auth-footer-text'>{t('auth.have_account')}</span>
+            <Link to="/login" className="auth-footer-link">{t('auth.login_btn')}</Link>
           </div>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlayer } from '../context/player-context'
 import { logoutUser } from '../api/auth'
 import { getAccessToken } from '../api/api-client'
@@ -11,48 +12,31 @@ import './profile.css'
 import { EditProfile } from './editprofile'
 import type { ProfileData } from './editprofile'
 
-const profileTabs = [
-  'Мій акаунт',
-  'Налаштування',
-  'Обране',
-  'Завантаження',
-  'Історія',
-  'Мої плейлисти',
-  'Змінити акаунт',
-  'Преміум-підписка',
-  'Вийти',
+const PROFILE_TABS = [
+  'account',
+  'settings',
+  'favorites',
+  'downloads',
+  'history',
+  'playlists',
+  'change_account',
+  'premium',
+  'logout'
 ]
 
-const accountSideNav = [
-  'Огляд акаунта',
-  'Особиста інформація',
-  'Підключені акаунти',
-  'Підписка',
-  'Конфіденційність',
+const ACCOUNT_SIDE_NAV = [
+  'overview',
+  'info',
+  'connected',
+  'subscription',
+  'privacy'
 ]
 
 const recentlyPlayed = [
   { id: 1, cover: Cover }
 ]
 
-const User = {
-  name: "testname",
-  handle: "@test_username",
-  bio: "Musik is the soundtrack of my life.",
-  avatar: ProfileAvatar,
-  banner: ProfileBanner,
-  playlists: 35,
-  following: 59,
-  followers: 355,
-  email: "test@gmail.com",
-  country: "Україна",
-  memberSince: "Квітень 2023",
-  firstName: "",
-  lastName: "",
-  city: "",
-}
-
-type User = {
+interface UserType {
   name: string
   handle: string
   bio: string
@@ -64,23 +48,37 @@ type User = {
   email: string
   country: string
   memberSince: string
-  firstName: string;
-  lastName: string;
-  city: string;
+  firstName: string
+  lastName: string
+  city: string
 }
 
-type ProfileProps = {
-  user?: User
-}
-
-export const Profile = ({ user:initialUser = User }: ProfileProps) => {
+export const Profile = () => {
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const { setActiveTab } = usePlayer()
-  
-  const [activeAccountSection, setActiveAccountSection] = useState('Огляд акаунта')
-  const [activeProfileTab, setActiveProfileTab] = useState('Мій акаунт')
 
-  const [user, setUser] = useState(initialUser)
+  const defaultUser: UserType = {
+    name: "testname",
+    handle: "@test_username",
+    bio: "Music is the soundtrack of my life.",
+    avatar: ProfileAvatar,
+    banner: ProfileBanner,
+    playlists: 35,
+    following: 59,
+    followers: 355,
+    email: "test@gmail.com",
+    country: i18n.language === 'en' ? 'Ukraine' : 'Україна',
+    memberSince: i18n.language === 'en' ? 'April 2023' : 'Квітень 2023',
+    firstName: "",
+    lastName: "",
+    city: "",
+  }
+
+  const [activeAccountSection, setActiveAccountSection] = useState('overview')
+  const [activeProfileTab, setActiveProfileTab] = useState('account')
+
+  const [user, setUser] = useState(defaultUser)
   const [EditProfileOpen, setEditProfileOpen] = useState(false)
   
   const [profileName, setProfileName] = useState(() => {
@@ -104,7 +102,7 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
         console.error(e)
       }
     }
-    return user.name
+    return defaultUser.name
   })
 
   const [isEditingName, setIsEditingName] = useState(false)
@@ -132,7 +130,10 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
     if (payload?.nbf) {
       try {
         const date = new Date(payload.nbf * 1000)
-        const months = [
+        const months = i18n.language === 'en' ? [
+          'January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December'
+        ] : [
           'Січень', 'Лютий', 'Березень', 'Квітень', 'Травень', 'Червень',
           'Липень', 'Серпень', 'Вересень', 'Жовтень', 'Листопад', 'Грудень'
         ]
@@ -159,39 +160,43 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
     if (trimmedName) {
       setProfileName(trimmedName)
       localStorage.setItem('profileName', trimmedName)
-  }
+    }
 
-  setUser((prev) => ({
-    ...prev,
-    firstName: data.firstName,
-    lastName: data.lastName,
-    city: data.city,
-    country: data.country,
-    bio: data.bio,
-    avatar: data.avatarPreviewUrl,
-  }))
+    setUser((prev) => ({
+      ...prev,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      city: data.city,
+      country: data.country,
+      bio: data.bio,
+      avatar: data.avatarPreviewUrl,
+    }))
     setEditProfileOpen(false)
   }
 
-  const handleTabClick = (tab: string) => {
-    if (tab === 'Вийти') {
+  const handleTabClick = (tabKey: string) => {
+    if (tabKey === 'logout') {
       logoutUser()
-    } else if (tab === 'Обране') {
+    } else if (tabKey === 'favorites') {
       setActiveTab('Liked')
       navigate('/main')
-    } else if (tab === 'Завантаження') {
+    } else if (tabKey === 'downloads') {
       setActiveTab('Downloads')
       navigate('/main')
-    } else if (tab === 'Мої плейлисти') {
+    } else if (tabKey === 'playlists') {
       setActiveTab('Playlist')
       navigate('/main')
-    } else if (tab === 'Налаштування') {
+    } else if (tabKey === 'settings') {
       setActiveTab('Settings')
       navigate('/main')
-    } else if (tab === 'Мій акаунт') {
-      setActiveProfileTab(tab)
+    } else if (tabKey === 'account') {
+      setActiveProfileTab(tabKey)
     }
   }
+
+  const playlistLabel = t('playlists_count', { count: user.playlists }).replace(/^\d+\s*/, '')
+  const followingLabel = t('following_count', { count: user.following }).replace(/^\d+\s*/, '')
+  const followersLabel = t('followers_count', { count: user.followers }).replace(/^\d+\s*/, '')
 
   return (
     <div className="ProfMain2">
@@ -210,60 +215,60 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
         </div>
 
         <button className="ProfEditButton" onClick={() => {setEditProfileOpen(true)}}>
-          <span className="ProfEditButtonText">Редагувати профіль</span>
+          <span className="ProfEditButtonText">{t('profile.edit_btn')}</span>
         </button>
 
         <div className="ProfStats">
           <div className="ProfStatItem">
             <span className="ProfStatNumber">{user.playlists}</span>
-            <span className="ProfStatLabel">Плейлисти</span>
+            <span className="ProfStatLabel" style={{ textTransform: 'capitalize' }}>{playlistLabel}</span>
           </div>
           <div className="ProfStatItem">
             <span className="ProfStatNumber">{user.following}</span>
-            <span className="ProfStatLabel">Підписки</span>
+            <span className="ProfStatLabel" style={{ textTransform: 'capitalize' }}>{followingLabel}</span>
           </div>
           <div className="ProfStatItem">
             <span className="ProfStatNumber">{user.followers}</span>
-            <span className="ProfStatLabel">Підписники</span>
+            <span className="ProfStatLabel" style={{ textTransform: 'capitalize' }}>{followersLabel}</span>
           </div>
         </div>
       </div>
 
       <div className="ProfTabs">
-        {profileTabs.map((tab) => (
+        {PROFILE_TABS.map((tabKey) => (
           <span 
-            key={tab} 
-            className={`ProfTabItem ${activeProfileTab === tab ? 'ProfTabActive' : ''}`}
-            onClick={() => handleTabClick(tab)}
+            key={tabKey} 
+            className={`ProfTabItem ${activeProfileTab === tabKey ? 'ProfTabActive' : ''}`}
+            onClick={() => handleTabClick(tabKey)}
             style={{ cursor: 'pointer' }}
           >
-            {tab}
+            {t(`profile.tabs.${tabKey}`)}
           </span>
         ))}
       </div>
 
       <div className="ProfBody">
         <div className="ProfSideNav">
-          {accountSideNav.map((item) => (
+          {ACCOUNT_SIDE_NAV.map((itemKey) => (
             <div 
-              key={item} 
-              className={`ProfSideNavItem ${activeAccountSection === item ? 'ProfSideNavActive' : ''}`} 
-              onClick={() => setActiveAccountSection(item)} 
+              key={itemKey} 
+              className={`ProfSideNavItem ${activeAccountSection === itemKey ? 'ProfSideNavActive' : ''}`} 
+              onClick={() => setActiveAccountSection(itemKey)} 
             >
-              {item}
+              {t(`profile.side.${itemKey}`)}
             </div>
           ))}
         </div>
 
         <div className="ProfPanel">
-          <span className="ProfPanelTitle">{activeAccountSection}</span>
+          <span className="ProfPanelTitle">{t(`profile.side.${activeAccountSection}`)}</span>
           
-          {activeAccountSection === 'Огляд акаунта' && (
+          {activeAccountSection === 'overview' && (
             <>
-              <p className="ProfPanelSubtitle">Керуйте своїм профілем та налаштуваннями акаунта</p>
+              <p className="ProfPanelSubtitle">{t('profile.overview_desc')}</p>
               
               <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Ім'я користувача</span>
+                <span className="ProfInfoLabel">{t('profile.username')}</span>
                 {isEditingName ? (
                   <div style={{ display: 'flex', gap: '8px', flex: 1, alignItems: 'center' }}>
                     <input
@@ -287,117 +292,116 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
                       }}
                       autoFocus
                     />
-                    <button onClick={handleNameChange} className="ProfInfoChange" style={{ background: '#72DEEF', color: '#16161F' }} type="button">Зберегти</button>
-                    <button onClick={() => setIsEditingName(false)} className="ProfInfoChange" style={{ borderColor: '#ef4444', color: '#ef4444' }} type="button">Скасувати</button>
+                    <button onClick={handleNameChange} className="ProfInfoChange" style={{ background: '#72DEEF', color: '#16161F' }} type="button">{t('profile.save_btn')}</button>
+                    <button onClick={() => setIsEditingName(false)} className="ProfInfoChange" style={{ borderColor: '#ef4444', color: '#ef4444' }} type="button">{t('profile.cancel_btn')}</button>
                   </div>
                 ) : (
                   <>
                     <span className="ProfInfoValue">{finalName}</span>
-                    <button className="ProfInfoChange" onClick={() => { setTempName(finalName); setIsEditingName(true) }} type="button">Змінити</button>
+                    <button className="ProfInfoChange" onClick={() => { setTempName(finalName); setIsEditingName(true) }} type="button">{t('profile.change_btn')}</button>
                   </>
                 )}
               </div>
               <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Електронна пошта</span>
+                <span className="ProfInfoLabel">{t('profile.email')}</span>
                 <span className="ProfInfoValue">{email}</span>
               </div>
               <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Країна</span>
+                <span className="ProfInfoLabel">{t('profile.country')}</span>
                 <span className="ProfInfoValue">{user.country}</span>
               </div>
               <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Учасник з</span>
+                <span className="ProfInfoLabel">{t('profile.joined')}</span>
                 <span className="ProfInfoValue">{memberSince}</span>
               </div>
             </>
           )}
 
-          {activeAccountSection === 'Особиста інформація' && (
+          {activeAccountSection === 'info' && (
             <>
-              <p className="ProfPanelSubtitle">Ваші контактні дані та особисті налаштування</p>
+              <p className="ProfPanelSubtitle">{t('profile.info_desc')}</p>
               <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Електронна пошта</span>
+                <span className="ProfInfoLabel">{t('profile.email')}</span>
                 <span className="ProfInfoValue">{email}</span>
               </div>
               <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Країна</span>
+                <span className="ProfInfoLabel">{t('profile.country')}</span>
                 <span className="ProfInfoValue">{user.country}</span>
               </div>
               <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Дата реєстрації</span>
+                <span className="ProfInfoLabel">{t('profile.joined_date')}</span>
                 <span className="ProfInfoValue">{memberSince}</span>
               </div>
             </>
           )}
 
-          {activeAccountSection === 'Підключені акаунти' && (
+          {activeAccountSection === 'connected' && (
             <>
-              <p className="ProfPanelSubtitle">Керуйте підключеними сторонніми сервісами</p>
+              <p className="ProfPanelSubtitle">{t('profile.connected_desc')}</p>
               <div className="ProfInfoRow">
                 <span className="ProfInfoLabel">Google</span>
-                <span className="ProfInfoValue" style={{ color: '#10b981' }}>Підключено</span>
+                <span className="ProfInfoValue" style={{ color: '#10b981' }}>{t('profile.status_connected')}</span>
               </div>
               <div className="ProfInfoRow">
                 <span className="ProfInfoLabel">Telegram</span>
-                <span className="ProfInfoValue" style={{ color: '#a1a1aa' }}>Не підключено</span>
+                <span className="ProfInfoValue" style={{ color: '#a1a1aa' }}>{t('profile.status_not_connected')}</span>
               </div>
             </>
           )}
 
-          {activeAccountSection === 'Підписка' && (
+          {activeAccountSection === 'subscription' && (
             <>
-              <p className="ProfPanelSubtitle">Інформація про ваш поточний тарифний план</p>
+              <p className="ProfPanelSubtitle">{t('profile.sub_desc')}</p>
               <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Поточний тариф</span>
-                <span className="ProfInfoValue">Безкоштовна версія (Listener)</span>
+                <span className="ProfInfoLabel">{t('profile.current_plan')}</span>
+                <span className="ProfInfoValue">{t('profile.free_version')}</span>
               </div>
-              <button className="ProfManageSub" onClick={() => alert('Преміум-підписка тимчасово недоступна')} type="button">
-                <span className="ProfManageSubText">Керувати підпискою</span>
+              <button className="ProfManageSub" onClick={() => alert(t('profile.premium_unavailable'))} type="button">
+                <span className="ProfManageSubText">{t('profile.manage_sub')}</span>
               </button>
             </>
           )}
 
-          {activeAccountSection === 'Конфіденційність' && (
+          {activeAccountSection === 'privacy' && (
             <>
-              <p className="ProfPanelSubtitle">Налаштування приватності вашого профілю</p>
+              <p className="ProfPanelSubtitle">{t('profile.privacy_desc')}</p>
               <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Видимість профілю</span>
-                <span className="ProfInfoValue">Публічний (усі користувачі бачать ваші плейлити)</span>
+                <span className="ProfInfoLabel">{t('profile.visibility')}</span>
+                <span className="ProfInfoValue">{t('profile.visibility_public')}</span>
               </div>
               <div className="ProfInfoRow">
-                <span className="ProfInfoLabel">Файли cookie</span>
-                <span className="ProfInfoValue">Дозволено для покращення роботи сервісу</span>
+                <span className="ProfInfoLabel">{t('profile.cookies_title')}</span>
+                <span className="ProfInfoValue">{t('profile.cookies_allowed')}</span>
               </div>
             </>
           )}
         </div>
       </div>
       <div className="ProfRecent">
-        <span className="ProfRecentTitle">Нещодавно прослухане</span>
+        <span className="ProfRecentTitle">{t('profile.recent_played')}</span>
         <div className="ProfRecentGrid">
           {recentlyPlayed.map((item) => (
             <div className="ProfRecentCard" key={item.id}>
-              <img src={item.cover} className="ProfRecentCardImg" />
+              <img src={item.cover} className="ProfRecentCardImg" alt="" />
             </div>
           ))}
         </div>
       </div>
       {EditProfileOpen && (
         <EditProfile
-        user={{
-          avatar: user.avatar,
-          name: finalName,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          city: user.city,
-          country: user.country,
-          bio: user.bio,
-        }}
-        onClose={() => setEditProfileOpen(false)}
-        onSave={handleSaveProfile}
+          user={{
+            avatar: user.avatar,
+            name: finalName,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            city: user.city,
+            country: user.country,
+            bio: user.bio,
+          }}
+          onClose={() => setEditProfileOpen(false)}
+          onSave={handleSaveProfile}
         />
       )}
-
     </div>
   )
 }

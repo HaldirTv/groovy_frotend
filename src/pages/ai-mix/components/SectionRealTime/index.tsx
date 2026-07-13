@@ -1,59 +1,43 @@
 import React from "react"
+import { useTranslation } from 'react-i18next'
 import "./style.css"
 
-
-
-
-const ASSETS = "/src/pages/ai-mix/components/SectionRealTime"
-
-interface StatBadgeProps {
-  value: string
-  label: string
-}
-
-const StatBadge = ({ value, label }: StatBadgeProps): React.JSX.Element => (
-  <div className="srt-badge">
-    <div className="srt-badge-value">{value}</div>
-    <div className="srt-badge-label">{label}</div>
-  </div>
-)
-
 export const SectionRealTime = (): React.JSX.Element => {
-  const stats: StatBadgeProps[] = [
-    { value: "+142", label: "нові пісні" },
-    { value: "+23",  label: "нові альбоми" },
-    { value: "+57",  label: "нові мікси" },
-  ]
+  const { t } = useTranslation()
 
   return (
     <div className="section-real-time">
-      
-      <div className="srt-gradient" />
-
-      
-      <div className="srt-left">
-        
-        <div className="srt-icon-circle" aria-hidden="true">
-          <img
-            className="srt-icon"
-            alt="AI real-time icon"
-            src={`${ASSETS}/icon.svg`}
-          />
-          <div className="srt-icon-border" />
-        </div>
-
-        {/* Text block */}
-        <div className="srt-text-block">
-          <div className="srt-heading">Створено ШІ сьогодні</div>
-          <p className="srt-subheading">Дані оновлюються в реальному часі</p>
-        </div>
+      <div className="heading-real-time">
+        <h2 className="text-wrapper">{t('aimix.real_time_created')}</h2>
       </div>
 
-      {/* Right: stat badges */}
-      <div className="srt-badges">
-        {stats.map((s) => (
-          <StatBadge key={s.label} {...s} />
-        ))}
+      <div className="paragraph">
+        <p className="data-updates-in-real">
+          {t('aimix.real_time_desc')}
+        </p>
+      </div>
+
+      <div className="div-live-grid">
+        <div className="div-live-card">
+          <div className="div-stat-value-large">
+            <span className="text-wrapper-2">1,245 </span>
+            <span className="text-wrapper-3">bpm</span>
+          </div>
+        </div>
+
+        <div className="div-live-card">
+          <div className="div-stat-value-large">
+            <span className="text-wrapper-2">87 </span>
+            <span className="text-wrapper-3">gen/m</span>
+          </div>
+        </div>
+
+        <div className="div-live-card">
+          <div className="div-stat-value-large">
+            <span className="text-wrapper-4">4.2 </span>
+            <span className="text-wrapper-3">tb/h</span>
+          </div>
+        </div>
       </div>
     </div>
   )

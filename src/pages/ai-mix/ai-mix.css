@@ -64,3 +64,16 @@
   z-index: 1;
 }
 
+@media (max-width: 1024px) {
+  .ai-mix-page {
+    padding: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .ai-mix-page {
+    padding: 20px;
+    margin-top: 60px;
+  }
+}
+

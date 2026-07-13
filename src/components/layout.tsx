@@ -23,11 +23,14 @@ import RightArrow from '../assets/RightArrowLogo.svg'
 import Ref from '../assets/IconRef.svg'
 import Cover from '../assets/Cover.svg'
 import { NotificationDropdown } from './notification-dropdown'
+import { useTranslation } from 'react-i18next'
+import { LangSwitcher } from './LangSwitcher'
 import '../app.css'
 
 const PLAY_ICON_DATA = "data:image/svg+xml,%3csvg%20width='15'%20height='18'%20viewBox='0%200%2015%2018'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%2018V0L15%209L0%2018Z'%20fill='%230D0D12'/%3e%3c/svg%3e"
 
 export const Layout: React.FC = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -68,22 +71,27 @@ export const Layout: React.FC = () => {
   const profileName = localStorage.getItem('profileName') || 'Profile'
 
   useEffect(() => {
-    if (activeTab === 'Search' && searchInputRef.current && location.pathname === '/main') {
+    if (activeTab === 'Search' && searchInputRef.current && location.pathname.replace(/^\/en/, '') === '/search') {
       searchInputRef.current.focus()
     }
   }, [activeTab, location.pathname])
 
   useEffect(() => {
-    if (location.pathname === '/downloads') {
+    const cleanPath = location.pathname.replace(/^\/en/, '') || '/'
+    if (cleanPath === '/downloads') {
       setActiveTab('Downloads')
-    } else if (location.pathname === '/ai-mix') {
+    } else if (cleanPath === '/ai-mix') {
       setActiveTab('AI')
-    } else if (location.pathname === '/profile') {
+    } else if (cleanPath === '/profile') {
       setActiveTab('Profile')
-    } else if (location.pathname === '/main') {
-      if (activeTab === 'Downloads' || activeTab === 'AI' || activeTab === 'Profile') {
-        setActiveTab('Home')
-      }
+    } else if (cleanPath === '/library') {
+      setActiveTab('Library')
+    } else if (cleanPath === '/liked') {
+      setActiveTab('Liked')
+    } else if (cleanPath === '/search') {
+      setActiveTab('Search')
+    } else if (cleanPath === '/main') {
+      setActiveTab('Home')
     }
   }, [location.pathname, setActiveTab])
 
@@ -99,23 +107,40 @@ export const Layout: React.FC = () => {
 
   const handleSidebarClick = (tab: string) => {
     setActiveTab(tab)
+    
+    const savedLang = localStorage.getItem('lang') || 'uk'
+    const prefix = savedLang === 'en' ? '/en' : ''
+
     if (tab === 'Downloads') {
-      navigate('/downloads')
+      navigate(`${prefix}/downloads`)
     } else if (tab === 'AI') {
-      navigate('/ai-mix')
+      navigate(`${prefix}/ai-mix`)
+    } else if (tab === 'Library') {
+      navigate(`${prefix}/library`)
+    } else if (tab === 'Liked') {
+      navigate(`${prefix}/liked`)
+    } else if (tab === 'Search') {
+      navigate(`${prefix}/search`)
+    } else if (tab === 'Home') {
+      navigate(`${prefix}/main`)
+    } else if (tab === 'Settings') {
+      navigate(`${prefix}/main`)
     } else {
-      if (location.pathname !== '/main') {
-        navigate('/main')
-      }
+      navigate(`${prefix}/main`)
     }
   }
 
   const handleSearchFocus = () => {
-    if (location.pathname !== '/main') {
+    const savedLang = localStorage.getItem('lang') || 'uk'
+    const prefix = savedLang === 'en' ? '/en' : ''
+    
+    if (location.pathname.replace(/^\/en/, '') !== '/search') {
       setActiveTab('Search')
-      navigate('/main')
+      navigate(`${prefix}/search`)
     } else {
-      setActiveTab('Search')
+      if (searchInputRef.current) {
+        searchInputRef.current.focus()
+      }
     }
   }
 
@@ -157,79 +182,80 @@ export const Layout: React.FC = () => {
     seekTo(clickPercent)
   }
 
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(err => {
-        console.error("Error enabling fullscreen:", err)
-      })
-    } else {
-      document.exitFullscreen()
-    }
+  const isTrackPage = location.pathname.endsWith('/track')
+
+  const handleFullscreenClick = () => {
+    const savedLang = localStorage.getItem('lang') || 'uk'
+    const prefix = savedLang === 'en' ? '/en' : ''
+    navigate(`${prefix}/track`)
   }
 
   return (
-    <div className="Main">
+    <div className={`Main ${isTrackPage ? 'fullscreen-active' : ''}`}>
 
-      <aside className="Sidebar">
-        <div className="SidebarHeader">
-          <img src={Logo} className="Logo" alt="Logo" />
-          <span className="Groovra">GROOVRA</span>
-        </div>
+      {!isTrackPage && (
+        <aside className="Sidebar">
+          <div className="SidebarHeader">
+            <img src={Logo} className="Logo" alt="Logo" />
+            <span className="Groovra">GROOVRA</span>
+          </div>
 
         <div className={`NavItem ${activeTab === 'Home' ? 'active' : ''}`} onClick={() => handleSidebarClick('Home')}>
           {activeTab === 'Home' && <div className="ActiveLine" />}
           <img src={Home} alt="Home" />
-          <span className="NavText">Головна</span>
+          <span className="NavText">{t('nav.home')}</span>
         </div>
 
         <div className={`NavItem ${activeTab === 'Search' ? 'active' : ''}`} onClick={() => handleSidebarClick('Search')}>
           {activeTab === 'Search' && <div className="ActiveLine" />}
           <img src={Search} alt="Search" />
-          <span className="NavText">Пошук</span>
+          <span className="NavText">{t('nav.search')}</span>
         </div>
 
         <div className={`NavItem ${activeTab === 'Library' ? 'active' : ''}`} onClick={() => handleSidebarClick('Library')}>
           {activeTab === 'Library' && <div className="ActiveLine" />}
           <img src={Library} alt="Library" />
-          <span className="NavText">Бібліотека</span>
+          <span className="NavText">{t('nav.library')}</span>
         </div>
 
         <div className="ContTextColl">
-          <span className="TextColl">Ваші Колекції</span>
+          <span className="TextColl">{t('nav.collections')}</span>
         </div>
 
         <div className={`NavItem ${activeTab === 'Playlist' ? 'active' : ''}`} onClick={() => handleSidebarClick('Playlist')}>
           {activeTab === 'Playlist' && <div className="ActiveLine" />}
           <img src={Playlist} alt="Playlist" />
-          <span className="NavText">Плейлисти</span>
+          <span className="NavText">{t('nav.playlists')}</span>
         </div>
 
         <div className={`NavItem ${activeTab === 'Liked' ? 'active' : ''}`} onClick={() => handleSidebarClick('Liked')}>
           {activeTab === 'Liked' && <div className="ActiveLine" />}
           <img src={Liked} alt="Liked" />
-          <span className="NavText">Улюблене</span>
+          <span className="NavText">{t('nav.liked')}</span>
         </div>
 
         <div className={`NavItem ${activeTab === 'AI' ? 'active' : ''}`} onClick={() => handleSidebarClick('AI')}>
           {activeTab === 'AI' && <div className="ActiveLine" />}
           <img src={AI} alt="AI mix" />
-          <span className="NavText">AI мікс</span>
+          <span className="NavText">{t('nav.aiMix')}</span>
         </div>
 
         <div className={`NavItem ${activeTab === 'Downloads' ? 'active' : ''}`} onClick={() => handleSidebarClick('Downloads')}>
           {activeTab === 'Downloads' && <div className="ActiveLine" />}
           <img src={Downloads} alt="Downloads" />
-          <span className="NavText">Завантаження</span>
+          <span className="NavText">{t('nav.downloads')}</span>
         </div>
 
         <div className={`NavItem ${activeTab === 'Settings' ? 'active' : ''}`} onClick={() => handleSidebarClick('Settings')}>
           {activeTab === 'Settings' && <div className="ActiveLine" />}
           <img src={Settings} alt="Settings" />
-          <span className="NavText">Налаштування</span>
+          <span className="NavText">{t('nav.settings')}</span>
         </div>
       </aside>
+      )}
       <div className='RightColumn'>
-        <header className="MainHeader">
+        {!isTrackPage && (
+          <header className="MainHeader">
           <div className="ContSearch">
             <div className="SecContHeader">
               <img src={HeaderSearch} className="HeaderSearch" alt="Search" />
@@ -237,7 +263,7 @@ export const Layout: React.FC = () => {
                 ref={searchInputRef}
                 type="text"
                 className="InputSearch"
-                placeholder="Пошук треків, виконавців або настроїв..."
+                placeholder={t('search.placeholder')}
                 value={searchQuery}
                 onChange={(e) => handleSearchChange(e.target.value)}
                 onFocus={handleSearchFocus}
@@ -251,21 +277,24 @@ export const Layout: React.FC = () => {
                 type="button"
                 className={`NotificationBtn ${isNotificationOpen ? 'active' : ''}`}
                 onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                title="Сповіщення"
-                aria-label="Сповіщення"
+                title={t('notifications.title')}
+                aria-label={t('notifications.title')}
               >
-                <img src={Notification} className="Notificationicon" alt="Сповіщення" />
+                <img src={Notification} className="Notificationicon" alt={t('notifications.title')} />
               </button>
               <NotificationDropdown isOpen={isNotificationOpen} />
             </div>
+            <LangSwitcher />
             <UserMenu profileName={profileName} />
           </div>
         </header>
+        )}
 
         <Outlet />
 
 
-        <footer className="FooterPlayer">
+        {!isTrackPage && (
+          <footer className="FooterPlayer">
           <div className="TrackContainer">
             <div className="CurrentPlaying">
               <img
@@ -277,13 +306,13 @@ export const Layout: React.FC = () => {
               />
             </div>
 
-            <span className="NameOfTrack">{currentTrack ? currentTrack.title : 'Трек'}</span>
-            <span className="Author">{currentTrack ? currentTrack.artistName : 'Виконавець'}</span>
+            <span className="NameOfTrack">{currentTrack ? currentTrack.title : t('player.track')}</span>
+            <span className="Author">{currentTrack ? currentTrack.artistName : t('player.artist')}</span>
 
             <button
               className={`IconLiked ${isLiked ? 'liked' : ''}`}
               onClick={toggleLiked}
-              title={isLiked ? 'Видалити з улюбленого' : 'Додати до улюбленого'}
+              title={isLiked ? t('player.unlike') : t('player.like')}
             >
               <img src={Liked} alt="Like icon" />
             </button>
@@ -291,19 +320,19 @@ export const Layout: React.FC = () => {
 
           <div className="ContPlayBack">
             <div className="PlayeerCont">
-              <button className={`ButtonRemix ${isShuffle ? 'active' : ''}`} onClick={toggleShuffle} title="Перемішати">
+              <button className={`ButtonRemix ${isShuffle ? 'active' : ''}`} onClick={toggleShuffle} title={t('player.shuffle')}>
                 <img src={Remix} className="LogoRemix" alt="Shuffle" />
               </button>
-              <button className="LeftArrowButton" onClick={playPrevious} title="Попередній трек">
+              <button className="LeftArrowButton" onClick={playPrevious} title={t('player.previous')}>
                 <img src={LeftArrow} className="LeftArrow" alt="Previous" />
               </button>
-              <button className="PauseButton" onClick={togglePlayPause} title={isPlaying ? 'Пауза' : 'Грати'}>
+              <button className="PauseButton" onClick={togglePlayPause} title={isPlaying ? t('player.pause') : t('player.play')}>
                 <img src={isPlaying ? Pause : PLAY_ICON_DATA} className="PauseLogo" style={isPlaying ? undefined : { marginLeft: '2px' }} alt="Play/Pause" />
               </button>
-              <button className="ButtonRightArrow" onClick={playNext} title="Наступний трек">
+              <button className="ButtonRightArrow" onClick={playNext} title={t('player.next')}>
                 <img src={RightArrow} className="RightArrowLogo" alt="Next" />
               </button>
-              <button className={`RefButton ${isRepeat ? 'active' : ''}`} onClick={toggleRepeat} title={isRepeat ? 'Повтор увімкнено' : 'Увімкнути повтор'}>
+              <button className={`RefButton ${isRepeat ? 'active' : ''}`} onClick={toggleRepeat} title={isRepeat ? t('player.repeatOn') : t('player.repeat')}>
                 <img src={Ref} className="RefLogo" alt="Repeat" />
               </button>
             </div>
@@ -321,7 +350,7 @@ export const Layout: React.FC = () => {
             <button
               className={`MuteButton ${isMuted ? 'muted' : ''}`}
               onClick={toggleMute}
-              title={isMuted ? 'Увімкнути звук' : 'Вимкнути звук'}
+              title={isMuted ? t('player.unmute') : t('player.mute')}
             >
               <img src={Button} className="MuteIcon" alt="Mute" />
             </button>
@@ -335,11 +364,12 @@ export const Layout: React.FC = () => {
             >
               <div className="VolumeFill" style={{ width: `${isMuted ? 0 : volume}%` }}></div>
             </div>
-            <button className="ButtonRight" onClick={toggleFullscreen} title="Режим на весь екран">
+            <button className="ButtonRight" onClick={handleFullscreenClick} title={t('player.fullscreen')}>
               <img src={Right} alt="Fullscreen" />
             </button>
           </div>
         </footer>
+        )}
       </div>
     </div>
   )

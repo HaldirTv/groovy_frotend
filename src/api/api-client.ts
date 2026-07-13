@@ -55,9 +55,12 @@ export const clearAuth = () => {
   setAccessToken(null)
   localStorage.removeItem('UserEmail')
   
+  const cleanPath = window.location.pathname.replace(/^\/en/, '') || '/'
   const publicPaths = ['/login', '/reg', '/forgotpassword', '/emailcod', '/passwordrecovery']
-  if (!publicPaths.includes(window.location.pathname)) {
-    window.location.href = '/login'
+  if (!publicPaths.includes(cleanPath)) {
+    const savedLang = localStorage.getItem('lang') || 'uk'
+    const prefix = savedLang === 'en' ? '/en' : ''
+    window.location.href = `${prefix}/login`
   }
 }
 

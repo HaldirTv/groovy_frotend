@@ -2,9 +2,12 @@ import LogoReg from '../assets/LogoReg.svg'
 import MiddleLogo from '../assets/MiddleLogo.svg'
 import { Link, useNavigate } from 'react-router-dom'
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { GATEWAY_URL } from '../api/api-client'
+import { translateServerError } from '../api/error-translator'
 
 export const Forgot = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [error, setError] = useState('')
@@ -15,7 +18,7 @@ export const Forgot = () => {
     setError('')
 
     if (!email) {
-      setError('Будь ласка, введіть email')
+      setError(t('errors.email_required'))
       return
     }
 
@@ -29,17 +32,16 @@ export const Forgot = () => {
 
       if (!response.ok) {
         const data = await response.json().catch(() => ({}))
-        throw new Error(data.message || 'Помилка надсилання листа')
+        throw new Error(data.message || t('errors.connection'))
       }
 
-      // Зберігаємо email для використання на кроці введення коду підтвердження
       localStorage.setItem('RecoveryEmail', email)
       navigate('/emailcod')
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(err.message)
+        setError(translateServerError(err.message, t))
       } else {
-        setError('Сталася невідома помилка')
+        setError(t('errors.unknown'))
       }
     } finally {
       setIsLoading(false)
@@ -55,18 +57,18 @@ export const Forgot = () => {
       <div className='auth-content'>
         <div className='auth-container'>
           <img src={MiddleLogo} className='auth-middle-logo' alt="Logo" />
-          <span className='auth-title'>Відновлення паролю</span>
+          <span className='auth-title'>{t('auth.recovery_title')}</span>
 
           {error && <div className='auth-error' role="alert">{error}</div>}
 
           <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div className='auth-form-group'>
-              <label htmlFor="forgot-email" className='auth-label'>E-Mail</label>
+              <label htmlFor="forgot-email" className='auth-label'>{t('auth.email')}</label>
               <div className='auth-input-wrapper'>
                 <input
                   id="forgot-email"
                   type="email"
-                  placeholder='Уведіть пошту'
+                  placeholder={t('auth.enter_email')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -76,12 +78,12 @@ export const Forgot = () => {
               </div>
             </div>
             <button type="submit" className='auth-button' disabled={isLoading}>
-              {isLoading ? 'Зачекайте...' : 'Продовжити'}
+              {isLoading ? t('auth.wait') : t('auth.continue')}
             </button>
           </form>
 
           <div className='auth-footer'>
-            <Link to="/reg" className='auth-footer-link'>Повернутися до сторінки реєстрації</Link>
+            <Link to="/reg" className='auth-footer-link'>{t('auth.back_to_reg')}</Link>
           </div>
         </div>
       </div>

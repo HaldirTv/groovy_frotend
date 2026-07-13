@@ -6,7 +6,7 @@ import { NewAiAlbums } from "./components/NewAiAlbums"
 import { NewHowAiCreates } from "./components/NewHowAiCreates"
 import { AiMixesSection } from "./components/AiMixesSection"
 import { ContentGridAi } from "./components/ContentGridAi"
-import { FooterFromJson } from "../../components/footer-from-json"
+import { FooterFromJson } from "./components/FooterFromJson"
 import "./ai-mix.css"
 
 export const AiMixPage = (): React.JSX.Element => {

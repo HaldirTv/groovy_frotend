@@ -655,30 +655,3 @@
   stroke-width: 2;
   fill: none;
 }
-
-@media (max-width: 1024px) {
-  .downloads-page {
-    padding: 40px;
-  }
-}
-
-@media (max-width: 768px) {
-  .downloads-page {
-    padding: 20px;
-    margin-top: 60px;
-  }
-  .downloads-layout {
-    flex-direction: column;
-    gap: 32px;
-  }
-  .downloads-divider-line {
-    display: none;
-  }
-  .downloads-right-panel {
-    width: 100%;
-  }
-  .downloads-wrapper {
-    max-width: 100%;
-    padding-bottom: 20px;
-  }
-}

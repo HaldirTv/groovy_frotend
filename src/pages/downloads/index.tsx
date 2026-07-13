@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
 import { usePlayer } from '../../context/player-context'
 import type { Track } from '../../context/player-context'
 import searchIcon from './icon.svg'
 import { Download02 } from './Download02'
-import { FooterFromJson } from '../../components/footer-from-json'
 import './downloads.css'
+
 
 const DECORATIVE_GRADIENTS = [
   'linear-gradient(135deg, #72DEEF 0%, #1A1C1C 100%)',
@@ -32,7 +31,6 @@ interface Recommendation {
 }
 
 export const DownloadsPage = (): React.JSX.Element => {
-  const { t, i18n } = useTranslation()
   const {
     tracks,
     currentTrack,
@@ -44,6 +42,7 @@ export const DownloadsPage = (): React.JSX.Element => {
 
   const [activeCategory, setActiveCategory] = useState<'songs' | 'playlists' | 'albums' | null>(null)
 
+  
   const [downloadStatus, setDownloadStatus] = useState<Record<string, 'idle' | 'loading' | 'success'>>(() => {
     try {
       const saved = localStorage.getItem('downloads_recommendation_status')
@@ -62,6 +61,7 @@ export const DownloadsPage = (): React.JSX.Element => {
     }
   })
 
+  
   const [deletedContextTrackIds, setDeletedContextTrackIds] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('downloads_deleted_context_track_ids')
@@ -71,6 +71,7 @@ export const DownloadsPage = (): React.JSX.Element => {
     }
   })
 
+  
   useEffect(() => {
     localStorage.setItem('downloads_recommendation_status', JSON.stringify(downloadStatus))
   }, [downloadStatus])
@@ -83,6 +84,7 @@ export const DownloadsPage = (): React.JSX.Element => {
     localStorage.setItem('downloads_deleted_context_track_ids', JSON.stringify(deletedContextTrackIds))
   }, [deletedContextTrackIds])
 
+  
   const recommendations: Recommendation[] = [
     { id: 'rec-1', title: 'Beetlbum', artistName: 'Blur', durationSeconds: 302, fileSizeBytes: 7240000, genre: 'Alternative' },
     { id: 'rec-2', title: 'Alison', artistName: 'Slowdive', durationSeconds: 231, fileSizeBytes: 5540000, genre: 'Shoegaze' },
@@ -92,31 +94,24 @@ export const DownloadsPage = (): React.JSX.Element => {
     { id: 'rec-6', title: 'In the garage', artistName: 'Weezer', durationSeconds: 235, fileSizeBytes: 5640000, genre: 'Alternative' }
   ]
 
+  
   const allDownloadedSongs = [...downloadedRecommendations, ...tracks].filter(
     track => !deletedContextTrackIds.includes(track.trackId)
   )
 
-  const getUpdatedDaysAgo = (count: number) => {
-    const updatedWord = i18n.language === 'en' ? 'updated' : 'оновлено'
-    return `${updatedWord} ${t('daysAgo', { count })}`
-  }
-
-  const getUpdatedWeeksAgo = (count: number) => {
-    const updatedWord = i18n.language === 'en' ? 'updated' : 'оновлено'
-    return `${updatedWord} ${t('weeksAgo', { count })}`
-  }
-
+  
   const mockPlaylists = [
-    { id: 'p1', title: 'Вечірній вайб', tracksCount: 8, updateText: getUpdatedDaysAgo(2), color: 'linear-gradient(135deg, #1e1b4b, #311042)', tracks: tracks.slice(0, 3) },
-    { id: 'p2', title: 'Енергійний мікс', tracksCount: 12, updateText: getUpdatedDaysAgo(5), color: 'linear-gradient(135deg, #1c1917, #451a03)', tracks: tracks.slice(1, 4) },
-    { id: 'p3', title: 'Релакс', tracksCount: 6, updateText: getUpdatedWeeksAgo(1), color: 'linear-gradient(135deg, #064e3b, #022c22)', tracks: tracks.slice(2, 5) }
+    { id: 'p1', title: 'Вечірній вайб', tracksCount: 8, updateText: 'оновлено 2 дні тому', color: 'linear-gradient(135deg, #1e1b4b, #311042)', tracks: tracks.slice(0, 3) },
+    { id: 'p2', title: 'Енергійний мікс', tracksCount: 12, updateText: 'оновлено 5 днів тому', color: 'linear-gradient(135deg, #1c1917, #451a03)', tracks: tracks.slice(1, 4) },
+    { id: 'p3', title: 'Релакс', tracksCount: 6, updateText: 'оновлено тиждень тому', color: 'linear-gradient(135deg, #064e3b, #022c22)', tracks: tracks.slice(2, 5) }
   ]
 
   const mockAlbums = [
-    { id: 'a1', title: 'Aura Vibes', artist: 'Groovra AI', tracksCount: 10, updateText: getUpdatedWeeksAgo(1), tracks: tracks.slice(0, 4) },
-    { id: 'a2', title: 'Neon Shadows', artist: 'Lofi Maker', tracksCount: 14, updateText: getUpdatedWeeksAgo(2), tracks: tracks.slice(1, 5) }
+    { id: 'a1', title: 'Aura Vibes', artist: 'Groovra AI', tracksCount: 10, updateText: 'оновлено тиждень тому', tracks: tracks.slice(0, 4) },
+    { id: 'a2', title: 'Neon Shadows', artist: 'Lofi Maker', tracksCount: 14, updateText: 'оновлено 2 тижні тому', tracks: tracks.slice(1, 5) }
   ]
 
+  
   const renderCollage = (itemTracks: Track[], offset = 0) => {
     return (
       <>
@@ -163,11 +158,14 @@ export const DownloadsPage = (): React.JSX.Element => {
   const handleDownload = (rec: Recommendation) => {
     if (downloadStatus[rec.id] === 'success' || downloadStatus[rec.id] === 'loading') return
 
+    
     setDownloadStatus(prev => ({ ...prev, [rec.id]: 'loading' }))
 
+    
     setTimeout(() => {
       setDownloadStatus(prev => ({ ...prev, [rec.id]: 'success' }))
 
+      
       const newTrack: Track = {
         trackId: rec.id,
         title: rec.title,
@@ -189,6 +187,7 @@ export const DownloadsPage = (): React.JSX.Element => {
     e.stopPropagation() 
     
     if (track.trackId.startsWith('rec-')) {
+      
       setDownloadedRecommendations(prev => prev.filter(t => t.trackId !== track.trackId))
       setDownloadStatus(prev => {
         const next = { ...prev }
@@ -196,88 +195,103 @@ export const DownloadsPage = (): React.JSX.Element => {
         return next
       })
     } else {
+      
       setDeletedContextTrackIds(prev => [...prev, track.trackId])
     }
   }
 
   return (
     <div className="downloads-page">
+      
       <div className="bg-glow bg-glow-1" />
       <div className="bg-glow bg-glow-2" />
       <div className="bg-glow bg-glow-3" />
 
+      
       <div className="downloads-layout">
+        
+        
         <div className="downloads-wrapper">
+          
+          
           <div className="downloads-top-divider" />
 
+          
           {activeCategory === null && (
             <div className="downloads-header-row">
-              <h1 className="downloads-title">{t('downloads.title')}</h1>
+              <h1 className="downloads-title">Мої завантаження</h1>
               <div className="search">
-                <img className="icon" alt="Search" src={searchIcon} />
+                <img className="icon" alt="Icon" src={searchIcon} />
               </div>
             </div>
           )}
 
+          
           {activeCategory === null && (
             <div className="downloads-categories-list">
+              
+              
               <div
                 className="downloads-category-card"
                 onClick={() => setActiveCategory('songs')}
                 tabIndex={0}
-                aria-label={t('downloads.categories_songs')}
+                aria-label="Завантажені пісні"
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveCategory('songs') }}
               >
                 <div className="downloads-collage-frame">
                   {renderCollage(allDownloadedSongs, 0)}
                 </div>
                 <div className="downloads-category-info">
-                  <h2 className="downloads-category-name">{t('downloads.categories_songs')}</h2>
-                  <p className="downloads-category-update">{t('downloads.updated_today')}</p>
+                  <h2 className="downloads-category-name">Завантажені пісні</h2>
+                  <p className="downloads-category-update">оновлено сьогодні</p>
                 </div>
               </div>
 
+              
               <div
                 className="downloads-category-card"
                 onClick={() => setActiveCategory('playlists')}
                 tabIndex={0}
-                aria-label={t('downloads.categories_playlists')}
+                aria-label="Завантажені плейлісти"
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveCategory('playlists') }}
               >
                 <div className="downloads-collage-frame">
                   {renderCollage(tracks, 4)}
                 </div>
                 <div className="downloads-category-info">
-                  <h2 className="downloads-category-name">{t('downloads.categories_playlists')}</h2>
-                  <p className="downloads-category-update">{getUpdatedDaysAgo(2)}</p>
+                  <h2 className="downloads-category-name">Завантажені плейлісти</h2>
+                  <p className="downloads-category-update">оновлено 2 дні тому</p>
                 </div>
               </div>
 
+              
               <div
                 className="downloads-category-card"
                 onClick={() => setActiveCategory('albums')}
                 tabIndex={0}
-                aria-label={t('downloads.categories_albums')}
+                aria-label="Завантажені альбоми"
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveCategory('albums') }}
               >
                 <div className="downloads-collage-frame">
                   {renderCollage(tracks, 8)}
                 </div>
                 <div className="downloads-category-info">
-                  <h2 className="downloads-category-name">{t('downloads.categories_albums')}</h2>
-                  <p className="downloads-category-update">{getUpdatedWeeksAgo(1)}</p>
+                  <h2 className="downloads-category-name">Завантажені альбоми</h2>
+                  <p className="downloads-category-update">оновлено тиждень тому</p>
                 </div>
               </div>
+
             </div>
           )}
 
+          
           {activeCategory === 'songs' && (
             <div className="downloads-detail-container">
               <button className="downloads-back-btn" onClick={() => setActiveCategory(null)}>
                 <svg className="downloads-back-arrow" viewBox="0 0 24 24">
                   <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                {t('downloads.back_btn')}
+                Назад до категорій
               </button>
 
               <div className="downloads-detail-header">
@@ -285,13 +299,13 @@ export const DownloadsPage = (): React.JSX.Element => {
                   {renderCollage(allDownloadedSongs, 0)}
                 </div>
                 <div className="downloads-detail-title-group">
-                  <h2 className="downloads-detail-title">{t('downloads.categories_songs')}</h2>
-                  <span className="downloads-detail-count">{t('tracks_count', { count: allDownloadedSongs.length })}</span>
+                  <h2 className="downloads-detail-title">Завантажені пісні</h2>
+                  <span className="downloads-detail-count">{allDownloadedSongs.length} треків</span>
                 </div>
               </div>
 
               {allDownloadedSongs.length === 0 ? (
-                <div className="downloads-empty-state">{t('downloads.empty_state')}</div>
+                <div className="downloads-empty-state">Нічого не знайдено</div>
               ) : (
                 <div className="downloads-items-list">
                   {allDownloadedSongs.map((track, index) => {
@@ -323,7 +337,7 @@ export const DownloadsPage = (): React.JSX.Element => {
                           <span className="downloads-row-duration">{formatTime(track.durationSeconds)}</span>
                           <button
                             className="downloads-row-play-btn"
-                            aria-label={isPlayingTrack ? t('player.pause') : t('player.play')}
+                            aria-label={isPlayingTrack ? 'Пауза' : 'Грати'}
                           >
                             {isPlayingTrack ? (
                               <svg className="downloads-row-play-icon" viewBox="0 0 24 24">
@@ -337,11 +351,12 @@ export const DownloadsPage = (): React.JSX.Element => {
                             )}
                           </button>
 
+                          {/* Delete Button */}
                           <button
                             className="downloads-row-delete-btn"
                             onClick={(e) => handleDeleteSong(e, track)}
-                            aria-label={t('downloads.delete')}
-                            title={t('downloads.delete')}
+                            aria-label="Видалити з завантажень"
+                            title="Видалити з завантажень"
                           >
                             <svg className="downloads-row-delete-icon" viewBox="0 0 24 24">
                               <polyline points="3 6 5 6 21 6" />
@@ -359,13 +374,14 @@ export const DownloadsPage = (): React.JSX.Element => {
             </div>
           )}
 
+          {/* Detailed Playlists View */}
           {activeCategory === 'playlists' && (
             <div className="downloads-detail-container">
               <button className="downloads-back-btn" onClick={() => setActiveCategory(null)}>
                 <svg className="downloads-back-arrow" viewBox="0 0 24 24">
                   <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                {t('downloads.back_btn')}
+                Назад до категорій
               </button>
 
               <div className="downloads-detail-header">
@@ -373,13 +389,13 @@ export const DownloadsPage = (): React.JSX.Element => {
                   {renderCollage(tracks, 4)}
                 </div>
                 <div className="downloads-detail-title-group">
-                  <h2 className="downloads-detail-title">{t('downloads.categories_playlists')}</h2>
-                  <span className="downloads-detail-count">{t('playlists_count', { count: mockPlaylists.length })}</span>
+                  <h2 className="downloads-detail-title">Завантажені плейлісти</h2>
+                  <span className="downloads-detail-count">{mockPlaylists.length} плейлістів</span>
                 </div>
               </div>
 
               {mockPlaylists.length === 0 ? (
-                <div className="downloads-empty-state">{t('downloads.empty_state')}</div>
+                <div className="downloads-empty-state">Нічого не знайдено</div>
               ) : (
                 <div className="downloads-items-list">
                   {mockPlaylists.map((playlist, index) => (
@@ -408,8 +424,8 @@ export const DownloadsPage = (): React.JSX.Element => {
                         <span className="downloads-row-artist">{playlist.updateText}</span>
                       </div>
                       <div className="downloads-row-meta">
-                        <span className="downloads-row-duration" style={{ width: 100 }}>{t('tracks_count', { count: playlist.tracksCount })}</span>
-                        <button className="downloads-row-play-btn" aria-label={t('downloads.play_playlist')}>
+                        <span className="downloads-row-duration" style={{ width: 100 }}>{playlist.tracksCount} треків</span>
+                        <button className="downloads-row-play-btn" aria-label="Грати плейліст">
                           <svg className="downloads-row-play-icon" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z" />
                           </svg>
@@ -422,13 +438,14 @@ export const DownloadsPage = (): React.JSX.Element => {
             </div>
           )}
 
+          {/* Detailed Albums View */}
           {activeCategory === 'albums' && (
             <div className="downloads-detail-container">
               <button className="downloads-back-btn" onClick={() => setActiveCategory(null)}>
                 <svg className="downloads-back-arrow" viewBox="0 0 24 24">
                   <path d="M19 12H5M12 19l-7-7 7-7" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
-                {t('downloads.back_btn')}
+                Назад до категорій
               </button>
 
               <div className="downloads-detail-header">
@@ -436,13 +453,13 @@ export const DownloadsPage = (): React.JSX.Element => {
                   {renderCollage(tracks, 8)}
                 </div>
                 <div className="downloads-detail-title-group">
-                  <h2 className="downloads-detail-title">{t('downloads.categories_albums')}</h2>
-                  <span className="downloads-detail-count">{t('playlists_count', { count: mockAlbums.length })}</span>
+                  <h2 className="downloads-detail-title">Завантажені альбоми</h2>
+                  <span className="downloads-detail-count">{mockAlbums.length} альбомів</span>
                 </div>
               </div>
 
               {mockAlbums.length === 0 ? (
-                <div className="downloads-empty-state">{t('downloads.empty_state')}</div>
+                <div className="downloads-empty-state">Нічого не знайдено</div>
               ) : (
                 <div className="downloads-items-list">
                   {mockAlbums.map((album, index) => (
@@ -471,8 +488,8 @@ export const DownloadsPage = (): React.JSX.Element => {
                         <span className="downloads-row-artist">{album.artist} • {album.updateText}</span>
                       </div>
                       <div className="downloads-row-meta">
-                        <span className="downloads-row-duration" style={{ width: 100 }}>{t('tracks_count', { count: album.tracksCount })}</span>
-                        <button className="downloads-row-play-btn" aria-label={t('downloads.play_album')}>
+                        <span className="downloads-row-duration" style={{ width: 100 }}>{album.tracksCount} треків</span>
+                        <button className="downloads-row-play-btn" aria-label="Грати альбом">
                           <svg className="downloads-row-play-icon" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z" />
                           </svg>
@@ -484,14 +501,17 @@ export const DownloadsPage = (): React.JSX.Element => {
               )}
             </div>
           )}
+
         </div>
 
+        {/* Vertical divider separator line between panes */}
         <div className="downloads-divider-line" />
 
+        {/* Right Column: Smart Downloads recommendations */}
         <aside className="downloads-right-panel">
-          <h2 className="recommendations-title">{t('downloads.smart_title')}</h2>
+          <h2 className="recommendations-title">Розумне завантаження</h2>
           <p className="recommendations-desc">
-            {t('downloads.smart_desc')}
+            Тут зібрані пропозиції для завантаження, сформовані на тому, які пісні були прослуховані найбільше:
           </p>
 
           <div className="recommendations-list">
@@ -514,8 +534,8 @@ export const DownloadsPage = (): React.JSX.Element => {
                     className="recommendation-download-btn"
                     onClick={() => handleDownload(rec)}
                     disabled={status !== 'idle'}
-                    aria-label={`Download ${rec.title}`}
-                    title={status === 'success' ? t('downloads.downloaded') : t('downloads.download')}
+                    aria-label={`Завантажити ${rec.title}`}
+                    title={status === 'success' ? 'Завантажено' : 'Завантажити'}
                   >
                     {status === 'idle' && (
                       <Download02 className="recommendation-download-icon" color="#A98FDB" />
@@ -535,9 +555,9 @@ export const DownloadsPage = (): React.JSX.Element => {
           </div>
         </aside>
       </div>
-      <FooterFromJson />
     </div>
   )
 }
 
+// Export Box alias for Figma mockup import compatibility
 export const Box = DownloadsPage

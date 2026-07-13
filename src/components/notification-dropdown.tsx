@@ -1,13 +1,10 @@
 import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 import '../app.css'
 
 interface NotificationItem {
   id: string
-  titleKey: string
-  titleFallback: string
-  descriptionKey: string
-  descriptionFallback: string
+  title: string
+  description: string
   gradient: string
   initials: string
 }
@@ -15,46 +12,36 @@ interface NotificationItem {
 const INITIAL_NOTIFICATIONS: NotificationItem[] = [
   {
     id: '1',
-    titleKey: 'notifications.items.rec_title',
-    titleFallback: 'Перегляньте нові релізи цієї п’ятниці',
-    descriptionKey: 'notifications.items.rec_desc',
-    descriptionFallback: 'Понад 20 артистів зробили нові релізи',
+    title: 'Перегляньте нові релізи цієї п’ятниці',
+    description: 'Понад 20 артистів зробили нові релізи',
     gradient: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)',
     initials: '🔥'
   },
   {
     id: '2',
-    titleKey: 'notifications.items.weezer_title',
-    titleFallback: '“Weezer” випустили новий альбом',
-    descriptionKey: 'notifications.items.weezer_desc',
-    descriptionFallback: 'Станьте одним із перших слухачів',
+    title: '“Weezer” випустили новий альбом',
+    description: 'Станьте одним із перших слухачів',
     gradient: 'linear-gradient(135deg, #A98FDB 0%, #72DEEF 100%)',
     initials: '🎸'
   },
   {
     id: '3',
-    titleKey: 'notifications.items.ua_title',
-    titleFallback: 'Музика України',
-    descriptionKey: 'notifications.items.ua_desc',
-    descriptionFallback: 'Ми зробили підбірку найпопулярніших треків серед українців',
+    title: 'Музика України',
+    description: 'Ми зробили підбірку найпопулярніших треків серед українців',
     gradient: 'linear-gradient(135deg, #FFD93D 0%, #FF8400 100%)',
     initials: '🇺🇦'
   },
   {
     id: '4',
-    titleKey: 'notifications.items.world_title',
-    titleFallback: 'Музика світу',
-    descriptionKey: 'notifications.items.world_desc',
-    descriptionFallback: 'Ми зробили підбірку найпопулярніших треків в усьому світі',
+    title: 'Музика світу',
+    description: 'Ми зробили підбірку найпопулярніших треків в усьому світі',
     gradient: 'linear-gradient(135deg, #4E65FF 0%, #92EFFD 100%)',
     initials: '🌎'
   },
   {
     id: '5',
-    titleKey: 'notifications.items.rock_title',
-    titleFallback: 'Новинки рок музики',
-    descriptionKey: 'notifications.items.rock_desc',
-    descriptionFallback: 'Перегляньте релізи серед жанру рок',
+    title: 'Новинки рок музики',
+    description: 'Перегляньте релізи серед жанру рок',
     gradient: 'linear-gradient(135deg, #ED213A 0%, #93291E 100%)',
     initials: '⚡'
   }
@@ -65,7 +52,6 @@ interface NotificationDropdownProps {
 }
 
 export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOpen }) => {
-  const { t } = useTranslation()
   const [notifications, setNotifications] = useState<NotificationItem[]>(() => {
     const saved = localStorage.getItem('notifications')
     if (saved !== null) {
@@ -98,9 +84,9 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
   if (notifications.length === 0) {
     return (
       <div className="div-wrapper empty-state" onClick={(e) => e.stopPropagation()}>
-        <div className="text-wrapper">{t('notifications.empty_title')}</div>
+        <div className="text-wrapper">Немає повідомлень</div>
         <p className="div">
-          {t('notifications.empty_desc')}
+          На разі тут пусто, але ми одразу <br /> вас повідомимо, якщо щось з’явиться
         </p>
       </div>
     )
@@ -109,9 +95,9 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
   return (
     <div className="div-wrapper" onClick={(e) => e.stopPropagation()}>
       <div className="notification-header">
-        <span className="notification-title">{t('notifications.title')}</span>
+        <span className="notification-title">Сповіщення</span>
         <button className="notification-clear-btn" onClick={handleClearAll}>
-          {t('notifications.clear_all')}
+          Очистити все
         </button>
       </div>
       
@@ -125,18 +111,14 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
               {item.initials}
             </div>
             <div className="notification-content">
-              <span className="notification-item-title">
-                {item.titleKey ? t(item.titleKey) : item.titleFallback}
-              </span>
-              <span className="notification-item-desc">
-                {item.descriptionKey ? t(item.descriptionKey) : item.descriptionFallback}
-              </span>
+              <span className="notification-item-title">{item.title}</span>
+              <span className="notification-item-desc">{item.description}</span>
             </div>
             <button 
               className="notification-delete-btn" 
               onClick={() => handleRemoveItem(item.id)}
-              title={t('notifications.remove_title')}
-              aria-label={t('notifications.aria_remove')}
+              title="Видалити"
+              aria-label="Видалити сповіщення"
             >
               &times;
             </button>

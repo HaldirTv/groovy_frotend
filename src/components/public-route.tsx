@@ -9,7 +9,7 @@ interface PublicRouteProps {
 export const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
   const token = getAccessToken()
 
-  
+  // Якщо користувач вже авторизований, перенаправляємо його на головну сторінку
   if (token) {
     return <Navigate to="/main" replace />
   }

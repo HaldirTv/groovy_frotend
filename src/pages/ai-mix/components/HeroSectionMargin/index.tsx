@@ -1,10 +1,18 @@
 import React from "react"
-import { useTranslation } from 'react-i18next'
 import "./style.css"
 
-export const HeroSectionMargin = (): React.JSX.Element => {
-  const { t, i18n } = useTranslation()
 
+
+
+
+
+
+
+
+
+
+
+export const HeroSectionMargin = (): React.JSX.Element => {
   return (
     <div className="hero-section-margin">
       <div className="hero-section">
@@ -37,23 +45,24 @@ export const HeroSectionMargin = (): React.JSX.Element => {
                     src="/src/pages/ai-mix/components/HeroSectionMargin/icon.svg"
                   />
                 </div>
-                <div className="text-wrapper">{t('aimix.generated')}</div>
+                <div className="text-wrapper">ШІ Згенеровано</div>
               </div>
 
               <div className="container-3">
-                <div className="text-wrapper-2">{t('aimix.updated_today')}</div>
+                <div className="text-wrapper-2">Оновлено: Сьогодні</div>
               </div>
             </div>
 
             
             <div className="heading">
-              <div className="text-wrapper-3">{t('aimix.cyberpunk_title')}</div>
+              <div className="text-wrapper-3">Кіберпанк ШІ: Нейронні Біти</div>
             </div>
 
             
             <div className="groovra-AI-core-wrapper">
               <p className="groovra-AI-core">
-                {t('aimix.core_desc')}
+                Пориньте у синтетичні звукові ландшафти, згенеровані нашою найновішою моделлю <br />
+                &apos;Groovra AI Core&apos;. Ідеально для кодування або нічних поїздок.
               </p>
             </div>
 
@@ -68,9 +77,7 @@ export const HeroSectionMargin = (): React.JSX.Element => {
                       src="/src/pages/ai-mix/components/HeroSectionMargin/image.svg"
                     />
                   </div>
-                  <div className="text-wrapper-4">
-                    {t('listeners_count', { count: 142000 }).replace('142000', '142K')}
-                  </div>
+                  <div className="text-wrapper-4">142K Слухачів</div>
                 </div>
 
                 <div className="container-5">
@@ -81,9 +88,7 @@ export const HeroSectionMargin = (): React.JSX.Element => {
                       src="/src/pages/ai-mix/components/HeroSectionMargin/icon-2.svg"
                     />
                   </div>
-                  <div className="text-wrapper-4">
-                    {i18n.language === 'en' ? '2h 45m' : '2 год 45 хв'}
-                  </div>
+                  <div className="text-wrapper-4">2 год 45 хв</div>
                 </div>
               </div>
             </div>
@@ -91,7 +96,7 @@ export const HeroSectionMargin = (): React.JSX.Element => {
             
             <div className="container-wrapper">
               <div className="container-6">
-                <button className="button" type="button" aria-label={t('aimix.listen_btn')}>
+                <button className="button" type="button" aria-label="Слухати плейлист">
                   <div className="icon-wrapper">
                     <img
                       className="icon-3"
@@ -99,21 +104,20 @@ export const HeroSectionMargin = (): React.JSX.Element => {
                       src="/src/pages/ai-mix/components/HeroSectionMargin/icon-3.svg"
                     />
                   </div>
-                  <div className="text-wrapper-5">{t('aimix.listen_btn')}</div>
+                  <div className="text-wrapper-5">Слухати</div>
                 </button>
 
                 <div
                   className="div-wrapper"
                   role="button"
                   tabIndex={0}
-                  aria-label={t('player.like')}
+                  aria-label="Додати до вибраного"
                 >
                   <div className="icon-wrapper">
                     <img
                       className="icon-4"
                       alt="Like"
-                      src="/src/pages/ai-mixes-panel.tsx" // note: placeholder src is fine as long as design remains identical
-                      onError={(e) => { (e.target as HTMLImageElement).src = "/src/pages/ai-mix/components/HeroSectionMargin/icon-4.svg" }}
+                      src="/src/pages/ai-mix/components/HeroSectionMargin/icon-4.svg"
                     />
                   </div>
                 </div>
@@ -122,7 +126,7 @@ export const HeroSectionMargin = (): React.JSX.Element => {
                   className="div-wrapper"
                   role="button"
                   tabIndex={0}
-                  aria-label={t('editprofile.links_title')}
+                  aria-label="Більше опцій"
                 >
                   <div className="icon-wrapper">
                     <img

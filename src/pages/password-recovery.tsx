@@ -2,12 +2,9 @@ import LogoReg from '../assets/LogoReg.svg'
 import MiddleLogo from '../assets/MiddleLogo.svg'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
 import { GATEWAY_URL } from '../api/api-client'
-import { translateServerError } from '../api/error-translator'
 
 export const Recovery = () => {
-  const { t } = useTranslation()
   const navigate = useNavigate()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
@@ -16,8 +13,8 @@ export const Recovery = () => {
 
   useEffect(() => {
     const email = localStorage.getItem('RecoveryEmail')
-    const token = localStorage.getItem('RecoveryToken')
-    if (!email || !token) {
+    const resetToken = localStorage.getItem('ResetToken')
+    if (!email || !resetToken) {
       navigate('/forgotpassword')
     }
   }, [navigate])
@@ -27,44 +24,45 @@ export const Recovery = () => {
     setError('')
 
     if (password.length < 8) {
-      setError(t('errors.password_length'))
+      setError('Пароль має містити не менше 8 символів!')
       return
     }
 
     if (password !== confirmPassword) {
-      setError(t('errors.password_mismatch'))
+      setError('Паролі не співпадають!')
       return
     }
 
     const email = localStorage.getItem('RecoveryEmail')
-    const token = localStorage.getItem('RecoveryToken')
-    if (!email || !token) {
-      setError(t('errors.recovery_data_missing'))
+    const resetToken = localStorage.getItem('ResetToken')
+    if (!email || !resetToken) {
+      setError('Дані відновлення не знайдено. Почніть відновлення знову.')
       navigate('/forgotpassword')
       return
     }
 
     setIsLoading(true)
     try {
-      const response = await fetch(`${GATEWAY_URL}/auth/reset-password`, {
+      const response = await fetch(`${GATEWAY_URL}/auth/confirmresetpassword`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, token, newPassword: password }),
+        body: JSON.stringify({ email, newPassword: password, token: resetToken }),
       })
 
+      const data = await response.json().catch(() => ({}))
+
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
-        throw new Error(data.message || t('errors.recovery_failed'))
+        throw new Error(data.message || data.Message || 'Помилка зміни паролю')
       }
 
       localStorage.removeItem('RecoveryEmail')
-      localStorage.removeItem('RecoveryToken')
+      localStorage.removeItem('ResetToken')
       navigate('/login')
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(translateServerError(err.message, t))
+        setError(err.message)
       } else {
-        setError(t('errors.unknown'))
+        setError('Сталася невідома помилка')
       }
     } finally {
       setIsLoading(false)
@@ -80,18 +78,18 @@ export const Recovery = () => {
       <div className='auth-content'>
         <div className='auth-container'>
           <img src={MiddleLogo} className='auth-middle-logo' alt="Logo" />
-          <span className='auth-title'>{t('auth.recovery_title')}</span>
+          <span className='auth-title'>Відновлення паролю</span>
 
           {error && <div className='auth-error' role="alert">{error}</div>}
 
           <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div className='auth-form-group'>
-              <label htmlFor="recovery-password" className='auth-label'>{t('auth.recovery_new_password')}</label>
+              <label htmlFor="recovery-password" className='auth-label'>Введіть новий пароль</label>
               <div className='auth-input-wrapper'>
                 <input
                   id="recovery-password"
                   type="password"
-                  placeholder={t('auth.password')}
+                  placeholder='Пароль'
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
@@ -99,16 +97,16 @@ export const Recovery = () => {
                   autoComplete="new-password"
                 />
               </div>
-              <span className='auth-hint'>{t('auth.hint_chars')}</span>
+              <span className='auth-hint'>Має містити не менше 8 символів!</span>
             </div>
 
             <div className='auth-form-group'>
-              <label htmlFor="recovery-confirm-password" className='auth-label'>{t('auth.recovery_confirm_password')}</label>
+              <label htmlFor="recovery-confirm-password" className='auth-label'>Підтвердити пароль</label>
               <div className='auth-input-wrapper'>
                 <input
                   id="recovery-confirm-password"
                   type="password"
-                  placeholder={t('auth.confirm_password_placeholder')}
+                  placeholder='Повторіть пароль'
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -119,7 +117,7 @@ export const Recovery = () => {
             </div>
 
             <button type="submit" className='auth-button' disabled={isLoading}>
-              {isLoading ? t('auth.wait') : t('auth.continue')}
+              {isLoading ? 'Зачекайте...' : 'Продовжити'}
             </button>
           </form>
         </div>

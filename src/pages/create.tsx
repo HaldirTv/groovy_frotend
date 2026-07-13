@@ -2,18 +2,22 @@ import LogoReg from '../assets/LogoReg.svg'
 import MiddleLogo from '../assets/MiddleLogo.svg'
 import { useNavigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { GATEWAY_URL, getOrCreateDeviceId, setAccessToken } from '../api/api-client'
-import { translateServerError } from '../api/error-translator'
+import { GATEWAY_URL, getOrCreateDeviceId } from '../api/api-client'
+import { usePasswordStrength } from '../hooks/use-password-strength'
 
 export const Create = () => {
-  const { t } = useTranslation()
   const navigate = useNavigate()
-  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
+  const [showRules, setShowRules] = useState(false)
+
+  const strength = usePasswordStrength(password)
+
+  const confirmFilled     = confirmPassword.length > 0
+  const passwordsMatch    = confirmFilled && password === confirmPassword
+  const passwordsMismatch = confirmFilled && password !== confirmPassword
 
   useEffect(() => {
     const email = localStorage.getItem('RegistrationEmail')
@@ -26,34 +30,20 @@ export const Create = () => {
     e.preventDefault()
     setError('')
 
-    if (username.length < 3) {
-      setError(t('errors.username_short'))
-      return
-    }
-
-    if (username.length > 50) {
-      setError(t('errors.username_long'))
-      return
-    }
-
-    if (!/^[a-zA-Z0-9_.-]+$/.test(username)) {
-      setError(t('errors.username_invalid'))
-      return
-    }
-
     if (password.length < 8) {
-      setError(t('errors.password_length'))
+      setError('Пароль має містити не менше 8 символів!')
       return
     }
-
+    
     if (password !== confirmPassword) {
-      setError(t('errors.password_mismatch'))
+      setError('Паролі не співпадають!')
       return
     }
 
     const email = localStorage.getItem('RegistrationEmail')
-    if (!email) {
-      setError(t('errors.email_not_found_reg'))
+    const username = localStorage.getItem('RegistrationUsername')
+    if (!email || !username) {
+      setError('Email не знайдено. Поверніться до попереднього кроку.')
       navigate('/reg')
       return
     }
@@ -71,26 +61,22 @@ export const Create = () => {
       const data = await response.json().catch(() => ({}))
 
       if (!response.ok) {
-        throw new Error(data.message || t('errors.reg_failed'))
+        throw new Error(data.message || data.Message || 'Помилка реєстрації')
       }
 
-      if (data.token) {
-        localStorage.setItem('UserEmail', email)
-        setAccessToken(data.token)
-      }
-
-      localStorage.removeItem('RegistrationEmail')
-      navigate('/main')
+      navigate('/confirm-reg')
     } catch (err: unknown) {
       if (err instanceof Error) {
-        setError(translateServerError(err.message, t))
+        setError(err.message)
       } else {
-        setError(t('errors.unknown'))
+        setError('Сталася невідома помилка')
       }
     } finally {
       setIsLoading(false)
     }
   }
+
+  const isSubmitDisabled = isLoading || passwordsMismatch || strength.level === 'weak' || !password
 
   return (
     <div className='auth-wrapper'>
@@ -101,62 +87,95 @@ export const Create = () => {
       <div className='auth-content'>
         <div className='auth-container'>
           <img src={MiddleLogo} className='auth-middle-logo' alt='Logo' />
-          <span className='auth-title'>{t('auth.create_title')}</span>
+          <span className='auth-title'>Створення акаунту</span>
 
           {error && <div className='auth-error' role="alert">{error}</div>}
 
-          <form onSubmit={handleContinue} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <form onSubmit={handleContinue} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }} >
             <div className='auth-form-group'>
-              <label htmlFor="create-username" className='auth-label'>{t('auth.username_label')}</label>
-              <div className='auth-input-wrapper'>
-                <input
-                  id="create-username"
-                  type="text"
-                  placeholder={t('auth.username_placeholder')}
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  disabled={isLoading}
-                  required
-                />
-              </div>
-              <span className='auth-hint'>{t('auth.username_hint')}</span>
-            </div>
-
-            <div className='auth-form-group'>
-              <label htmlFor="create-password" className='auth-label'>{t('auth.password')}</label>
+              <label htmlFor="create-password" className='auth-label'>Пароль</label>
               <div className='auth-input-wrapper'>
                 <input
                   id="create-password"
                   type="password"
-                  placeholder={t('auth.password')}
+                  placeholder='Пароль'
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) => { setPassword(e.target.value); setShowRules(true) }}
+                  onFocus={() => setShowRules(true)}
                   autoComplete="new-password"
                   disabled={isLoading}
                   required
                 />
               </div>
-              <span className='auth-hint'>{t('auth.hint_chars')}</span>
+
+              {password.length > 0 && (
+                <div style={{ marginTop: '0.5rem', width: '100%' }}>
+
+                  <div style={{ display: 'flex', gap: '4px', height: '4px' }}>
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <div
+                        key={i}
+                        style={{ flex: 1, borderRadius: '2px', backgroundColor: i < strength.score ? strength.color : '#3a3a3a', transition: 'background-color 0.25s ease',}} />
+                    ))}
+                  </div>
+
+                  {strength.labelText && (
+                    <span style={{ fontSize: '0.72rem', color: strength.color, marginTop: '3px', display: 'block' }}>
+                      {strength.labelText}
+                    </span>
+                  )}
+
+                  {showRules && (
+                    <ul style={{ listStyle: 'none', padding: 0, margin: '0.4rem 0 0', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      {strength.rules.map(rule => (
+                        <li
+                          key={rule.label}
+                          style={{ fontSize: '0.72rem', color: rule.passed ? '#5ce07a' : '#888', display: 'flex', alignItems: 'center', gap: '5px', transition: 'color 0.2s', }} >
+                          <span style={{ fontWeight: 700 }}>{rule.passed ? '✓' : '○'}</span>
+                          {rule.label}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className='auth-form-group'>
-              <label htmlFor="create-confirm-password" className='auth-label'>{t('auth.confirm_password')}</label>
-              <div className='auth-input-wrapper'>
+              <label htmlFor="create-confirm-password" className='auth-label'>Підтвердити пароль</label>
+              <div className='auth-input-wrapper' style={{ position: 'relative' }}>
                 <input
                   id="create-confirm-password"
                   type="password"
-                  placeholder={t('auth.confirm_password_placeholder')}
+                  placeholder='Повторіть пароль'
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   autoComplete="new-password"
                   disabled={isLoading}
                   required
+                  style={{ paddingRight: '2rem' }}
                 />
+                {confirmFilled && (
+                  <span style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: passwordsMatch ? '#5ce07a' : '#e05c5c', fontWeight: 700, pointerEvents: 'none', }}>
+                    {passwordsMatch ? '✓' : '✗'}
+                  </span>
+                )}
               </div>
+
+              {confirmFilled && (
+                <span
+                  className='auth-hint'
+                  role="status"
+                  aria-live="polite"
+                  style={{ color: passwordsMatch ? '#5ce07a' : '#e05c5c', marginTop: '0.3rem' }}
+                >
+                  {passwordsMatch ? 'Паролі збігаються' : 'Паролі не збігаються'}
+                </span>
+              )}
             </div>
 
-            <button type="submit" className='auth-button' disabled={isLoading}>
-              {isLoading ? t('auth.wait') : t('auth.continue')}
+            <button type="submit" className='auth-button' disabled={isSubmitDisabled}>
+              {isLoading ? 'Зачекайте...' : 'Продовжити'}
             </button>
           </form>
         </div>

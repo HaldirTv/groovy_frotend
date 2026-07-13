@@ -10,7 +10,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const token = getAccessToken()
   const hasEmail = !!localStorage.getItem('UserEmail')
 
-  
+  // Якщо немає токену та немає імейлу для рефрешу, то користувач точно не авторизований
   if (!token && !hasEmail) {
     return <Navigate to="/login" replace />
   }

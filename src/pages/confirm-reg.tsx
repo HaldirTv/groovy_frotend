@@ -2,9 +2,10 @@ import LogoReg from '../assets/LogoReg.svg'
 import MiddleLogo from '../assets/MiddleLogo.svg'
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { GATEWAY_URL } from '../api/api-client'
+import { confirmRegister } from '../api/auth'
+import { setAccessToken, getOrCreateDeviceId } from '../api/api-client'
 
-export const Cod = () => {
+export const ConfirmReg = () => {
   const navigate = useNavigate()
   const [code, setCode] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
@@ -12,9 +13,9 @@ export const Cod = () => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([])
 
   useEffect(() => {
-    const email = localStorage.getItem('RecoveryEmail')
+    const email = localStorage.getItem('RegistrationEmail')
     if (!email) {
-      navigate('/forgotpassword')
+      navigate('/reg')
     }
   }, [navigate])
 
@@ -43,47 +44,39 @@ export const Cod = () => {
       return
     }
 
-    const email = localStorage.getItem('RecoveryEmail')
+    const email = localStorage.getItem('RegistrationEmail')
     if (!email) {
       setError('Email не знайдено. Поверніться назад.')
+      navigate('/reg')
       return
     }
 
     setIsLoading(true)
     setError('')
     try {
-      const response = await fetch(`${GATEWAY_URL}/auth/verifycodepasswordreset`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, code: fullCode }),
-      })
+      const deviceId = getOrCreateDeviceId()
+      const data = await confirmRegister({ email, code: fullCode, deviceId } as any)
 
-      const data = await response.json().catch(() => ({}))
+      if (data.Token || data.token) {
+        localStorage.setItem('UserEmail', email)
+        setAccessToken(data.Token || data.token)
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Невірний код підтвердження')
+      localStorage.removeItem('RegistrationEmail')
+      localStorage.removeItem('RegistrationUsername')
+
+      navigate('/main')
+      
+    } else {
+        throw new Error('Сервер не повернув токен авторизації')
       }
-
-      const resetToken = data.token || data.Token
-      if (resetToken) {
-        localStorage.setItem('RecoveryToken', resetToken)
-      } else {
-        throw new Error('Сервер не повернув токен для скидання паролю')
-      }
-
-      navigate('/passwordrecovery')
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message)
-      } else {
-        setError('Сталася невідома помилка')
-      }
+    } catch (err: any) {
+      setError(err.message || 'Сталася невідома помилка')
     } finally {
       setIsLoading(false)
     }
   }
-
-return (
+  
+  return (
     <div className='auth-wrapper'>
       <div className='auth-header'>
         <img src={LogoReg} className='auth-logo' alt='RegLogo' />
@@ -92,7 +85,7 @@ return (
       <div className='auth-content'>
         <div className='auth-container'>
           <img src={MiddleLogo} className='auth-middle-logo' alt="Logo" />
-          <span className='auth-title'>Відновлення паролю</span>
+          <span className='auth-title'>Підтвердження реєстрації</span>
           <span className='auth-subtitle'>Ми надіслали код підтвердження на вашу пошту!</span>
 
           {error && <div className='auth-error' role="alert">{error}</div>}

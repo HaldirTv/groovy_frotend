@@ -2,15 +2,16 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { logoutUser } from '../api/auth'
 import { usePlayer } from '../context/player-context'
+import { useTranslation } from 'react-i18next'
 import Avatar from '../assets/IconAvatar.svg'
 import '../app.css'
 
 interface UserMenuProps {
   profileName: string
-  avatarUrl?: string | null
 }
 
-export const UserMenu: React.FC<UserMenuProps> = ({ profileName, avatarUrl }) => {
+export const UserMenu: React.FC<UserMenuProps> = ({ profileName }) => {
+  const { t } = useTranslation()
   const [isOpen, setIsOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
@@ -20,7 +21,7 @@ export const UserMenu: React.FC<UserMenuProps> = ({ profileName, avatarUrl }) =>
     await logoutUser()
   }
 
-  // Закриття по клику вне меню
+  
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
@@ -33,13 +34,12 @@ export const UserMenu: React.FC<UserMenuProps> = ({ profileName, avatarUrl }) =>
 
   return (
     <div className="profileCont" ref={menuRef} onClick={() => setIsOpen(!isOpen)}>
-      <img src={avatarUrl || Avatar} className="AvatarIcon" alt="Avatar" />
+      <img src={Avatar} className="AvatarIcon" alt="Avatar" />
       
       <button className="ButtonProfile" type="button">
         {profileName}
       </button>
-
-      {/* Стрелочка */}
+      
       <svg className={`ArrowDown ${isOpen ? 'open' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24" width="16" height="16">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
       </svg>
@@ -48,16 +48,16 @@ export const UserMenu: React.FC<UserMenuProps> = ({ profileName, avatarUrl }) =>
       {isOpen && (
         <div className="ProfileDropdown" onClick={(e) => e.stopPropagation()}>
           <button onClick={() => { setIsOpen(false); navigate('/profile') }} className="ProfileDropdownItem">
-            Акаунт
+            {t('userMenu.account')}
           </button>
           <button onClick={() => { setIsOpen(false); setActiveTab('Settings'); navigate('/main') }} className="ProfileDropdownItem">
-            Налаштування
+            {t('userMenu.settings')}
           </button>
           
           <div className="ProfileDropdownDivider"></div>
           
           <button onClick={handleLogout} className="ProfileDropdownItem">
-            Вийти
+            {t('userMenu.logout')}
           </button>
         </div>
       )}

@@ -1,15 +1,8 @@
 import { getAccessToken, storeAccessToken, clearAccessToken } from './token-store'
 
 export const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL || 'http://localhost:5274'
-if (import.meta.env.DEV) {
-  // eslint-disable-next-line no-console
-  console.info(`[api-client] GATEWAY_URL = ${GATEWAY_URL}`)
-}
 
-/**
- * Повертає існуючий DeviceId з localStorage або генерує та зберігає новий.
- * Спільний для всіх сторінок авторизації для уникнення дублювання.
- */
+
 export const getOrCreateDeviceId = (): string => {
   let deviceId = localStorage.getItem('DeviceId')
   if (!deviceId) {
@@ -19,10 +12,7 @@ export const getOrCreateDeviceId = (): string => {
   return deviceId
 }
 
-/**
- * Безпечно декодує корисне навантаження JWT та витягує email користувача.
- * НЕ перевіряє підпис — суто для покращення UX (збереження email для оновлення).
- */
+
 export const decodeTokenEmail = (token: string): string | null => {
   try {
     const base64Url = token.split('.')[1]
@@ -66,7 +56,7 @@ export const clearAuth = () => {
   localStorage.removeItem('UserEmail')
   
   const cleanPath = window.location.pathname.replace(/^\/en/, '') || '/'
-  const publicPaths = ['/login', '/reg', '/forgotpassword', '/emailcod', '/passwordrecovery', '/auth/callback', '/confirm-reg', '/create']
+  const publicPaths = ['/login', '/reg', '/forgotpassword', '/emailcod', '/passwordrecovery']
   if (!publicPaths.includes(cleanPath)) {
     const savedLang = localStorage.getItem('lang') || 'uk'
     const prefix = savedLang === 'en' ? '/en' : ''
@@ -94,16 +84,13 @@ export const refreshSession = async (): Promise<string | null> => {
     })
 
     if (!response.ok) {
-      const body = await response.text().catch(() => '')
-      console.error(`POST /auth/refresh упал с кодом ${response.status}:`, body)
       throw new Error('Session expired')
     }
 
     const data = await response.json()
     setAccessToken(data.token)
     return data.token
-  } catch (err) {
-    console.error('refreshSession failed:', err)
+  } catch {
     clearAuth()
     return null
   }

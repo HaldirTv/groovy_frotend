@@ -20,12 +20,10 @@ import { CookiesPolicy } from './pages/cookies'
 import { AboutPage } from './pages/about'
 import { TrackPage } from './pages/track'
 import { AuthCallback } from './pages/auth-callback'
-import { ConfirmReg } from './pages/confirm-reg'
 import { ProtectedRoute } from './components/protected-route'
 import { PublicRoute } from './components/public-route'
 import { Layout } from './components/layout'
 import { PlayerProvider } from './context/player-context'
-import { ProfileProvider } from './context/profile context'
 import './app.css'
 
 const detectLanguage = (activeI18nLanguage?: string): 'en' | 'uk' => {
@@ -154,8 +152,7 @@ export const App = () => {
 
   useEffect(() => {
     const initApp = async () => {
-      const isAuthCallback = window.location.pathname.endsWith('/auth/callback')
-      if (!isAuthCallback && localStorage.getItem('UserEmail')) {
+      if (localStorage.getItem('UserEmail')) {
         await refreshSession()
       }
       setIsInitializing(false)
@@ -178,42 +175,39 @@ export const App = () => {
   }
 
   return (
-    <ProfileProvider>
-      <PlayerProvider>
-        <Router>
-          <Routes>
-            <Route path="/:lang?">
-              <Route index element={<LanguageRedirect />} />
-              
-              <Route path="reg" element={<LanguageSync><PublicRoute><Reg /></PublicRoute></LanguageSync>} />
-              <Route path="login" element={<LanguageSync><PublicRoute><Log /></PublicRoute></LanguageSync>} />
-              <Route path="create" element={<LanguageSync><PublicRoute><Create /></PublicRoute></LanguageSync>} />
-              <Route path="confirm-reg" element={<LanguageSync><PublicRoute><ConfirmReg /></PublicRoute></LanguageSync>} />
-              <Route path="forgotpassword" element={<LanguageSync><PublicRoute><Forgot /></PublicRoute></LanguageSync>} />
-              <Route path="emailcod" element={<LanguageSync><PublicRoute><Cod /></PublicRoute></LanguageSync>} />
-              <Route path="passwordrecovery" element={<LanguageSync><PublicRoute><Recovery /></PublicRoute></LanguageSync>} />
-              <Route path="auth/callback" element={<LanguageSync><PublicRoute><AuthCallback /></PublicRoute></LanguageSync>} />
-              
-              <Route element={<LanguageSync><ProtectedRoute><Layout /></ProtectedRoute></LanguageSync>}>
-                <Route path="profile" element={<Profile />} />
-                <Route path="main" element={<Main />} />
-                <Route path="ai-mix" element={<AiMixPage />} />
-                <Route path="downloads" element={<DownloadsPage />} />
-                <Route path="search" element={<SearchPage />} />
-                <Route path="library" element={<LibraryPage />} />
-                <Route path="liked" element={<LikedPage />} />
-                <Route path="privacy-policy" element={<PrivacyPolicy />} />
-                <Route path="cookies" element={<CookiesPolicy />} />
-                <Route path="about" element={<AboutPage />} />
-                <Route path="track" element={<TrackPage />} />
-              </Route>
-              
-              <Route path="*" element={<WildcardRedirect />} />
+    <PlayerProvider>
+      <Router>
+        <Routes>
+          <Route path="/:lang?">
+            <Route index element={<LanguageRedirect />} />
+            
+            <Route path="reg" element={<LanguageSync><PublicRoute><Reg /></PublicRoute></LanguageSync>} />
+            <Route path="login" element={<LanguageSync><PublicRoute><Log /></PublicRoute></LanguageSync>} />
+            <Route path="create" element={<LanguageSync><PublicRoute><Create /></PublicRoute></LanguageSync>} />
+            <Route path="forgotpassword" element={<LanguageSync><PublicRoute><Forgot /></PublicRoute></LanguageSync>} />
+            <Route path="emailcod" element={<LanguageSync><PublicRoute><Cod /></PublicRoute></LanguageSync>} />
+            <Route path="passwordrecovery" element={<LanguageSync><PublicRoute><Recovery /></PublicRoute></LanguageSync>} />
+            <Route path="auth/callback" element={<LanguageSync><PublicRoute><AuthCallback /></PublicRoute></LanguageSync>} />
+            
+            <Route element={<LanguageSync><ProtectedRoute><Layout /></ProtectedRoute></LanguageSync>}>
+              <Route path="profile" element={<Profile />} />
+              <Route path="main" element={<Main />} />
+              <Route path="ai-mix" element={<AiMixPage />} />
+              <Route path="downloads" element={<DownloadsPage />} />
+              <Route path="search" element={<SearchPage />} />
+              <Route path="library" element={<LibraryPage />} />
+              <Route path="liked" element={<LikedPage />} />
+              <Route path="privacy-policy" element={<PrivacyPolicy />} />
+              <Route path="cookies" element={<CookiesPolicy />} />
+              <Route path="about" element={<AboutPage />} />
+              <Route path="track" element={<TrackPage />} />
             </Route>
-          </Routes>
-        </Router>
-      </PlayerProvider>
-    </ProfileProvider>
+            
+            <Route path="*" element={<WildcardRedirect />} />
+          </Route>
+        </Routes>
+      </Router>
+    </PlayerProvider>
   )
 }
 

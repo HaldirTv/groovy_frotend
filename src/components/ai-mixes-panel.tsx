@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import '../app.css'
 import AiIcon from '../assets/AI.svg'
 
@@ -7,6 +8,8 @@ interface AiMixesPanelProps {
 }
 
 export const AiMixesPanel: React.FC<AiMixesPanelProps> = ({ children }) => {
+  const { t } = useTranslation()
+
   return (
     <div className='AiMixesBlock'>
       
@@ -14,8 +17,8 @@ export const AiMixesPanel: React.FC<AiMixesPanelProps> = ({ children }) => {
         <img src={AiIcon} className='AiCardIcon' alt="AI-Icon" />
         
         <div className='AiHeaderTexts'>
-          <span className='LisNowTrending'>Персональнізований алгоритм</span>
-          <span className='TrendNowText'>Музика за стилем та настроєм</span>
+          <span className='LisNowTrending'>{t('aiMixesPanel.header_title')}</span>
+          <span className='TrendNowText'>{t('aiMixesPanel.header_subtitle')}</span>
         </div>
       </div>
 
@@ -23,7 +26,7 @@ export const AiMixesPanel: React.FC<AiMixesPanelProps> = ({ children }) => {
       <div className='AiCardContentPlaceholder'>
         {children || (
           <span style={{ color: 'rgba(255,255,255,0.3)', fontFamily: 'SUSE, sans-serif' }}>
-            Тут буде ваш контент: треки, візуалізатор тощо.
+            {t('aiMixesPanel.placeholder')}
           </span>
         )}
       </div>

@@ -1,125 +1,50 @@
 import React from "react"
+import { useTranslation } from 'react-i18next'
 import "./style.css"
-
-
-
-
-
-
-
-
-
-
 
 const ASSETS = "/src/pages/ai-mix/components/AiMixesSection"
 
-interface MixData {
-  id: string
-  title: string
-  subtitle: string
-  coverImage: string
-}
-
-const MIXES: MixData[] = [
-  {
-    id: "digital-pulse",
-    title: "Digital Pulse",
-    subtitle: "Groovra AI Core • Synthwave",
-    coverImage: `${ASSETS}/mix-cover-1.png`,
-  },
-  {
-    id: "neural-flow",
-    title: "Neural Flow",
-    subtitle: "Groovra AI Core • Cyber Pop",
-    coverImage: `${ASSETS}/mix-cover-2.png`,
-  },
-  {
-    id: "quantum-echo",
-    title: "Quantum Echo",
-    subtitle: "Neural Composer • Ambient",
-    coverImage: `${ASSETS}/mix-cover-3.png`,
-  },
-  {
-    id: "digital-echo",
-    title: "Digital Echo",
-    subtitle: "Neural Composer • Ambient",
-    coverImage: `${ASSETS}/mix-cover-4.png`,
-  },
-  {
-    id: "sound-pulse",
-    title: "Sound Pulse",
-    subtitle: "Groovra AI Core • Synthwave",
-    coverImage: `${ASSETS}/mix-cover-5.png`,
-  },
+const mixes = [
+  { img: `${ASSETS}/image.png`,      name: "Cyberpunk Beats" },
+  { img: `${ASSETS}/mask-group.png`,  name: "Synthesized Lofi" },
+  { img: `${ASSETS}/mask-group-2.png`,name: "Neural Ambient"  },
+  { img: `${ASSETS}/mask-group-3.png`,name: "Digital Chill"   },
 ]
 
-interface MixCardProps {
-  mix: MixData
-}
-
-const MixCard = ({ mix }: MixCardProps): React.JSX.Element => (
-  <div className="ams-mix-card" role="button" tabIndex={0} aria-label={`Відтворити ${mix.title}`}>
-    {/* Card background texture */}
-    <img
-      className="ams-mask-group"
-      alt=""
-      src={`${ASSETS}/mask-group.svg`}
-      aria-hidden="true"
-    />
-
-    {/* Cover image with hover overlay */}
-    <div className="ams-cover-wrapper">
-      <div
-        className="ams-cover"
-        style={{ backgroundImage: `url(${mix.coverImage})` }}
-        aria-label={`Обкладинка ${mix.title}`}
-      />
-      <div className="ams-overlay" aria-hidden="true" />
-    </div>
-
-    {/* Track info */}
-    <div className="ams-info">
-      <div className="ams-info-row">
-        <div className="ams-title">{mix.title}</div>
-      </div>
-      <div className="ams-info-row">
-        <p className="ams-subtitle">{mix.subtitle}</p>
-      </div>
-    </div>
-  </div>
-)
-
 export const AiMixesSection = (): React.JSX.Element => {
+  const { t } = useTranslation()
+
   return (
     <div className="ai-mixes-section">
-      {/* Section header */}
-      <div className="ams-header">
-        <div className="ams-heading">
-          <div className="ams-heading-icon">
-            <img className="ams-icon" alt="AI Mixes icon" src={`${ASSETS}/icon.svg`} />
-          </div>
-          <div className="ams-heading-text">Рекомендовані ШІ Мікси</div>
+      
+      <div className="container-header">
+        <div className="heading-mixes">
+          <h2 className="text-wrapper-mixes">{t('aimix.rec_title')}</h2>
         </div>
-
-        <a
-          className="ams-link"
-          href="#"
-          aria-label="Показати всі мікси"
-          tabIndex={0}
-        >
-          <span className="ams-link-label">ВСІ МІКСИ</span>
-          <div className="ams-link-icon">
-            <img className="ams-arrow" alt="" src={`${ASSETS}/image.svg`} aria-hidden="true" />
-          </div>
-        </a>
+        <button className="button-all-mixes" type="button" aria-label={t('aimix.all_mixes')}>
+          <span className="text-wrapper-all">{t('aimix.all_mixes')}</span>
+          <img
+            className="icon-arrow"
+            alt="Arrow"
+            src="/src/pages/ai-mix/components/AiMixesSection/icon.svg"
+          />
+        </button>
       </div>
 
-      {/* Mix cards row */}
-      <div className="ams-cards">
-        {MIXES.map((mix) => (
-          <MixCard key={mix.id} mix={mix} />
+      
+      <div className="container-mixes-grid">
+        {mixes.map((mix, index) => (
+          <div className="container-mix-card" key={index}>
+            <div className="image-mix-cover">
+              <img className="img-mix" alt={mix.name} src={mix.img} />
+            </div>
+            <div className="container-mix-info">
+              <div className="text-wrapper-mix-name">{mix.name}</div>
+            </div>
+          </div>
         ))}
       </div>
+
     </div>
   )
 }

@@ -1,10 +1,11 @@
 import React from "react"
+import { Link } from "react-router-dom"
 import "./style.css"
 
 export const FooterFromJson = (): React.JSX.Element => {
   return (
     <div className="footer-from-json">
-      
+
       <div className="ffj-margin">
         <div className="ffj-container">
           <div className="ffj-logo-wrapper">
@@ -13,20 +14,20 @@ export const FooterFromJson = (): React.JSX.Element => {
         </div>
       </div>
 
-      
+
       <div className="ffj-links">
-        <a className="ffj-link" href="#" tabIndex={0} aria-label="Політика конфіденційності">
+        <Link className="ffj-link" to="/privacy-policy" tabIndex={0} aria-label="Політика конфіденційності">
           <span className="ffj-link-text">Політика конфіденційності</span>
-        </a>
-        <a className="ffj-link" href="#" tabIndex={0} aria-label="Cookies">
+        </Link>
+        <Link className="ffj-link" to="/cookies" tabIndex={0} aria-label="Cookies">
           <span className="ffj-link-text">Cookies</span>
-        </a>
-        <a className="ffj-link" href="#" tabIndex={0} aria-label="Про нас">
+        </Link>
+        <Link className="ffj-link" to="/about" tabIndex={0} aria-label="Про нас">
           <span className="ffj-link-text ffj-link-text--light">Про нас</span>
-        </a>
+        </Link>
       </div>
 
-      
+
       <div className="ffj-copyright-wrapper">
         <div className="ffj-copyright-inner">
           <p className="ffj-copyright">© 2026 Groovra Premium Music</p>

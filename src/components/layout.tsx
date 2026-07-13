@@ -25,7 +25,6 @@ import Cover from '../assets/Cover.svg'
 import { NotificationDropdown } from './notification-dropdown'
 import { useTranslation } from 'react-i18next'
 import { LangSwitcher } from './LangSwitcher'
-import { useProfile } from '../context/profile context'
 import '../app.css'
 
 const PLAY_ICON_DATA = "data:image/svg+xml,%3csvg%20width='15'%20height='18'%20viewBox='0%200%2015%2018'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%2018V0L15%209L0%2018Z'%20fill='%230D0D12'/%3e%3c/svg%3e"
@@ -69,7 +68,7 @@ export const Layout: React.FC = () => {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
   const notificationRef = useRef<HTMLDivElement>(null)
 
-  const { profileName, avatarUrl } = useProfile()
+  const profileName = localStorage.getItem('profileName') || 'Profile'
 
   useEffect(() => {
     if (activeTab === 'Search' && searchInputRef.current && location.pathname.replace(/^\/en/, '') === '/search') {
@@ -108,7 +107,7 @@ export const Layout: React.FC = () => {
 
   const handleSidebarClick = (tab: string) => {
     setActiveTab(tab)
-
+    
     const savedLang = localStorage.getItem('lang') || 'uk'
     const prefix = savedLang === 'en' ? '/en' : ''
 
@@ -134,7 +133,7 @@ export const Layout: React.FC = () => {
   const handleSearchFocus = () => {
     const savedLang = localStorage.getItem('lang') || 'uk'
     const prefix = savedLang === 'en' ? '/en' : ''
-
+    
     if (location.pathname.replace(/^\/en/, '') !== '/search') {
       setActiveTab('Search')
       navigate(`${prefix}/search`)
@@ -201,174 +200,175 @@ export const Layout: React.FC = () => {
             <span className="Groovra">GROOVRA</span>
           </div>
 
-          <div className={`NavItem ${activeTab === 'Home' ? 'active' : ''}`} onClick={() => handleSidebarClick('Home')}>
-            {activeTab === 'Home' && <div className="ActiveLine" />}
-            <img src={Home} alt="Home" />
-            <span className="NavText">{t('nav.home')}</span>
-          </div>
+        <div className={`NavItem ${activeTab === 'Home' ? 'active' : ''}`} onClick={() => handleSidebarClick('Home')}>
+          {activeTab === 'Home' && <div className="ActiveLine" />}
+          <img src={Home} alt="Home" />
+          <span className="NavText">{t('nav.home')}</span>
+        </div>
 
-          <div className={`NavItem ${activeTab === 'Search' ? 'active' : ''}`} onClick={() => handleSidebarClick('Search')}>
-            {activeTab === 'Search' && <div className="ActiveLine" />}
-            <img src={Search} alt="Search" />
-            <span className="NavText">{t('nav.search')}</span>
-          </div>
+        <div className={`NavItem ${activeTab === 'Search' ? 'active' : ''}`} onClick={() => handleSidebarClick('Search')}>
+          {activeTab === 'Search' && <div className="ActiveLine" />}
+          <img src={Search} alt="Search" />
+          <span className="NavText">{t('nav.search')}</span>
+        </div>
 
-          <div className={`NavItem ${activeTab === 'Library' ? 'active' : ''}`} onClick={() => handleSidebarClick('Library')}>
-            {activeTab === 'Library' && <div className="ActiveLine" />}
-            <img src={Library} alt="Library" />
-            <span className="NavText">{t('nav.library')}</span>
-          </div>
+        <div className={`NavItem ${activeTab === 'Library' ? 'active' : ''}`} onClick={() => handleSidebarClick('Library')}>
+          {activeTab === 'Library' && <div className="ActiveLine" />}
+          <img src={Library} alt="Library" />
+          <span className="NavText">{t('nav.library')}</span>
+        </div>
 
-          <div className="ContTextColl">
-            <span className="TextColl">{t('nav.collections')}</span>
-          </div>
+        <div className="ContTextColl">
+          <span className="TextColl">{t('nav.collections')}</span>
+        </div>
 
-          <div className={`NavItem ${activeTab === 'Playlist' ? 'active' : ''}`} onClick={() => handleSidebarClick('Playlist')}>
-            {activeTab === 'Playlist' && <div className="ActiveLine" />}
-            <img src={Playlist} alt="Playlist" />
-            <span className="NavText">{t('nav.playlists')}</span>
-          </div>
+        <div className={`NavItem ${activeTab === 'Playlist' ? 'active' : ''}`} onClick={() => handleSidebarClick('Playlist')}>
+          {activeTab === 'Playlist' && <div className="ActiveLine" />}
+          <img src={Playlist} alt="Playlist" />
+          <span className="NavText">{t('nav.playlists')}</span>
+        </div>
 
-          <div className={`NavItem ${activeTab === 'Liked' ? 'active' : ''}`} onClick={() => handleSidebarClick('Liked')}>
-            {activeTab === 'Liked' && <div className="ActiveLine" />}
-            <img src={Liked} alt="Liked" />
-            <span className="NavText">{t('nav.liked')}</span>
-          </div>
+        <div className={`NavItem ${activeTab === 'Liked' ? 'active' : ''}`} onClick={() => handleSidebarClick('Liked')}>
+          {activeTab === 'Liked' && <div className="ActiveLine" />}
+          <img src={Liked} alt="Liked" />
+          <span className="NavText">{t('nav.liked')}</span>
+        </div>
 
-          <div className={`NavItem ${activeTab === 'AI' ? 'active' : ''}`} onClick={() => handleSidebarClick('AI')}>
-            {activeTab === 'AI' && <div className="ActiveLine" />}
-            <img src={AI} alt="AI mix" />
-            <span className="NavText">{t('nav.aiMix')}</span>
-          </div>
+        <div className={`NavItem ${activeTab === 'AI' ? 'active' : ''}`} onClick={() => handleSidebarClick('AI')}>
+          {activeTab === 'AI' && <div className="ActiveLine" />}
+          <img src={AI} alt="AI mix" />
+          <span className="NavText">{t('nav.aiMix')}</span>
+        </div>
 
-          <div className={`NavItem ${activeTab === 'Downloads' ? 'active' : ''}`} onClick={() => handleSidebarClick('Downloads')}>
-            {activeTab === 'Downloads' && <div className="ActiveLine" />}
-            <img src={Downloads} alt="Downloads" />
-            <span className="NavText">{t('nav.downloads')}</span>
-          </div>
+        <div className={`NavItem ${activeTab === 'Downloads' ? 'active' : ''}`} onClick={() => handleSidebarClick('Downloads')}>
+          {activeTab === 'Downloads' && <div className="ActiveLine" />}
+          <img src={Downloads} alt="Downloads" />
+          <span className="NavText">{t('nav.downloads')}</span>
+        </div>
 
-          <div className={`NavItem ${activeTab === 'Settings' ? 'active' : ''}`} onClick={() => handleSidebarClick('Settings')}>
-            {activeTab === 'Settings' && <div className="ActiveLine" />}
-            <img src={Settings} alt="Settings" />
-            <span className="NavText">{t('nav.settings')}</span>
-          </div>
-        </aside>
+        <div className={`NavItem ${activeTab === 'Settings' ? 'active' : ''}`} onClick={() => handleSidebarClick('Settings')}>
+          {activeTab === 'Settings' && <div className="ActiveLine" />}
+          <img src={Settings} alt="Settings" />
+          <span className="NavText">{t('nav.settings')}</span>
+        </div>
+      </aside>
       )}
       <div className='RightColumn'>
         {!isTrackPage && (
           <header className="MainHeader">
-            <div className="ContSearch">
-              <div className="SecContHeader">
-                <img src={HeaderSearch} className="HeaderSearch" alt="Search" />
-                <input
-                  ref={searchInputRef}
-                  type="text"
-                  className="InputSearch"
-                  placeholder={t('search.placeholder')}
-                  value={searchQuery}
-                  onChange={(e) => handleSearchChange(e.target.value)}
-                  onFocus={handleSearchFocus}
-                />
-              </div>
+          <div className="ContSearch">
+            <div className="SecContHeader">
+              <img src={HeaderSearch} className="HeaderSearch" alt="Search" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                className="InputSearch"
+                placeholder={t('search.placeholder')}
+                value={searchQuery}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                onFocus={handleSearchFocus}
+              />
             </div>
+          </div>
 
-            <div className="UserCont">
-              <div className="NotificationContainer" ref={notificationRef}>
-                <button
-                  type="button"
-                  className={`NotificationBtn ${isNotificationOpen ? 'active' : ''}`}
-                  onClick={() => setIsNotificationOpen(!isNotificationOpen)}
-                  title={t('notifications.title')}
-                  aria-label={t('notifications.title')}
-                >
-                  <img src={Notification} className="Notificationicon" alt={t('notifications.title')} />
-                </button>
-                <NotificationDropdown isOpen={isNotificationOpen} />
-              </div>
-              <LangSwitcher />
-              <UserMenu profileName={profileName} avatarUrl={avatarUrl} />
+          <div className="UserCont">
+            <div className="NotificationContainer" ref={notificationRef}>
+              <button
+                type="button"
+                className={`NotificationBtn ${isNotificationOpen ? 'active' : ''}`}
+                onClick={() => setIsNotificationOpen(!isNotificationOpen)}
+                title={t('notifications.title')}
+                aria-label={t('notifications.title')}
+              >
+                <img src={Notification} className="Notificationicon" alt={t('notifications.title')} />
+              </button>
+              <NotificationDropdown isOpen={isNotificationOpen} />
             </div>
-          </header>
+            <LangSwitcher />
+            <UserMenu profileName={profileName} />
+          </div>
+        </header>
         )}
 
         <Outlet />
 
+
         {!isTrackPage && (
           <footer className="FooterPlayer">
-            <div className="TrackContainer">
-              <div className="CurrentPlaying">
-                <img
-                  src={currentTrack?.coverImageUrl || Cover}
-                  className="CoverImg"
-                  style={{ borderRadius: '8px' }}
-                  alt="Cover"
-                  onError={(e) => { (e.target as HTMLImageElement).src = Cover }}
-                />
-              </div>
+          <div className="TrackContainer">
+            <div className="CurrentPlaying">
+              <img
+                src={currentTrack?.coverImageUrl || Cover}
+                className="CoverImg"
+                style={{ borderRadius: '8px' }}
+                alt="Cover"
+                onError={(e) => { (e.target as HTMLImageElement).src = Cover }}
+              />
+            </div>
 
-              <span className="NameOfTrack">{currentTrack ? currentTrack.title : t('player.track')}</span>
-              <span className="Author">{currentTrack ? currentTrack.artistName : t('player.artist')}</span>
+            <span className="NameOfTrack">{currentTrack ? currentTrack.title : t('player.track')}</span>
+            <span className="Author">{currentTrack ? currentTrack.artistName : t('player.artist')}</span>
 
-              <button
-                className={`IconLiked ${isLiked ? 'liked' : ''}`}
-                onClick={toggleLiked}
-                title={isLiked ? t('player.unlike') : t('player.like')}
-              >
-                <img src={Liked} alt="Like icon" />
+            <button
+              className={`IconLiked ${isLiked ? 'liked' : ''}`}
+              onClick={toggleLiked}
+              title={isLiked ? t('player.unlike') : t('player.like')}
+            >
+              <img src={Liked} alt="Like icon" />
+            </button>
+          </div>
+
+          <div className="ContPlayBack">
+            <div className="PlayeerCont">
+              <button className={`ButtonRemix ${isShuffle ? 'active' : ''}`} onClick={toggleShuffle} title={t('player.shuffle')}>
+                <img src={Remix} className="LogoRemix" alt="Shuffle" />
+              </button>
+              <button className="LeftArrowButton" onClick={playPrevious} title={t('player.previous')}>
+                <img src={LeftArrow} className="LeftArrow" alt="Previous" />
+              </button>
+              <button className="PauseButton" onClick={togglePlayPause} title={isPlaying ? t('player.pause') : t('player.play')}>
+                <img src={isPlaying ? Pause : PLAY_ICON_DATA} className="PauseLogo" style={isPlaying ? undefined : { marginLeft: '2px' }} alt="Play/Pause" />
+              </button>
+              <button className="ButtonRightArrow" onClick={playNext} title={t('player.next')}>
+                <img src={RightArrow} className="RightArrowLogo" alt="Next" />
+              </button>
+              <button className={`RefButton ${isRepeat ? 'active' : ''}`} onClick={toggleRepeat} title={isRepeat ? t('player.repeatOn') : t('player.repeat')}>
+                <img src={Ref} className="RefLogo" alt="Repeat" />
               </button>
             </div>
 
-            <div className="ContPlayBack">
-              <div className="PlayeerCont">
-                <button className={`ButtonRemix ${isShuffle ? 'active' : ''}`} onClick={toggleShuffle} title={t('player.shuffle')}>
-                  <img src={Remix} className="LogoRemix" alt="Shuffle" />
-                </button>
-                <button className="LeftArrowButton" onClick={playPrevious} title={t('player.previous')}>
-                  <img src={LeftArrow} className="LeftArrow" alt="Previous" />
-                </button>
-                <button className="PauseButton" onClick={togglePlayPause} title={isPlaying ? t('player.pause') : t('player.play')}>
-                  <img src={isPlaying ? Pause : PLAY_ICON_DATA} className="PauseLogo" style={isPlaying ? undefined : { marginLeft: '2px' }} alt="Play/Pause" />
-                </button>
-                <button className="ButtonRightArrow" onClick={playNext} title={t('player.next')}>
-                  <img src={RightArrow} className="RightArrowLogo" alt="Next" />
-                </button>
-                <button className={`RefButton ${isRepeat ? 'active' : ''}`} onClick={toggleRepeat} title={isRepeat ? t('player.repeatOn') : t('player.repeat')}>
-                  <img src={Ref} className="RefLogo" alt="Repeat" />
-                </button>
+            <div className="ContStartTime">
+              <span className="StartTime">{formatTime(currentTime)}</span>
+              <div className="PlayBackLine" ref={timelineRef} onClick={handleTimelineClick}>
+                <div className="PlayBackFill" style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}></div>
               </div>
-
-              <div className="ContStartTime">
-                <span className="StartTime">{formatTime(currentTime)}</span>
-                <div className="PlayBackLine" ref={timelineRef} onClick={handleTimelineClick}>
-                  <div className="PlayBackFill" style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }}></div>
-                </div>
-                <span className="EndTime">{formatTime(duration)}</span>
-              </div>
+              <span className="EndTime">{formatTime(duration)}</span>
             </div>
+          </div>
 
-            <div className="Volume">
-              <button
-                className={`MuteButton ${isMuted ? 'muted' : ''}`}
-                onClick={toggleMute}
-                title={isMuted ? t('player.unmute') : t('player.mute')}
-              >
-                <img src={Button} className="MuteIcon" alt="Mute" />
-              </button>
-              <img src={Volume} className="VolumeIcon" alt="Volume" />
-              <div
-                className="ContVolume"
-                ref={trackRef}
-                onClick={handleSliderClick}
-                onMouseDown={handleVolumeMouseDown}
-                style={{ cursor: 'pointer', userSelect: 'none' }}
-              >
-                <div className="VolumeFill" style={{ width: `${isMuted ? 0 : volume}%` }}></div>
-              </div>
-              <button className="ButtonRight" onClick={handleFullscreenClick} title={t('player.fullscreen')}>
-                <img src={Right} alt="Fullscreen" />
-              </button>
+          <div className="Volume">
+            <button
+              className={`MuteButton ${isMuted ? 'muted' : ''}`}
+              onClick={toggleMute}
+              title={isMuted ? t('player.unmute') : t('player.mute')}
+            >
+              <img src={Button} className="MuteIcon" alt="Mute" />
+            </button>
+            <img src={Volume} className="VolumeIcon" alt="Volume" />
+            <div
+              className="ContVolume"
+              ref={trackRef}
+              onClick={handleSliderClick}
+              onMouseDown={handleVolumeMouseDown}
+              style={{ cursor: 'pointer', userSelect: 'none' }}
+            >
+              <div className="VolumeFill" style={{ width: `${isMuted ? 0 : volume}%` }}></div>
             </div>
-          </footer>
+            <button className="ButtonRight" onClick={handleFullscreenClick} title={t('player.fullscreen')}>
+              <img src={Right} alt="Fullscreen" />
+            </button>
+          </div>
+        </footer>
         )}
       </div>
     </div>

@@ -107,7 +107,7 @@ export const logoutUser = async () => {
     console.error("Помилка логауту:", error)
   }
   
-  // Очистка локальних даних
+  
   localStorage.removeItem('UserEmail')
   localStorage.removeItem('RegistrationEmail')
   localStorage.removeItem('profileName')

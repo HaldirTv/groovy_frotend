@@ -24,7 +24,8 @@ export const Forgot = () => {
 
     setIsLoading(true)
     try {
-      const response = await fetch(`${GATEWAY_URL}/auth/forgot-password`, {
+      // Внутри src/pages/forgot-password.tsx замени fetch на:
+      const response = await fetch(`${GATEWAY_URL}/auth/requestresetpassword`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),

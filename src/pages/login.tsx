@@ -17,11 +17,17 @@ export const Log = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   const hasGoogleClientId = !!import.meta.env.VITE_GOOGLE_CLIENT_ID
+  // Исправьте конфигурацию useGoogleLogin
   const loginWithGoogle = useGoogleLogin({
     flow: 'auth-code',
     ux_mode: 'redirect',
-    redirect_uri: 'http://localhost:5173/auth/callback',
+    // или если нужен статический:
+     redirect_uri: 'http://localhost:5178/auth/callback',
+    onError: () => {
+      setError('Помилка при авторизації через Google')
+    }
   })
+
 
   const handleGoogleClick = () => {
     if (!hasGoogleClientId) {

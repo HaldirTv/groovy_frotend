@@ -1,88 +1,78 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlayer } from '../context/player-context'
 import Cover from '../assets/Cover.svg'
 import { FooterFromJson } from '../components/footer-from-json'
+import { Pagination } from '../components/pagination'
 import '../app.css'
-
-// Import Figma-exported search category background images
-import artistsImg from '../assets/search-artists.png'
-import musicImg from '../assets/search-music.png'
-import podcastsImg from '../assets/search-podcasts.png'
-import playlistsImg from '../assets/search-playlists.png'
-import albumsImg from '../assets/search-albums.png'
-import popularImg from '../assets/search-popular.png'
-import noResultsSvg from '../assets/no-results.svg'
 
 export const SearchPage: React.FC = () => {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const {
     tracks,
     currentTrack,
     isLoadingTracks,
     searchQuery,
-    selectTrack
+    selectTrack,
+    handleSearchChange,
+    currentPage,
+    hasMoreTracks,
+    fetchTracks
   } = usePlayer()
 
-  const handleGenreClick = () => {
-    navigate('/track')
+  const handleGenreClick = (genreName: string) => {
+    handleSearchChange(genreName)
   }
 
   return (
-    <div className="SearchTabContent">
-      <div className="SearchSeparator" />
+    <div className="Main2 SearchTabContent">
+      <div className="SearchHeader">
+        <span className="SectionTitle">{t('search.title', 'Пошук музики')}</span>
+      </div>
+
       {searchQuery.trim() === '' ? (
         <div className="GenreCategories" style={{ width: '100%' }}>
-          <h1 className="CategoryLabel">{t('search.category_title')}</h1>
-          <div className="CategoryGrid">
+          <span className="SubSectionTitle">{t('search.popular_genres', 'Популярні жанри')}</span>
+          <div className="GenreGrid" style={{ marginTop: '20px' }}>
             {[
-              { name: t('search.categories.artists'), image: artistsImg },
-              { name: t('search.categories.music'), image: musicImg },
-              { name: t('search.categories.podcasts'), image: podcastsImg },
-              { name: t('search.categories.playlists'), image: playlistsImg },
-              { name: t('search.categories.albums'), image: albumsImg },
-              { name: t('search.categories.popular'), image: popularImg }
+              { name: 'Pop',        color: 'linear-gradient(135deg, #a855f7, #ec4899)' },
+              { name: 'Rock',       color: 'linear-gradient(135deg, #ef4444, #f97316)' },
+              { name: 'Hip-Hop',    color: 'linear-gradient(135deg, #3b82f6, #06b6d4)' },
+              { name: 'Jazz',       color: 'linear-gradient(135deg, #eab308, #ca8a04)' },
+              { name: 'Electronic', color: 'linear-gradient(135deg, #10b981, #14b8a6)' },
+              { name: 'Ambient',    color: 'linear-gradient(135deg, #6366f1, #8b5cf6)' },
+              { name: 'Classical',  color: 'linear-gradient(135deg, #64748b, #475569)' },
+              { name: 'Lo-Fi',      color: 'linear-gradient(135deg, #f43f5e, #fb7185)' },
             ].map(genre => (
               <div
                 key={genre.name}
-                className="CategoryCard"
-                onClick={() => handleGenreClick()}
+                className="GenreCard"
+                style={{ background: genre.color }}
+                onClick={() => handleGenreClick(genre.name)}
                 tabIndex={0}
                 role="button"
-                aria-label={`Category ${genre.name}`}
-                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleGenreClick() }}
+                aria-label={`Genre ${genre.name}`}
+                onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleGenreClick(genre.name) }}
               >
-                <div className="image">
-                  <img className="rectangle" alt="Rectangle" src={genre.image} />
-                </div>
-                <span className="CategoryCardName">{genre.name}</span>
-                <div className="CategoryCardHighlight" />
+                <span className="GenreCardName">{genre.name}</span>
               </div>
             ))}
           </div>
         </div>
       ) : (
-        <div className="SearchResults">
-          <span className="SubSectionTitle">{t('search.results', { query: searchQuery })}</span>
+        <div className="SearchResults" style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
+          <span className="SubSectionTitle">
+            {t('search.results', { query: searchQuery })}
+          </span>
 
-          <div className="MusicCardCont">
-            {isLoadingTracks ? (
-              <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>{t('search.loading')}</div>
+          <div className="MusicCardCont" style={{ marginTop: '20px' }}>
+            {isLoadingTracks && tracks.length === 0 ? (
+              <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>
+                {t('search.loading', 'Завантаження результатів...')}
+              </div>
             ) : tracks.length === 0 ? (
-              <div className="NoResultsLayout">
-                <div className="NoResultsTextSide">
-                  <h1 className="NoResultsTitle">Нажаль за вашим запитом нічого не знайдено</h1>
-                  <div className="NoResultsSubTexts">
-                    <p className="NoResultsSubText">Перевірте ваш запит на наявність помилок</p>
-                    <p className="NoResultsSubText">Спробуйте ввести інші ключові слова</p>
-                    <p className="NoResultsSubText">Можливо ваш запит містить теми заборонені законом</p>
-                  </div>
-                </div>
-                <div className="NoResultsImageSide">
-                  <img className="NoResultsCloud" alt="No results cloud illustration" src={noResultsSvg} />
-                </div>
+              <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>
+                {t('search.not_found', 'Не знайдено жодного треку за запитом "{{query}}"', { query: searchQuery })}
               </div>
             ) : (
               tracks.map((track) => (
@@ -94,6 +84,7 @@ export const SearchPage: React.FC = () => {
                   role="button"
                   aria-label={t('library.play_track', { title: track.title, artist: track.artistName })}
                   onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') selectTrack(track) }}
+                  style={{ position: 'relative' }}
                 >
                   <div className="OverCover">
                     <img
@@ -112,6 +103,15 @@ export const SearchPage: React.FC = () => {
               ))
             )}
           </div>
+
+          {tracks.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={hasMoreTracks ? currentPage + 1 : currentPage}
+              onPageChange={(page) => fetchTracks(searchQuery, page, false)}
+              isLoading={isLoadingTracks}
+            />
+          )}
         </div>
       )}
       <FooterFromJson />

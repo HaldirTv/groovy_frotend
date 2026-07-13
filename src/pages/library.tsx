@@ -15,7 +15,7 @@ export const LibraryPage: React.FC = () => {
   } = usePlayer()
 
   return (
-    <div className="LibraryTabContent">
+    <div className="Main2 LibraryTabContent">
       <span className="SectionTitle">{t('library.title')}</span>
       <div className="LibraryTrackList">
         <div className="LibraryTableHeader">

@@ -18,7 +18,7 @@ export const LikedPage: React.FC = () => {
   const likedTracks = tracks.filter(t => likedTrackIds.includes(t.trackId))
 
   return (
-    <div className="LikedTabContent">
+    <div className="Main2 LikedTabContent">
       <span className="SectionTitle">{t('liked.title')}</span>
       {likedTracks.length === 0 ? (
         <div className="EmptyStateText">{t('liked.empty')}</div>

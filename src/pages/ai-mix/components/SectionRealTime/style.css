@@ -126,3 +126,17 @@
   line-height: 16px;
   white-space: nowrap;
 }
+
+@media (max-width: 1024px) {
+  .section-real-time {
+    flex-direction: column;
+    height: auto;
+    padding: 20px;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .srt-badges {
+    width: 100%;
+    justify-content: space-between;
+  }
+}

@@ -387,7 +387,7 @@
   width: 16px;
 }
 
-@media (max-width: 960px) {
+@media (max-width: 1250px) {
   .hero-section-margin .hero-section {
     min-height: auto;
     height: auto;

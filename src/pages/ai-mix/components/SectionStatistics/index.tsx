@@ -1,6 +1,15 @@
 import React from "react"
-import { useTranslation } from 'react-i18next'
 import "./style.css"
+
+
+
+
+
+
+
+
+
+
 
 const ASSETS = "/src/pages/ai-mix/components/SectionStatistics"
 
@@ -33,15 +42,12 @@ const StatCard = ({
 )
 
 export const SectionStatistics = (): React.JSX.Element => {
-  const { i18n } = useTranslation()
-  const isEn = i18n.language === 'en'
-
   const stats: StatCardProps[] = [
     {
       iconSrc: `${ASSETS}/icon.svg`,
       iconClass: "icon",
       iconAlt: "AI Mixes icon",
-      label: isEn ? "AI MIXES" : "ШІ МІКСИ",
+      label: "ШІ МІКСИ",
       value: "12,450",
       maskSrc: `${ASSETS}/mask-group.svg`,
     },
@@ -49,7 +55,7 @@ export const SectionStatistics = (): React.JSX.Element => {
       iconSrc: `${ASSETS}/image.svg`,
       iconClass: "img",
       iconAlt: "Songs icon",
-      label: isEn ? "SONGS" : "ПІСНІ",
+      label: "ПІСНІ",
       value: "87,320",
       maskSrc: `${ASSETS}/mask-group-2.svg`,
     },
@@ -57,7 +63,7 @@ export const SectionStatistics = (): React.JSX.Element => {
       iconSrc: `${ASSETS}/icon-2.svg`,
       iconClass: "icon",
       iconAlt: "Albums icon",
-      label: isEn ? "ALBUMS" : "АЛЬБОМИ",
+      label: "АЛЬБОМИ",
       value: "4,210",
       maskSrc: `${ASSETS}/mask-group-3.svg`,
     },
@@ -65,7 +71,7 @@ export const SectionStatistics = (): React.JSX.Element => {
       iconSrc: `${ASSETS}/icon-3.svg`,
       iconClass: "icon-2",
       iconAlt: "Hours icon",
-      label: isEn ? "HOURS" : "ГОДИНИ",
+      label: "ГОДИНИ",
       value: "2.8M",
       maskSrc: `${ASSETS}/mask-group-4.svg`,
     },

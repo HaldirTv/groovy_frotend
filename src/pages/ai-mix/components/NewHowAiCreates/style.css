@@ -184,6 +184,9 @@
 }
 
 @media (max-width: 1024px) {
+  .nhac-divider {
+    display: none !important;
+  }
   .nhac-steps {
     flex-wrap: wrap;
     gap: 24px;

@@ -289,11 +289,14 @@ export const TrackPage: React.FC = () => {
       const targetWidth = 1524
       const targetHeight = 811
 
-      const scaleX = (window.innerWidth - 48) / targetWidth
-      const scaleY = (window.innerHeight - 48) / targetHeight
-
-      const newScale = Math.min(1, scaleX, scaleY)
-      setScale(newScale)
+      if (window.innerWidth <= 768) {
+        setScale(1)
+      } else {
+        const scaleX = (window.innerWidth - 48) / targetWidth
+        const scaleY = (window.innerHeight - 48) / targetHeight
+        const newScale = Math.min(1, scaleX, scaleY)
+        setScale(newScale)
+      }
     }
 
     window.addEventListener('resize', handleResize)

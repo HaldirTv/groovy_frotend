@@ -1,4 +1,7 @@
-import React from "react"
+import React, { useState } from "react"
+import { useTranslation } from "react-i18next"
+import { usePlayer, type Track } from "../../context/player-context"
+import { apiFetch, GATEWAY_URL } from "../../api/api-client"
 import { HeroSectionMargin } from "./components/HeroSectionMargin"
 import { SectionStatistics } from "./components/SectionStatistics"
 import { SectionRealTime } from "./components/SectionRealTime"
@@ -6,25 +9,220 @@ import { NewAiAlbums } from "./components/NewAiAlbums"
 import { NewHowAiCreates } from "./components/NewHowAiCreates"
 import { AiMixesSection } from "./components/AiMixesSection"
 import { ContentGridAi } from "./components/ContentGridAi"
-import { FooterFromJson } from "./components/FooterFromJson"
+import { FooterFromJson } from "../ai-mix/components/FooterFromJson"
+import Cover from "../../assets/Cover.svg"
 import "./ai-mix.css"
 
+interface PlaylistTrackDto {
+  trackId: string
+  title: string
+  artistName: string
+  position: number
+  coverUrl: string | null
+  durationSeconds: number
+}
+
+interface PlaylistDto {
+  id: string
+  userId: string
+  title: string
+  description: string | null
+  slug: string
+  coverImageUrl: string | null
+  trackCount: number
+  totalDurationSeconds: number
+  isPrivate: boolean
+  isLiked: boolean
+  createdAt: string
+  tracks: PlaylistTrackDto[]
+}
+
 export const AiMixPage = (): React.JSX.Element => {
+  const { t } = useTranslation()
+  const { selectTrack, setTracks, currentTrack, formatTime } = usePlayer()
+
+  const [generatedPlaylist, setGeneratedPlaylist] = useState<PlaylistDto | null>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [loadingStep, setLoadingStep] = useState("")
+  const [error, setError] = useState<string | null>(null)
+  const [isPlaylistLiked, setIsPlaylistLiked] = useState(false)
+
+  const handleGenerate = async (promptText: string) => {
+    if (!promptText.trim()) return
+
+    setIsLoading(true)
+    setError(null)
+    setGeneratedPlaylist(null)
+    setLoadingStep(t("aimix.loading_analysis", { defaultValue: "Аналізуємо настрій..." }))
+
+    const timer1 = setTimeout(() => {
+      setLoadingStep(t("aimix.loading_tracks", { defaultValue: "Підбираємо треки за допомогою ШІ..." }))
+    }, 1800)
+
+    const timer2 = setTimeout(() => {
+      setLoadingStep(t("aimix.loading_compiling", { defaultValue: "Створюємо унікальний плейлист..." }))
+    }, 3800)
+
+    try {
+      const response = await apiFetch(`${GATEWAY_URL}/music/playlists/ai-mix`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt: promptText }),
+      })
+
+      if (!response.ok) {
+        const errData = await response.json().catch(() => ({}))
+        throw new Error(errData.message || t("aimix.error_failed", { defaultValue: "Не вдалося згенерувати ШІ мікс." }))
+      }
+
+      const data: PlaylistDto = await response.json()
+      setGeneratedPlaylist(data)
+      setIsPlaylistLiked(data.isLiked)
+    } catch (err: any) {
+      console.error(err)
+      setError(err.message || t("errors.unknown", { defaultValue: "Сталася помилка." }))
+    } finally {
+      clearTimeout(timer1)
+      clearTimeout(timer2)
+      setIsLoading(false)
+    }
+  }
+
+  const handleReset = () => {
+    setGeneratedPlaylist(null)
+    setError(null)
+  }
+
+  const handlePlayPlaylist = () => {
+    if (!generatedPlaylist || !generatedPlaylist.tracks.length) return
+
+    const playerTracks: Track[] = generatedPlaylist.tracks.map((pt) => ({
+      trackId: pt.trackId,
+      title: pt.title,
+      artistName: pt.artistName,
+      durationSeconds: pt.durationSeconds,
+      coverImageUrl: pt.coverUrl || undefined,
+      audioUrl: `${GATEWAY_URL}/music/tracks/${pt.trackId}/stream`,
+      fileSizeBytes: 0,
+      contentType: "audio/mpeg",
+      uploadedAt: new Date().toISOString(),
+      playCount: 0,
+      isLiked: false,
+    }))
+
+    setTracks(playerTracks)
+    selectTrack(playerTracks[0])
+  }
+
+  const handleToggleLike = async () => {
+    if (!generatedPlaylist) return
+
+    const playlistId = generatedPlaylist.id
+    const currentlyLiked = isPlaylistLiked
+
+    setIsPlaylistLiked(!currentlyLiked)
+
+    try {
+      if (currentlyLiked) {
+        await apiFetch(`${GATEWAY_URL}/music/favorites/playlist/${playlistId}`, {
+          method: "DELETE",
+        })
+      } else {
+        await apiFetch(`${GATEWAY_URL}/music/favorites/playlist`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ playlistId }),
+        })
+      }
+    } catch (err) {
+      console.error("Error toggling like for playlist:", err)
+      setIsPlaylistLiked(currentlyLiked)
+    }
+  }
+
   return (
     <div className="ai-mix-page">
       <div className="bg-glow bg-glow-1" />
       <div className="bg-glow bg-glow-2" />
       <div className="bg-glow bg-glow-3" />
 
-      <HeroSectionMargin />
-      <SectionStatistics />
-      <SectionRealTime />
-      <NewAiAlbums />
-      <NewHowAiCreates />
-      <AiMixesSection />
-      <ContentGridAi />
+      <HeroSectionMargin
+        playlist={generatedPlaylist}
+        isLoading={isLoading}
+        loadingMessage={loadingStep}
+        error={error}
+        onGenerate={handleGenerate}
+        onReset={handleReset}
+        onPlayPlaylist={handlePlayPlaylist}
+        isLiked={isPlaylistLiked}
+        onToggleLike={handleToggleLike}
+      />
+
+      {generatedPlaylist ? (
+        <div className="LibraryTrackList ai-mix-track-list" style={{ marginTop: "32px", width: "100%" }}>
+          <h2 className="SectionTitle" style={{ fontSize: "24px", marginBottom: "20px" }}>
+            {t("aimix.tracks_in_mix", { defaultValue: "Треки в міксі" })}
+          </h2>
+          <div className="LibraryTableHeader">
+            <span className="ColHash">#</span>
+            <span className="ColTitle">{t("library.song_title")}</span>
+            <span className="ColGenre">{t("library.genre")}</span>
+            <span className="ColDuration">{t("library.duration")}</span>
+          </div>
+          <div className="LibraryTableBody">
+            {generatedPlaylist.tracks.map((track, index) => {
+              const mappedTrack: Track = {
+                trackId: track.trackId,
+                title: track.title,
+                artistName: track.artistName,
+                durationSeconds: track.durationSeconds,
+                coverImageUrl: track.coverUrl || undefined,
+                audioUrl: `${GATEWAY_URL}/music/tracks/${track.trackId}/stream`,
+                fileSizeBytes: 0,
+                contentType: "audio/mpeg",
+                uploadedAt: new Date().toISOString(),
+                playCount: 0,
+              }
+
+              return (
+                <div
+                  key={track.trackId}
+                  className={`LibraryRow ${currentTrack?.trackId === track.trackId ? "active-row" : ""}`}
+                  onClick={() => selectTrack(mappedTrack)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={t("library.play_track", { title: track.title, artist: track.artistName })}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") selectTrack(mappedTrack)
+                  }}
+                >
+                  <span className="ColHash">{index + 1}</span>
+                  <div className="ColTitleDetail">
+                    <img src={track.coverUrl || Cover} className="LibraryRowCover" alt="Cover" />
+                    <div className="LibraryRowInfo">
+                      <span className="RowTitle">{track.title}</span>
+                      <span className="RowArtist">{track.artistName}</span>
+                    </div>
+                  </div>
+                  <span className="ColGenre">AI</span>
+                  <span className="ColDuration">{formatTime(track.durationSeconds)}</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      ) : (
+        <>
+          <SectionStatistics />
+          <SectionRealTime />
+          <NewAiAlbums />
+          <NewHowAiCreates />
+          <AiMixesSection />
+          <ContentGridAi />
+        </>
+      )}
+
       <FooterFromJson />
     </div>
   )
 }
-

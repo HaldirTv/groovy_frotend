@@ -10,6 +10,7 @@ import Arrow from '../assets/IconArrow.svg'
 import Cover from '../assets/Cover.svg'
 import '../app.css'
 import { Pagination } from '../components/pagination'
+import { FooterFromJson } from '../components/footer-from-json'
 
 export interface PlaylistListItem {
   id: string;
@@ -69,10 +70,6 @@ export const Main: React.FC = () => {
   const [showAllTracks, setShowAllTracks] = useState(false)
 
   const [playlists, setPlaylists] = useState<PlaylistListItem[]>([])
-  const [activePlaylistDetail, setActivePlaylistDetail] = useState<PlaylistDetail | null>(null)
-  const [isLoadingPlaylists, setIsLoadingPlaylists] = useState(false)
-  const [isCreatingPlaylist, setIsCreatingPlaylist] = useState(false)
-  const [newPlaylistTitle, setNewPlaylistTitle] = useState('')
   const [showPlaylistModal, setShowPlaylistModal] = useState<string | null>(null)
   const [toast, setToast] = useState<{ message: string; visible: boolean } | null>(null)
 
@@ -190,9 +187,6 @@ export const Main: React.FC = () => {
   useEffect(() => {
     if (activeTab === 'Liked') {
       fetchLikedTracks()
-    } else if (activeTab === 'Playlist') {
-      fetchPlaylists()
-      setActivePlaylistDetail(null)
     } else if (['Home', 'Search'].includes(activeTab)) {
       fetchTracks(activeTab === 'Search' ? searchQuery : '', 1, false)
     }
@@ -206,7 +200,6 @@ export const Main: React.FC = () => {
   }, [location.state, setActiveTab])
 
   const fetchPlaylists = async () => {
-    setIsLoadingPlaylists(true)
     try {
       const response = await apiFetch(`${GATEWAY_URL}/music/playlists`)
       if (response.ok) {
@@ -215,72 +208,6 @@ export const Main: React.FC = () => {
       }
     } catch (error) {
       console.error('Помилка завантаження плейлистів:', error)
-    } finally {
-      setIsLoadingPlaylists(false)
-    }
-  }
-
-  const fetchPlaylistById = async (id: string) => {
-    setIsLoadingPlaylists(true)
-    try {
-      const response = await apiFetch(`${GATEWAY_URL}/music/playlists/${id}`)
-      if (response.ok) {
-        const data = await response.json()
-        setActivePlaylistDetail(data)
-      }
-    } catch (error) {
-      console.error('Помилка завантаження деталей плейлиста:', error)
-    } finally {
-      setIsLoadingPlaylists(false)
-    }
-  }
-
-  const handleCreatePlaylist = async () => {
-    if (!newPlaylistTitle.trim()) return
-    try {
-      const response = await apiFetch(`${GATEWAY_URL}/music/playlists`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: newPlaylistTitle, isPrivate: false })
-      })
-      if (response.ok) {
-        setNewPlaylistTitle('')
-        setIsCreatingPlaylist(false)
-        fetchPlaylists()
-        showToast('Плейлист створено!')
-      }
-    } catch (error) {
-      console.error('Помилка створення плейлиста:', error)
-    }
-  }
-
-  const handleDeletePlaylist = async (playlistId: string) => {
-    if (!window.confirm('Ви впевнені, що хочете видалити цей плейлист?')) return
-    try {
-      const response = await apiFetch(`${GATEWAY_URL}/music/playlists/${playlistId}`, { method: 'DELETE' })
-      if (response.ok) {
-        setActivePlaylistDetail(null)
-        fetchPlaylists()
-        showToast('Плейлист видалено')
-      }
-    } catch (error) {
-      console.error('Помилка видалення плейлиста:', error)
-    }
-  }
-
-  const handleTogglePrivacy = async (playlistId: string, currentPrivacy: boolean) => {
-    try {
-      const response = await apiFetch(`${GATEWAY_URL}/music/playlists/${playlistId}/privacy`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ isPrivate: !currentPrivacy })
-      })
-      if (response.ok) {
-        fetchPlaylistById(playlistId)
-        showToast(`Плейлист тепер ${!currentPrivacy ? 'приватний' : 'публічний'}`)
-      }
-    } catch (error) {
-      console.error('Помилка зміни приватності:', error)
     }
   }
 
@@ -308,42 +235,9 @@ export const Main: React.FC = () => {
     }
   }
 
-  const handleRemoveTrackFromPlaylist = async (playlistId: string, trackId: string) => {
-    if (!window.confirm('Видалити трек з плейлиста?')) return
-    try {
-      const response = await apiFetch(`${GATEWAY_URL}/music/playlists/${playlistId}/tracks/${trackId}`, {
-        method: 'DELETE'
-      })
-      if (response.ok) {
-        fetchPlaylistById(playlistId)
-        showToast('Трек видалено з плейлиста')
-      }
-    } catch (error) {
-      console.error('Помилка видалення треку з плейлиста:', error)
-    }
-  }
-
   const handlePlayLikedTrack = (_track: Track, index: number) => {
     setTracks(likedTracks)
     selectTrack(likedTracks[index])
-  }
-
-  const handlePlayPlaylistTrack = (_trackDto: PlaylistTrackDto, index: number) => {
-    if (!activePlaylistDetail) return
-    const mappedTracks: Track[] = activePlaylistDetail.tracks.map(t => ({
-      trackId: t.trackId,
-      title: t.title,
-      artistName: t.artistName,
-      durationSeconds: t.durationSeconds,
-      audioUrl: `${GATEWAY_URL}/music/tracks/${t.trackId}/stream`,
-      coverImageUrl: t.coverUrl,
-      fileSizeBytes: 0,
-      contentType: 'audio/mpeg',
-      uploadedAt: activePlaylistDetail.createdAt || new Date().toISOString(),
-      playCount: 0
-    }))
-    setTracks(mappedTracks)
-    selectTrack(mappedTracks[index])
   }
 
   const handleProfileNameChange = (name: string) => {
@@ -395,7 +289,7 @@ export const Main: React.FC = () => {
             )}
           </div>
 
-          <div className="MusicCardCont">
+          <div className={`MusicCardCont ${showAllTracks ? 'show-all' : ''}`}>
             {isLoadingTracks ? (
               <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Завантаження треків...</div>
             ) : tracks.length === 0 ? (
@@ -636,7 +530,7 @@ export const Main: React.FC = () => {
               )}
             </div>
 
-            <div className="MusicCardCont">
+            <div className={`MusicCardCont ${showAllHistory ? 'show-all' : ''}`}>
               {isLoadingHistory && historyItems.length === 0 ? (
                 <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>
                   Завантаження історії...
@@ -694,185 +588,7 @@ export const Main: React.FC = () => {
         </div>
       )}
 
-      {activeTab === 'Playlist' && (
-  <div className="PlaylistTabContent">
-    {!activePlaylistDetail ? (
-      <>
-        <div className="SearchHeader" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span className="SectionTitle">Ваші Плейлисти</span>
-          <button
-            className="AiGenerateBtn"
-            style={{ width: 'auto', padding: '10px 20px', marginTop: 0 }}
-            onClick={() => setIsCreatingPlaylist(!isCreatingPlaylist)}
-          >
-            {isCreatingPlaylist ? 'Скасувати' : '+ Створити'}
-          </button>
-        </div>
 
-        {isCreatingPlaylist && (
-          <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
-            <input
-              type="text"
-              className="SettingsInput"
-              placeholder="Введіть назву плейлиста..."
-              value={newPlaylistTitle}
-              onChange={(e) => setNewPlaylistTitle(e.target.value)}
-              style={{ maxWidth: '300px' }}
-            />
-            <button className="AiGenerateBtn" style={{ width: 'auto' }} onClick={handleCreatePlaylist}>
-              Зберегти
-            </button>
-          </div>
-        )}
-
-        {isLoadingPlaylists ? (
-          <div style={{ color: '#A1A1AA', fontFamily: 'SUSE, sans-serif' }}>Завантаження плейлистів...</div>
-        ) : playlists.length === 0 ? (
-          <div className="EmptyStateText">У вас ще немає плейлистів. Створіть свій перший!</div>
-        ) : (
-          <div className="PlaylistGrid">
-            {playlists.map((playlist) => {
-              // Функция для получения полного URL обложки
-              const getCoverUrl = (url: string | null | undefined) => {
-                if (!url) return Cover;
-                if (url.startsWith('http://') || url.startsWith('https://')) return url;
-                // Для относительных путей (локальные файлы)
-                return `${GATEWAY_URL}/music/files/${url.replace(/\\/g, '/')}`;
-              };
-
-              // Подготавливаем 4 элемента для коллажа (заполняем null, если не хватает)
-              const coverItems: (string | null)[] = [...playlist.collageCovers];
-              while (coverItems.length < 4) coverItems.push(null);
-
-              // Проверяем, есть ли хоть одна обложка
-              const hasAnyCover = coverItems.some(url => url !== null);
-
-              return (
-                <div
-                  key={playlist.id}
-                  className="PlaylistCard"
-                  style={{ cursor: 'pointer', background: 'transparent', border: 'none' }}
-                  onClick={() => fetchPlaylistById(playlist.id)}
-                >
-                  {/* Блок коллажа */}
-                  <div className="PlaylistCollage">
-                    {coverItems.map((url, idx) => (
-                      <div key={idx} className="PlaylistCollageItem">
-                        {url ? (
-                          <img
-                            src={getCoverUrl(url)}
-                            alt="cover"
-                            onError={(e) => (e.currentTarget.src = Cover)}
-                          />
-                        ) : (
-                          <div className="PlaylistCollagePlaceholder" />
-                        )}
-                      </div>
-                    ))}
-                    {/* Если нет ни одной обложки, показываем иконку ноты */}
-                    {!hasAnyCover && (
-                      <div className="PlaylistCollageEmptyIcon">
-                        <span className="PlaylistEmptyNote">♪</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Текстовая информация */}
-                  <div className="PlaylistCardContent" style={{ marginTop: '12px' }}>
-                    <span className="PlaylistCardTitle">{playlist.title}</span>
-                    <span className="PlaylistCardDesc">
-                      {playlist.description || (playlist.isPrivate ? '🔒 Приватний' : '🌍 Публічний')}
-                    </span>
-                    <span className="PlaylistCardCount">{playlist.trackCount} треків</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </>
-    ) : (
-      // === Детальный просмотр плейлиста ===
-      <>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <button
-              style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '5px' }}
-              onClick={() => setActivePlaylistDetail(null)}
-            >
-              <img src={BackLogo} alt="Back" style={{ width: '24px', transform: 'rotate(180deg)' }} />
-            </button>
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <span className="SectionTitle" style={{ marginBottom: 0 }}>
-                {activePlaylistDetail.title} {activePlaylistDetail.isPrivate ? '🔒' : '🌍'}
-              </span>
-              <span style={{ color: '#A1A1AA', fontSize: '14px', fontFamily: 'SUSE, sans-serif' }}>
-                {activePlaylistDetail.trackCount} треків • {formatTime(activePlaylistDetail.totalDurationSeconds)}
-              </span>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              className="ActionBtn"
-              onClick={() => handleTogglePrivacy(activePlaylistDetail.id, activePlaylistDetail.isPrivate)}
-            >
-              Зробити {activePlaylistDetail.isPrivate ? 'Публічним' : 'Приватним'}
-            </button>
-            <button
-              className="ActionBtn"
-              style={{ backgroundColor: '#ef4444', color: 'white' }}
-              onClick={() => handleDeletePlaylist(activePlaylistDetail.id)}
-            >
-              Видалити
-            </button>
-          </div>
-        </div>
-
-        {activePlaylistDetail.tracks.length === 0 ? (
-          <div className="EmptyStateText">У цьому плейлисті поки немає треків.</div>
-        ) : (
-          <div className="LibraryTrackList">
-            <div className="LibraryTableHeader">
-              <span className="ColHash">#</span>
-              <span className="ColTitle">Назва</span>
-              <span className="ColGenre">Дії</span>
-              <span className="ColDuration">Тривалість</span>
-            </div>
-            <div className="LibraryTableBody">
-              {activePlaylistDetail.tracks.map((track, index) => (
-                <div
-                  key={track.trackId}
-                  className={`LibraryRow ${currentTrack?.trackId === track.trackId ? 'active-row' : ''}`}
-                  onClick={() => handlePlayPlaylistTrack(track, index)}
-                >
-                  <span className="ColHash">{index + 1}</span>
-                  <div className="ColTitleDetail">
-                    <img src={track.coverUrl || Cover} className="LibraryRowCover" alt="Cover" />
-                    <div className="LibraryRowInfo">
-                      <span className="RowTitle">{track.title}</span>
-                      <span className="RowArtist">{track.artistName}</span>
-                    </div>
-                  </div>
-                  <span className="ColGenre">
-                    <button
-                      className="ActionBtn"
-                      style={{ padding: '4px 8px', fontSize: '12px', background: '#3f3f46' }}
-                      onClick={(e) => { e.stopPropagation(); handleRemoveTrackFromPlaylist(activePlaylistDetail.id, track.trackId) }}
-                    >
-                      Видалити
-                    </button>
-                  </span>
-                  <span className="ColDuration">{formatTime(track.durationSeconds)}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </>
-    )}
-  </div>
-)}
 
       {activeTab === 'Liked' && (
         <div className="LikedTabContent">
@@ -1019,6 +735,7 @@ export const Main: React.FC = () => {
           {toast.message}
         </div>
       )}
+      <FooterFromJson />
     </main>
   )
 }

@@ -1,4 +1,5 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
+import { apiFetch, GATEWAY_URL } from "../../../../api/api-client"
 import "./style.css"
 
 
@@ -42,13 +43,51 @@ const StatCard = ({
 )
 
 export const SectionStatistics = (): React.JSX.Element => {
+  const [statsData, setStatsData] = useState<{
+    aiMixesCount: number
+    songsCount: number
+    albumsCount: number
+    hoursListened: number
+  }>({
+    aiMixesCount: 12450,
+    songsCount: 87320,
+    albumsCount: 4210,
+    hoursListened: 2800000,
+  })
+
+  useEffect(() => {
+    let active = true
+    const loadStats = async () => {
+      try {
+        const response = await apiFetch(`${GATEWAY_URL}/music/stats/global`)
+        if (response.ok && active) {
+          const data = await response.json()
+          setStatsData(data)
+        }
+      } catch (err) {
+        console.error("Failed to load global statistics:", err)
+      }
+    }
+    loadStats()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const formatNumber = (num: number, isHours = false): string => {
+    if (isHours && num >= 1000000) {
+      return `${(num / 1000000).toFixed(1)}M`
+    }
+    return num.toLocaleString()
+  }
+
   const stats: StatCardProps[] = [
     {
       iconSrc: `${ASSETS}/icon.svg`,
       iconClass: "icon",
       iconAlt: "AI Mixes icon",
       label: "ШІ МІКСИ",
-      value: "12,450",
+      value: formatNumber(statsData.aiMixesCount),
       maskSrc: `${ASSETS}/mask-group.svg`,
     },
     {
@@ -56,7 +95,7 @@ export const SectionStatistics = (): React.JSX.Element => {
       iconClass: "img",
       iconAlt: "Songs icon",
       label: "ПІСНІ",
-      value: "87,320",
+      value: formatNumber(statsData.songsCount),
       maskSrc: `${ASSETS}/mask-group-2.svg`,
     },
     {
@@ -64,7 +103,7 @@ export const SectionStatistics = (): React.JSX.Element => {
       iconClass: "icon",
       iconAlt: "Albums icon",
       label: "АЛЬБОМИ",
-      value: "4,210",
+      value: formatNumber(statsData.albumsCount),
       maskSrc: `${ASSETS}/mask-group-3.svg`,
     },
     {
@@ -72,7 +111,7 @@ export const SectionStatistics = (): React.JSX.Element => {
       iconClass: "icon-2",
       iconAlt: "Hours icon",
       label: "ГОДИНИ",
-      value: "2.8M",
+      value: formatNumber(statsData.hoursListened, true),
       maskSrc: `${ASSETS}/mask-group-4.svg`,
     },
   ]

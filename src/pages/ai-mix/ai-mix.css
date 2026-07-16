@@ -64,3 +64,45 @@
   z-index: 1;
 }
 
+.ai-mix-track-list {
+  padding: 0 96px;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .ai-mix-page {
+    padding: 16px !important;
+    margin-top: 70px !important;
+    margin-bottom: 96px !important;
+    gap: 20px !important;
+  }
+
+  .ai-mix-track-list {
+    padding: 0 !important;
+  }
+
+  .AiMixesBlock {
+    padding: 16px !important;
+    margin: 16px 0 !important;
+    border-radius: 12px !important;
+  }
+
+  .AiHeaderTop {
+    gap: 12px !important;
+    margin-bottom: 16px !important;
+  }
+
+  .AiCardIcon {
+    width: 32px !important;
+    height: 32px !important;
+  }
+
+  .AiHeaderTexts .TrendNowText {
+    font-size: 18px !important;
+  }
+
+  .AiHeaderTexts .LisNowTrending {
+    font-size: 12px !important;
+  }
+}
+

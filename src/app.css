@@ -433,6 +433,15 @@ margin-bottom: 40px;
 width: 100%;
 }
 
+.BurgerMenuBtn,
+.SidebarCloseBtn {
+  display: none;
+}
+
+.SidebarBackdrop {
+  display: none;
+}
+
 .Logo {
   width: 71px;
   height: 40px;
@@ -605,6 +614,12 @@ border-radius: 12px;
   display: flex;
   align-items: center;
   letter-spacing: 0.16px;
+}
+
+.HeaderTitle,
+.HeaderSearchBtnMobile,
+.HeaderBackBtnMobile {
+  display: none;
 }
 
 .UserCont {
@@ -1343,7 +1358,7 @@ z-index: 10;
 .CategoryGrid {
   display: grid;
   grid-template-columns: repeat(auto-fill, 320px);
-  gap: 92px 125px;
+  gap: 40px 24px;
   width: 100%;
   margin-top: 16px;
 }
@@ -1433,7 +1448,7 @@ z-index: 10;
 
 
 
-.LibraryTabContent, .LikedTabContent {
+.LibraryTabContent, .LikedTabContent, .PlaylistTabContent {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -1562,11 +1577,7 @@ z-index: 10;
 }
 
 
-.PlaylistTabContent {
-  display: flex;
-  flex-direction: column;
-  width: 100%;
-}
+
 
 .PlaylistGrid {
   display: grid;
@@ -1576,15 +1587,16 @@ z-index: 10;
 }
 
 .PlaylistCard {
-  height: 180px;
+  height: auto;
   border-radius: 16px;
-  padding: 24px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
   position: relative;
   cursor: pointer;
   overflow: hidden;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s ease;
 }
@@ -1592,6 +1604,57 @@ z-index: 10;
 .PlaylistCard:hover {
   transform: translateY(-8px) scale(1.02);
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.PlaylistCollage {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #27272A;
+  position: relative;
+}
+
+.PlaylistCollageItem {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+  background: #18181B;
+}
+
+.PlaylistCollageItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.PlaylistCollagePlaceholder {
+  width: 100%;
+  height: 100%;
+  background: #27272A;
+}
+
+.PlaylistCollageEmptyIcon {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #18181B;
+}
+
+.PlaylistEmptyNote {
+  font-size: 48px;
+  color: #71717A;
 }
 
 .PlaylistCardContent {
@@ -1950,64 +2013,538 @@ z-index: 10;
   .Main2,
   .SearchTabContent,
   .LibraryTabContent,
-  .LikedTabContent {
+  .LikedTabContent,
+  .PlaylistTabContent,
+  .ProfMain2,
+  .downloads-page,
+  .ai-mix-page {
     padding: 40px;
   }
 }
 
+.SidebarLangSwitcher {
+  display: none;
+}
+
 @media (max-width: 768px) {
+  .SidebarLangSwitcher {
+    display: flex !important;
+    margin-top: auto !important;
+    padding: 16px 12px !important;
+    width: 100% !important;
+  }
   .app-body {
-    flex-direction: column-reverse;
+    flex-direction: row;
   }
   .Sidebar {
-    width: 100%;
-    height: 60px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 280px;
+    height: 100vh;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 24px 16px;
+    border-right: 1px solid #72DEEF;
+    background-color: #121414;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.6);
+    overflow-y: auto;
+  }
+  .Sidebar.open {
+    transform: translateX(0);
+  }
+  .Sidebar .Groovra {
+    display: block !important;
+  }
+  .Sidebar .NavText {
+    display: block !important;
+  }
+  .Sidebar .ContTextColl {
+    display: flex !important;
+    width: 100% !important;
+    height: auto !important;
+    padding: 16px 12px 8px !important;
+    margin: 0 !important;
+  }
+  .Sidebar .TextColl {
+    margin-left: 0 !important;
+    font-size: 16px !important;
+  }
+  .SidebarBackdrop {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(13, 13, 18, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    z-index: 999;
+  }
+  .BurgerMenuBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    margin-right: 8px;
+    z-index: 11;
+  }
+  .SidebarCloseBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    margin-left: auto;
+  }
+  .SidebarHeader {
+    display: flex;
     flex-direction: row;
-    justify-content: space-around;
-    padding: 0;
-    border-right: none;
-    border-top: 1px solid var(--color-accent-blue);
-    overflow: hidden;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 30px;
   }
   .NavItem {
-    margin-bottom: 0;
-    width: auto;
-    padding: 10px 16px;
+    margin-bottom: 8px;
+    width: 100%;
+    padding: 10px 12px;
   }
   .ActiveLine {
-    bottom: 0;
-    left: 50%;
-    top: auto;
-    transform: translateX(-50%);
-    width: 24px;
-    height: 4px;
-    border-radius: 4px 4px 0 0;
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 24px;
+    background-color: var(--color-accent-blue);
+    box-shadow: 0px 0px 10px var(--color-accent-blue);
+    border-radius: 0 4px 4px 0;
   }
   .MainHeader {
-    left: 0;
+    left: 0 !important;
     padding: 0 16px;
-    height: 60px;
+    height: 70px;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
   }
+  
+  .HeaderTitle {
+    display: block !important;
+    font-family: var(--first-text);
+    font-size: 20px;
+    font-weight: 700;
+    color: #E3E2E2;
+    flex: 1;
+    min-width: 0 !important;
+    margin-left: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .ContSearch {
+    display: none !important;
+  }
+
+  .MainHeader.search-active .ContSearch {
+    display: flex !important;
+    flex: 1 !important;
+    width: auto !important;
+    min-width: 0 !important;
+    height: 36px;
+    margin-right: 8px;
+  }
+
+  .MainHeader.search-active .HeaderTitle {
+    display: none !important;
+  }
+  
+  .UserCont {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 12px !important;
+    margin-left: auto !important;
+    width: auto !important;
+    height: auto !important;
+    flex-shrink: 0 !important;
+  }
+  
+  .profileCont {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .profileCont .ButtonProfile,
+  .profileCont .ArrowDown {
+    display: none !important;
+  }
+
+  .HeaderSearchBtnMobile {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+  }
+  
+  .HeaderSearchIcon {
+    width: 20px !important;
+    height: 20px !important;
+  }
+
+  .HeaderBackBtnMobile {
+    display: none !important;
+  }
+  
+  .MainHeader.search-active .HeaderBackBtnMobile {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+  }
+  
+  .MainHeader.search-active .BurgerMenuBtn {
+    display: none !important;
+  }
+
+  .MainHeader.search-active .UserCont {
+    display: none !important;
+  }
+
+  .MusicCardCont:not(.show-all) .MusicCard:nth-child(n+4) {
+    display: none !important;
+  }
+
+  .SecContHeader {
+    width: 100% !important;
+    max-width: none !important;
+    height: 36px;
+    padding: 8px 12px 8px 36px;
+  }
+  .HeaderSearch {
+    left: 12px !important;
+    width: 16px !important;
+    height: 16px !important;
+  }
+  .InputSearch {
+    width: 100% !important;
+    font-size: 14px !important;
+  }
+
   .Main2,
   .SearchTabContent,
   .LibraryTabContent,
-  .LikedTabContent {
-    padding: 20px;
-    margin-top: 60px;
+  .LikedTabContent,
+  .PlaylistTabContent,
+  .ProfMain2,
+  .downloads-page,
+  .ai-mix-page {
+    padding: 16px;
+    margin-top: 70px;
+    margin-bottom: 96px;
   }
+
   .FooterPlayer {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto;
-    height: auto;
-    padding: 12px 16px;
+    position: fixed;
+    bottom: 0 !important;
+    left: 0;
+    right: 0;
+    height: 80px !important;
+    padding: 8px 16px;
+    background: #121414;
+    border-top: 1px solid rgba(114, 222, 239, 0.2);
+    box-shadow: 0px -10px 30px rgba(114, 222, 239, 0.15);
+    z-index: 99;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
     gap: 12px;
   }
   .TrackContainer {
-    max-width: 100%;
-    justify-content: space-between;
+    max-width: 55%;
+    display: grid !important;
+    grid-template-columns: auto 1fr !important;
+    grid-template-rows: auto auto !important;
+    gap: 2px 10px !important;
+    align-items: center;
+  }
+  .CurrentPlaying {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    width: 44px;
+    height: 44px;
+  }
+  .NameOfTrack {
+    grid-column: 2;
+    grid-row: 1;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .Author {
+    grid-column: 2;
+    grid-row: 2;
+    font-size: 12px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .IconLiked {
+    display: none !important;
+  }
+  .ContPlayBack {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    width: auto;
+    margin: 0;
+  }
+  .PlayeerCont {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    width: auto;
+  }
+  .ContStartTime {
+    display: none !important;
+  }
+  .ButtonRemix, .RefButton {
+    display: none !important;
+  }
+  .LeftArrowButton, .ButtonRightArrow {
+    width: 32px;
+    height: 32px;
+  }
+  .PauseButton {
+    width: 40px;
+    height: 40px;
   }
   .Volume {
-    display: none;
+    display: none !important;
+  }
+
+  .CategoryGrid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+    gap: 16px !important;
+  }
+  .CategoryCard {
+    width: 100% !important;
+    height: 160px !important;
+  }
+  .CategoryCard .image {
+    width: 100% !important;
+    height: 160px !important;
+  }
+  .CategoryCard .image .rectangle {
+    width: 100% !important;
+    height: 100% !important;
+    left: 0 !important;
+    top: 0 !important;
+  }
+  .CategoryCardName {
+    font-size: 24px !important;
+  }
+  .PlaylistGrid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+    gap: 16px !important;
+  }
+  .PlaylistCard {
+    height: auto !important;
+    padding: 16px !important;
+  }
+  .PlaylistCardTitle {
+    font-size: 18px !important;
+  }
+
+  .LibraryTableHeader,
+  .LibraryRow {
+    grid-template-columns: 24px 1fr 50px !important;
+    gap: 8px !important;
+    padding: 8px !important;
+  }
+  .LibraryTableHeader .ColGenre,
+  .LibraryRow .ColGenre {
+    display: none !important;
+  }
+  .LibraryTableHeader .ColDuration,
+  .LibraryRow .ColDuration {
+    text-align: right;
+  }
+  .RowTitle {
+    font-size: 14px !important;
+  }
+  .RowArtist {
+    font-size: 12px !important;
+  }
+  .LibraryRowCover {
+    width: 36px !important;
+    height: 36px !important;
+  }
+  .ColTitleDetail {
+    gap: 8px !important;
+  }
+
+  .ProfBody {
+    flex-direction: column !important;
+    gap: 20px !important;
+  }
+  .ProfSideNav {
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: space-around !important;
+  }
+  .ProfSideNavItem {
+    padding: 8px 12px !important;
+    font-size: 16px !important;
+  }
+  .ProfPanel {
+    width: 100% !important;
+    padding: 16px !important;
+  }
+  .ProfileUser {
+    height: auto !important;
+    padding: 24px 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 16px !important;
+    text-align: center !important;
+  }
+  .ProfAvatarWrap {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    margin: 0 auto !important;
+    width: 120px !important;
+    height: 120px !important;
+  }
+  .ProfNameBlock {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    align-items: center !important;
+  }
+  .ProfName {
+    font-size: 24px !important;
+    line-height: normal !important;
+  }
+  .ProfEditButton {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 100% !important;
+    margin-top: 8px !important;
+  }
+  .ProfStats {
+    position: relative !important;
+    right: auto !important;
+    top: auto !important;
+    height: auto !important;
+    margin-top: 16px !important;
+    width: 100% !important;
+    justify-content: center !important;
+    gap: 24px !important;
+  }
+  .ProfStatNumber {
+    font-size: 24px !important;
+  }
+  .ProfStatLabel {
+    font-size: 14px !important;
+  }
+  .ProfRecentGrid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)) !important;
+    padding: 16px !important;
+    gap: 12px !important;
+  }
+  .EditProfileModal {
+    width: 95% !important;
+    padding: 16px !important;
+  }
+  .EditProfileTopSection {
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 16px !important;
+  }
+  .EditProfileAvatarCol {
+    width: 100% !important;
+  }
+  .EditProfileFormCol {
+    width: 100% !important;
+  }
+  .EditProfileFieldRow {
+    flex-direction: column !important;
+    gap: 12px !important;
+  }
+  .EditProfWebLinkInput {
+    width: 100% !important;
+  }
+
+  .NoResultsTitle {
+    font-size: 22px !important;
+  }
+  .NoResultsSubText {
+    font-size: 15px !important;
+  }
+  .NoResultsImageSide {
+    width: 240px !important;
+    height: 200px !important;
+  }
+
+  .div-wrapper {
+    position: fixed !important;
+    top: 60px !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: calc(100vw - 20px) !important;
+    max-height: calc(100vh - 160px) !important;
+    height: auto !important;
+    border: 4px solid #2c3339 !important;
+    border-radius: 12px !important;
+    padding: 16px !important;
+    z-index: 1000 !important;
+  }
+  .div-wrapper.empty-state {
+    padding: 24px 16px !important;
+    height: 240px !important;
+  }
+  .div-wrapper .text-wrapper {
+    font-size: 20px !important;
+    margin-top: auto !important;
+  }
+  .div-wrapper .div {
+    font-size: 14px !important;
+    margin-bottom: auto !important;
   }
 }
 

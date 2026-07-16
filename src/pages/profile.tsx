@@ -344,14 +344,17 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
   }
 
   const handleTabClick = (tab: string) => {
+    const savedLang = localStorage.getItem('lang') || 'uk'
+    const prefix = savedLang === 'en' ? '/en' : ''
+
     if (tab === 'Вийти') {
       logoutUser()
     } else if (tab === 'Завантаження') {
       setActiveTab('Downloads')
-      navigate('/main')
+      navigate(`${prefix}/downloads`)
     } else if (tab === 'Мої плейлисти') {
       setActiveTab('Playlist')
-      navigate('/main')
+      navigate(`${prefix}/playlists`)
     } else if (
       tab === 'Мій акаунт' ||
       tab === 'Стати виконавцем' ||
@@ -371,7 +374,7 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
     <div className='ProfInfoRow'>
       <span className='ProfInfoLabel'>{label}</span>
       {editingField === field ? (
-        <div style={{display: 'flex', gap: '8px', flex: 1, alignItems: 'center'}}>
+        <div style={{display: 'flex', gap: '8px', flex: 1, alignItems: 'center'}} className="ProfEditRowInput">
           <input type="text" className='BtnInput' value={tempFieldValue} onChange={(e) => setTempFieldValue(e.target.value)} onKeyDown={(e) => { 
             if (e.key === 'Enter') handleFieldSave()
             if (e.key === 'Escape') handleFieldCancel()
@@ -492,7 +495,7 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
               <div className="ProfInfoRow">
                 <span className="ProfInfoLabel">Ім'я користувача</span>
                 {isEditingName ? (
-                  <div style={{ display: 'flex', gap: '8px', flex: 1, alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '8px', flex: 1, alignItems: 'center' }} className="ProfEditRowInput">
                     <input
                       type="text"
                       className='BtnInput'
@@ -540,7 +543,7 @@ export const Profile = ({ user:initialUser = User }: ProfileProps) => {
               <div className="ProfInfoRow">
                 <span className="ProfInfoLabel">Повне Ім'я</span>
                 {isEditingName ?  (
-                  <div style={{display:'flex', gap:'8px', flex:1, alignItems:'center'}}>
+                  <div style={{display:'flex', gap:'8px', flex:1, alignItems:'center'}} className="ProfEditRowInput">
                     <input type="text" className='BtnInput' value={tempName} onChange={(e) => setTempName(e.target.value)} onKeyDown={(e) => {
                       if (e.key === 'Enter') handleNameChange()
                       if (e.key === 'Escape') setIsEditingName(false) 

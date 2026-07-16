@@ -29,6 +29,21 @@ import '../app.css'
 
 const PLAY_ICON_DATA = "data:image/svg+xml,%3csvg%20width='15'%20height='18'%20viewBox='0%200%2015%2018'%20fill='none'%20xmlns='http://www.w3.org/2000/svg'%3e%3cpath%20d='M0%2018V0L15%209L0%2018Z'%20fill='%230D0D12'/%3e%3c/svg%3e"
 
+const BurgerIcon: React.FC = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#72DEEF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ display: 'block' }}>
+    <line x1="3" y1="12" x2="21" y2="12"></line>
+    <line x1="3" y1="6" x2="21" y2="6"></line>
+    <line x1="3" y1="18" x2="21" y2="18"></line>
+  </svg>
+)
+
+const CloseIcon: React.FC = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A98FDB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18"></line>
+    <line x1="6" y1="6" x2="18" y2="18"></line>
+  </svg>
+)
+
 export const Layout: React.FC = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -66,6 +81,8 @@ export const Layout: React.FC = () => {
   const isDraggingVolume = useRef(false)
 
   const [isNotificationOpen, setIsNotificationOpen] = useState(false)
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false)
   const notificationRef = useRef<HTMLDivElement>(null)
 
   const profileName = localStorage.getItem('profileName') || 'Profile'
@@ -88,12 +105,18 @@ export const Layout: React.FC = () => {
       setActiveTab('Library')
     } else if (cleanPath === '/liked') {
       setActiveTab('Liked')
+    } else if (cleanPath === '/playlists') {
+      setActiveTab('Playlist')
     } else if (cleanPath === '/search') {
       setActiveTab('Search')
     } else if (cleanPath === '/main') {
       setActiveTab('Home')
     }
   }, [location.pathname, setActiveTab])
+
+  useEffect(() => {
+    setIsMobileSearchOpen(false)
+  }, [location.pathname])
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -107,6 +130,7 @@ export const Layout: React.FC = () => {
 
   const handleSidebarClick = (tab: string) => {
     setActiveTab(tab)
+    setIsSidebarOpen(false)
     
     const savedLang = localStorage.getItem('lang') || 'uk'
     const prefix = savedLang === 'en' ? '/en' : ''
@@ -119,6 +143,8 @@ export const Layout: React.FC = () => {
       navigate(`${prefix}/library`)
     } else if (tab === 'Liked') {
       navigate(`${prefix}/liked`)
+    } else if (tab === 'Playlist') {
+      navigate(`${prefix}/playlists`)
     } else if (tab === 'Search') {
       navigate(`${prefix}/search`)
     } else if (tab === 'Home') {
@@ -194,11 +220,29 @@ export const Layout: React.FC = () => {
     <div className={`Main ${isTrackPage ? 'fullscreen-active' : ''}`}>
 
       {!isTrackPage && (
-        <aside className="Sidebar">
-          <div className="SidebarHeader">
-            <img src={Logo} className="Logo" alt="Logo" />
-            <span className="Groovra">GROOVRA</span>
-          </div>
+        <>
+          {isSidebarOpen && (
+            <div
+              className="SidebarBackdrop"
+              onClick={() => setIsSidebarOpen(false)}
+              onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setIsSidebarOpen(false) }}
+              role="button"
+              tabIndex={0}
+              aria-label="Close sidebar menu"
+            />
+          )}
+          <aside className={`Sidebar ${isSidebarOpen ? 'open' : ''}`}>
+            <div className="SidebarHeader">
+              <img src={Logo} className="Logo" alt="Logo" />
+              <span className="Groovra">GROOVRA</span>
+              <button
+                className="SidebarCloseBtn"
+                onClick={() => setIsSidebarOpen(false)}
+                aria-label="Close sidebar menu"
+              >
+                <CloseIcon />
+              </button>
+            </div>
 
         <div className={`NavItem ${activeTab === 'Home' ? 'active' : ''}`} onClick={() => handleSidebarClick('Home')}>
           {activeTab === 'Home' && <div className="ActiveLine" />}
@@ -251,12 +295,51 @@ export const Layout: React.FC = () => {
           <img src={Settings} alt="Settings" />
           <span className="NavText">{t('nav.settings')}</span>
         </div>
+
+        <div className="SidebarLangSwitcher">
+          <LangSwitcher />
+        </div>
       </aside>
+        </>
       )}
       <div className='RightColumn'>
         {!isTrackPage && (
-          <header className="MainHeader">
-          <div className="ContSearch">
+          <header className={`MainHeader ${(activeTab === 'Search' || isMobileSearchOpen) ? 'search-active' : ''}`}>
+            <button
+              className="BurgerMenuBtn"
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open sidebar menu"
+            >
+              <BurgerIcon />
+            </button>
+
+            <button
+              className="HeaderBackBtnMobile"
+              onClick={() => {
+                setIsMobileSearchOpen(false)
+                if (activeTab === 'Search') {
+                  const savedLang = localStorage.getItem('lang') || 'uk'
+                  const prefix = savedLang === 'en' ? '/en' : ''
+                  navigate(`${prefix}/main`)
+                }
+              }}
+              aria-label="Back"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#72DEEF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+              </svg>
+            </button>
+            
+            <div className="HeaderTitle">
+              {activeTab === 'Profile' 
+                ? profileName 
+                : activeTab === 'Playlist' 
+                  ? t('nav.playlists') 
+                  : t(`nav.${activeTab === 'AI' ? 'aiMix' : activeTab.toLowerCase()}`)}
+            </div>
+
+            <div className="ContSearch">
             <div className="SecContHeader">
               <img src={HeaderSearch} className="HeaderSearch" alt="Search" />
               <input
@@ -272,6 +355,26 @@ export const Layout: React.FC = () => {
           </div>
 
           <div className="UserCont">
+            {activeTab !== 'Search' && !isMobileSearchOpen && (
+              <button
+                type="button"
+                className="HeaderSearchBtnMobile"
+                onClick={() => {
+                  const savedLang = localStorage.getItem('lang') || 'uk'
+                  const prefix = savedLang === 'en' ? '/en' : ''
+                  navigate(`${prefix}/search`)
+                  setIsMobileSearchOpen(true)
+                  setTimeout(() => {
+                    searchInputRef.current?.focus()
+                  }, 100)
+                }}
+                title={t('search.placeholder')}
+                aria-label="Search"
+              >
+                <img src={HeaderSearch} className="HeaderSearchIcon" alt="Search" />
+              </button>
+            )}
+
             <div className="NotificationContainer" ref={notificationRef}>
               <button
                 type="button"
@@ -295,7 +398,7 @@ export const Layout: React.FC = () => {
 
         {!isTrackPage && (
           <footer className="FooterPlayer">
-          <div className="TrackContainer">
+          <div className="TrackContainer" onClick={handleFullscreenClick} style={{ cursor: 'pointer' }}>
             <div className="CurrentPlaying">
               <img
                 src={currentTrack?.coverImageUrl || Cover}
@@ -311,7 +414,10 @@ export const Layout: React.FC = () => {
 
             <button
               className={`IconLiked ${isLiked ? 'liked' : ''}`}
-              onClick={toggleLiked}
+              onClick={(e) => {
+                e.stopPropagation()
+                toggleLiked()
+              }}
               title={isLiked ? t('player.unlike') : t('player.like')}
             >
               <img src={Liked} alt="Like icon" />

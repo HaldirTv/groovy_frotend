@@ -1,25 +1,10 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
+import { usePlayer, type Track as PlayerTrack } from "../../../../context/player-context"
+import { apiFetch, GATEWAY_URL } from "../../../../api/api-client"
+import Cover from "../../../../assets/Cover.svg"
 import "./style.css"
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const ASSETS = "/src/pages/ai-mix/components/ContentGridAi"
-
 
 interface TrackData {
   id: string
@@ -29,28 +14,8 @@ interface TrackData {
   duration: string
   cover: string
   isPlaying?: boolean
+  rawTrack?: PlayerTrack
 }
-
-const TRACKS: TrackData[] = [
-  {
-    id: "synthetic-dawn",
-    title: "Synthetic Dawn",
-    artist: "Neural Composer",
-    genre: "Cyber Pop",
-    duration: "3:42",
-    cover: `${ASSETS}/track-cover-1.png`,
-    isPlaying: false,
-  },
-  {
-    id: "ghost-remix",
-    title: "Ghost in the Shell (Remix)",
-    artist: "Groovra AI Core",
-    genre: "Synthwave",
-    duration: "4:15",
-    cover: `${ASSETS}/track-cover-2.png`,
-    isPlaying: true,
-  },
-]
 
 // ── Genre types ──────────────────────────────────────────────
 interface GenreData {
@@ -120,8 +85,17 @@ const AI_MODELS: AiModelData[] = [
 ]
 
 // ── Sub-components ───────────────────────────────────────────
-const TrackRow = ({ track }: { track: TrackData }): React.JSX.Element => (
-  <div className={`cga-track-row${track.isPlaying ? " cga-track-row--playing" : ""}`}>
+interface TrackRowProps {
+  track: TrackData
+  onPlay: (track: TrackData) => void
+}
+
+const TrackRow = ({ track, onPlay }: TrackRowProps): React.JSX.Element => (
+  <div 
+    className={`cga-track-row${track.isPlaying ? " cga-track-row--playing" : ""}`}
+    onClick={() => onPlay(track)}
+    style={{ cursor: "pointer" }}
+  >
     {/* Cover thumbnail */}
     <div className="cga-track-bg">
       <div
@@ -134,7 +108,7 @@ const TrackRow = ({ track }: { track: TrackData }): React.JSX.Element => (
           <img
             className="cga-play-icon"
             alt="Play"
-            src={`${ASSETS}/icon.svg`}
+            src={track.isPlaying ? `${ASSETS}/icon-2.svg` : `${ASSETS}/icon.svg`}
           />
         </div>
       </div>
@@ -156,12 +130,16 @@ const TrackRow = ({ track }: { track: TrackData }): React.JSX.Element => (
     <button
       className="cga-track-btn"
       type="button"
-      aria-label={track.isPlaying ? "Зупинити" : "Додати до плейлиста"}
+      aria-label={track.isPlaying ? "Зупинити" : "Відтворити"}
+      onClick={(e) => {
+        e.stopPropagation()
+        onPlay(track)
+      }}
     >
       <img
         className="cga-track-btn-icon"
         alt=""
-        src={track.isPlaying ? `${ASSETS}/icon-2.svg` : `${ASSETS}/image.svg`}
+        src={track.isPlaying ? `${ASSETS}/icon-2.svg` : `${ASSETS}/icon.svg`}
         aria-hidden="true"
       />
     </button>
@@ -203,6 +181,111 @@ const AiModelCard = ({ model }: { model: AiModelData }): React.JSX.Element => (
 
 // ── Main component ───────────────────────────────────────────
 export const ContentGridAi = (): React.JSX.Element => {
+  const { currentTrack, isPlaying, selectTrack, setTracks } = usePlayer()
+  const [tracks, setTracksState] = useState<TrackData[]>([])
+
+  useEffect(() => {
+    let active = true
+    const loadTracks = async () => {
+      try {
+        const response = await apiFetch(`${GATEWAY_URL}/music/tracks?pageSize=5`)
+        if (response.ok && active) {
+          const result = await response.json()
+          const dbTracks: PlayerTrack[] = result.items || []
+          
+          if (dbTracks.length > 0) {
+            const mapped = dbTracks.map((t) => {
+              const mins = Math.floor(t.durationSeconds / 60)
+              const secs = Math.floor(t.durationSeconds % 60).toString().padStart(2, "0")
+              return {
+                id: t.trackId,
+                title: t.title,
+                artist: t.artistName,
+                genre: t.genre || "AI Pop",
+                duration: `${mins}:${secs}`,
+                cover: t.coverImageUrl || Cover,
+                rawTrack: t,
+              }
+            })
+            setTracksState(mapped)
+            return
+          }
+        }
+      } catch (err) {
+        console.error("Failed to load real AI tracks:", err)
+      }
+
+      if (active) {
+        setTracksState([
+          {
+            id: "synthetic-dawn",
+            title: "Synthetic Dawn",
+            artist: "Neural Composer",
+            genre: "Cyber Pop",
+            duration: "3:42",
+            cover: `${ASSETS}/track-cover-1.png`,
+          },
+          {
+            id: "ghost-remix",
+            title: "Ghost in the Shell (Remix)",
+            artist: "Groovra AI Core",
+            genre: "Synthwave",
+            duration: "4:15",
+            cover: `${ASSETS}/track-cover-2.png`,
+          },
+        ])
+      }
+    }
+
+    loadTracks()
+    return () => {
+      active = false
+    }
+  }, [])
+
+  const handlePlayTrack = (track: TrackData) => {
+    if (track.rawTrack) {
+      if (currentTrack?.trackId === track.rawTrack.trackId) {
+        const playerBtn = document.querySelector(".PlayerPlayBtn") as HTMLButtonElement | null
+        if (playerBtn) playerBtn.click()
+      } else {
+        const contextTracks = tracks
+          .filter(t => t.rawTrack)
+          .map(t => t.rawTrack!)
+        setTracks(contextTracks)
+        selectTrack(track.rawTrack)
+      }
+    } else {
+      const fakeTrack: PlayerTrack = {
+        trackId: track.id,
+        title: track.title,
+        artistName: track.artist,
+        durationSeconds: track.id === "synthetic-dawn" ? 222 : 255,
+        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+        coverImageUrl: track.cover,
+        fileSizeBytes: 0,
+        contentType: "audio/mpeg",
+        uploadedAt: new Date().toISOString(),
+        playCount: 0,
+      }
+      if (currentTrack?.trackId === fakeTrack.trackId) {
+        const playerBtn = document.querySelector(".PlayerPlayBtn") as HTMLButtonElement | null
+        if (playerBtn) playerBtn.click()
+      } else {
+        setTracks([fakeTrack])
+        selectTrack(fakeTrack)
+      }
+    }
+  }
+
+  const tracksWithPlayingState = tracks.map((t) => {
+    const isCurrent = currentTrack?.trackId === t.id
+    return {
+      ...t,
+      isPlaying: isCurrent && isPlaying,
+    }
+  })
+
   return (
     <div className="content-grid-ai">
 
@@ -210,8 +293,8 @@ export const ContentGridAi = (): React.JSX.Element => {
       <div className="cga-left">
         <div className="cga-section-heading">Популярні ШІ Треки</div>
         <div className="cga-tracks-card">
-          {TRACKS.map((track) => (
-            <TrackRow key={track.id} track={track} />
+          {tracksWithPlayingState.map((track) => (
+            <TrackRow key={track.id} track={track} onPlay={handlePlayTrack} />
           ))}
         </div>
 

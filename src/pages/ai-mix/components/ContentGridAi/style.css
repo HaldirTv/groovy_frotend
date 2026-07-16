@@ -477,5 +477,10 @@
   .cga-model-text {
     align-items: center;
   }
+  .cga-model-desc,
+  .cga-model-name {
+    white-space: normal !important;
+    text-align: center;
+  }
 }
 

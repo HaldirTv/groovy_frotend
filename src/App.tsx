@@ -15,6 +15,7 @@ import { DownloadsPage } from './pages/downloads'
 import { SearchPage } from './pages/search'
 import { LibraryPage } from './pages/library'
 import { LikedPage } from './pages/liked'
+import { PlaylistsPage } from './pages/playlists'
 import { PrivacyPolicy } from './pages/privacy-policy'
 import { CookiesPolicy } from './pages/cookies'
 import { AboutPage } from './pages/about'
@@ -194,6 +195,7 @@ export const App = () => {
               <Route element={<LanguageSync><ProtectedRoute><Layout /></ProtectedRoute></LanguageSync>}>
                 <Route path="profile" element={<Profile />} />
                 <Route path="main" element={<Main />} />
+                <Route path="playlists" element={<PlaylistsPage />} />
                 <Route path="ai-mix" element={<AiMixPage />} />
                 <Route path="downloads" element={<DownloadsPage />} />
                 <Route path="search" element={<SearchPage />} />

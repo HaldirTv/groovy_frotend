@@ -37,3 +37,9 @@
   color: #0D0D12;
   box-shadow: 0 0 10px rgba(114, 222, 239, 0.4);
 }
+
+@media (max-width: 640px) {
+  .MainHeader .lang-switcher {
+    display: none !important;
+  }
+}

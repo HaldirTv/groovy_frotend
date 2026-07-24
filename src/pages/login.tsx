@@ -7,24 +7,28 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
 import { setAccessToken, GATEWAY_URL, getOrCreateDeviceId } from '../api/api-client'
 import { translateServerError } from '../api/error-translator'
+import { Eye, EyeOff } from 'lucide-react'
 
 export const Log = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   const hasGoogleClientId = !!import.meta.env.VITE_GOOGLE_CLIENT_ID
-  // Исправьте конфигурацию useGoogleLogin
+  // redirect_uri обчислюється динамічно від поточного origin, щоб він завжди
+  // збігався з портом/доменом, на якому реально запущено фронтенд
+  // (усуває розсинхронізацію з реєстрацією та помилки redirect_uri_mismatch
+  // у Google Cloud Console).
   const loginWithGoogle = useGoogleLogin({
     flow: 'auth-code',
     ux_mode: 'redirect',
-    // или если нужен статический:
-     redirect_uri: 'http://localhost:5178/auth/callback',
+    redirect_uri: `${window.location.origin}/auth/callback`,
     onError: () => {
-      setError('Помилка при авторизації через Google')
+      setError(t('errors.google_failed'))
     }
   })
 
@@ -91,6 +95,7 @@ export const Log = () => {
               <div className='auth-input-wrapper'>
                 <input
                   id="login-email"
+                  name="email"
                   type="email"
                   placeholder={t('auth.enter_email')}
                   value={email}
@@ -107,7 +112,8 @@ export const Log = () => {
               <div className='auth-input-wrapper'>
                 <input
                   id="login-password"
-                  type="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder={t('auth.password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -115,6 +121,15 @@ export const Log = () => {
                   disabled={isLoading}
                   autoComplete="current-password"
                 />
+                <button
+                  type="button"
+                  className="auth-toggle-password-btn"
+                  onClick={() => setShowPassword(prev => !prev)}
+                  aria-label={showPassword ? t('auth.hide_password', 'Сховати пароль') : t('auth.show_password', 'Показати пароль')}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
             </div>
 

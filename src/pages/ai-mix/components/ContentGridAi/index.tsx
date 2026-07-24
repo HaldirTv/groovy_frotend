@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { usePlayer, type Track as PlayerTrack } from "../../../../context/player-context"
-import { apiFetch, GATEWAY_URL } from "../../../../api/api-client"
-import Cover from "../../../../assets/Cover.svg"
+import { apiFetch, GATEWAY_URL, resolveMediaUrl } from "../../../../api/api-client"
 import "./style.css"
 
 const ASSETS = "/src/pages/ai-mix/components/ContentGridAi"
@@ -35,7 +35,8 @@ const GENRES: GenreData[] = [
 interface AiModelData {
   id: string
   name: string
-  description: string
+  descKey: string
+  defaultDesc: string
   accuracy: string
   badge: string
   badgeBg: string
@@ -45,156 +46,197 @@ interface AiModelData {
   maskSrc: string
 }
 
-const AI_MODELS: AiModelData[] = [
-  {
-    id: "groovra-ai-core",
-    name: "Groovra AI Core",
-    description: "Ритмічні патерни та базові мелодії.",
-    accuracy: "Успішність: 98.4%",
-    badge: "Rhythm Expert",
-    badgeBg: "#d7f8ff1a",
-    iconSrc: `${ASSETS}/model-icon-1.svg`,
-    iconW: 18,
-    iconH: 18,
-    maskSrc: `${ASSETS}/mask-group.svg`,
-  },
-  {
-    id: "quantum-sound",
-    name: "Quantum Sound Engine",
-    description: "Надскладні текстури та атмосферні ефекти.",
-    accuracy: "Успішність: 96.7%",
-    badge: "Ambient King",
-    badgeBg: "#d0bcff1a",
-    iconSrc: `${ASSETS}/model-icon-2.svg`,
-    iconW: 19.01,
-    iconH: 20,
-    maskSrc: `${ASSETS}/mask-group-2.svg`,
-  },
-  {
-    id: "deep-audio",
-    name: "DeepAudio V5",
-    description: "Професійне зведення та вокальний синтез.",
-    accuracy: "Успішність: 99.1%",
-    badge: "Vocal Synthesis",
-    badgeBg: "#f0f1fb1a",
-    iconSrc: `${ASSETS}/model-icon-3.svg`,
-    iconW: 20,
-    iconH: 16,
-    maskSrc: `${ASSETS}/mask-group-3.svg`,
-  },
-]
-
 // ── Sub-components ───────────────────────────────────────────
 interface TrackRowProps {
   track: TrackData
   onPlay: (track: TrackData) => void
 }
 
-const TrackRow = ({ track, onPlay }: TrackRowProps): React.JSX.Element => (
-  <div 
-    className={`cga-track-row${track.isPlaying ? " cga-track-row--playing" : ""}`}
-    onClick={() => onPlay(track)}
-    style={{ cursor: "pointer" }}
-  >
-    {/* Cover thumbnail */}
-    <div className="cga-track-bg">
-      <div
-        className="cga-track-cover"
-        style={{ backgroundImage: `url(${track.cover})` }}
-        aria-hidden="true"
-      />
-      <div className={`cga-track-overlay${track.isPlaying ? " cga-track-overlay--visible" : ""}`}>
-        <div className="cga-track-play-icon">
-          <img
-            className="cga-play-icon"
-            alt="Play"
-            src={track.isPlaying ? `${ASSETS}/icon-2.svg` : `${ASSETS}/icon.svg`}
-          />
+const TrackRow = ({ track, onPlay }: TrackRowProps): React.JSX.Element => {
+  const { t } = useTranslation()
+  return (
+    <div
+      className={`cga-track-row${track.isPlaying ? " cga-track-row--playing" : ""}`}
+      onClick={() => onPlay(track)}
+      style={{ cursor: "pointer" }}
+    >
+      {/* Cover thumbnail */}
+      <div className="cga-track-bg">
+        <div
+          className="cga-track-cover"
+          style={{ backgroundImage: `url(${track.cover})` }}
+          aria-hidden="true"
+        />
+        <div className={`cga-track-overlay${track.isPlaying ? " cga-track-overlay--visible" : ""}`}>
+          <div className="cga-track-play-icon">
+            <img
+              className="cga-play-icon"
+              alt="Play"
+              src={track.isPlaying ? `${ASSETS}/icon-2.svg` : `${ASSETS}/icon.svg`}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Track info */}
+      <div className="cga-track-info">
+        <div className="cga-track-title">{track.title}</div>
+        <div className="cga-track-artist">{track.artist}</div>
+      </div>
+
+      {/* Genre */}
+      <div className="cga-track-genre">{track.genre}</div>
+
+      {/* Duration */}
+      <div className="cga-track-duration">{track.duration}</div>
+
+      {/* Action button */}
+      <button
+        className="cga-track-btn"
+        type="button"
+        aria-label={track.isPlaying ? t("player.pause", { defaultValue: "Пауза" }) : t("player.play", { defaultValue: "Грати" })}
+        onClick={(e) => {
+          e.stopPropagation()
+          onPlay(track)
+        }}
+      >
+        <img
+          className="cga-track-btn-icon"
+          alt=""
+          src={track.isPlaying ? `${ASSETS}/icon-2.svg` : `${ASSETS}/icon.svg`}
+          aria-hidden="true"
+        />
+      </button>
+    </div>
+  )
+}
+
+const AiModelCard = ({ model }: { model: AiModelData }): React.JSX.Element => {
+  const { t } = useTranslation()
+  const accuracyNum = parseFloat(model.accuracy.replace(/[^0-9.]/g, "")) || 95
+
+  return (
+    <div className="cga-model-card">
+      <img className="cga-model-mask" alt="" src={model.maskSrc} aria-hidden="true" />
+
+      {/* Header row: icon + name + badge */}
+      <div className="cga-model-header">
+        <div className="cga-model-title-group">
+          <div className="cga-model-icon-box">
+            <img
+              className="cga-model-icon"
+              alt={model.name}
+              src={model.iconSrc}
+              style={{ width: model.iconW, height: model.iconH }}
+            />
+          </div>
+          <div className="cga-model-name">{model.name}</div>
+        </div>
+
+        <div
+          className="cga-model-badge"
+          style={{ backgroundColor: model.badgeBg }}
+        >
+          {model.badge}
+        </div>
+      </div>
+
+      {/* Description */}
+      <p className="cga-model-desc">{t(model.descKey, { defaultValue: model.defaultDesc })}</p>
+
+      {/* Footer row: progress bar & accuracy */}
+      <div className="cga-model-footer">
+        <div className="cga-model-progress-bar">
+          <div className="cga-model-progress-fill" style={{ width: `${accuracyNum}%` }} />
+        </div>
+        <div className="cga-model-accuracy">
+          <span className="cga-acc-label">{t("aimix.models.accuracy", { defaultValue: "Успішність:" })} </span>
+          <span className="cga-acc-val">{model.accuracy}</span>
         </div>
       </div>
     </div>
-
-    {/* Track info */}
-    <div className="cga-track-info">
-      <div className="cga-track-title">{track.title}</div>
-      <div className="cga-track-artist">{track.artist}</div>
-    </div>
-
-    {/* Genre */}
-    <div className="cga-track-genre">{track.genre}</div>
-
-    {/* Duration */}
-    <div className="cga-track-duration">{track.duration}</div>
-
-    {/* Action button */}
-    <button
-      className="cga-track-btn"
-      type="button"
-      aria-label={track.isPlaying ? "Зупинити" : "Відтворити"}
-      onClick={(e) => {
-        e.stopPropagation()
-        onPlay(track)
-      }}
-    >
-      <img
-        className="cga-track-btn-icon"
-        alt=""
-        src={track.isPlaying ? `${ASSETS}/icon-2.svg` : `${ASSETS}/icon.svg`}
-        aria-hidden="true"
-      />
-    </button>
-  </div>
-)
-
-const AiModelCard = ({ model }: { model: AiModelData }): React.JSX.Element => (
-  <div className="cga-model-card">
-    <img className="cga-model-mask" alt="" src={model.maskSrc} aria-hidden="true" />
-
-    {/* Header row: icon + name + description */}
-    <div className="cga-model-header">
-      <div className="cga-model-icon-box">
-        <img
-          className="cga-model-icon"
-          alt={model.name}
-          src={model.iconSrc}
-          style={{ width: model.iconW, height: model.iconH }}
-        />
-      </div>
-      <div className="cga-model-text">
-        <div className="cga-model-name">{model.name}</div>
-        <p className="cga-model-desc">{model.description}</p>
-      </div>
-    </div>
-
-    {/* Footer row: accuracy + badge */}
-    <div className="cga-model-footer">
-      <div className="cga-model-accuracy">{model.accuracy}</div>
-      <div
-        className="cga-model-badge"
-        style={{ backgroundColor: model.badgeBg }}
-      >
-        {model.badge}
-      </div>
-    </div>
-  </div>
-)
+  )
+}
 
 // ── Main component ───────────────────────────────────────────
 export const ContentGridAi = (): React.JSX.Element => {
+  const { t } = useTranslation()
   const { currentTrack, isPlaying, selectTrack, setTracks } = usePlayer()
   const [tracks, setTracksState] = useState<TrackData[]>([])
+  const [mobileTab, setMobileTab] = useState<"tracks" | "models">("tracks")
+
+  const aiModels: AiModelData[] = [
+    {
+      id: "groovra-ai-core",
+      name: "Groovra AI Core",
+      descKey: "aimix.models.core_desc",
+      defaultDesc: "Ритмічні патерни та базові мелодії.",
+      accuracy: "98.4%",
+      badge: "Rhythm Expert",
+      badgeBg: "#d7f8ff1a",
+      iconSrc: `${ASSETS}/model-icon-1.svg`,
+      iconW: 18,
+      iconH: 18,
+      maskSrc: `${ASSETS}/mask-group.svg`,
+    },
+    {
+      id: "quantum-sound",
+      name: "Quantum Sound Engine",
+      descKey: "aimix.models.quantum_desc",
+      defaultDesc: "Надскладні текстури та атмосферні ефекти.",
+      accuracy: "96.7%",
+      badge: "Ambient King",
+      badgeBg: "#d0bcff1a",
+      iconSrc: `${ASSETS}/model-icon-2.svg`,
+      iconW: 19.01,
+      iconH: 20,
+      maskSrc: `${ASSETS}/mask-group-2.svg`,
+    },
+    {
+      id: "deep-audio",
+      name: "DeepAudio V5",
+      descKey: "aimix.models.deep_desc",
+      defaultDesc: "Професійне зведення та вокальний синтез.",
+      accuracy: "99.1%",
+      badge: "Vocal Synthesis",
+      badgeBg: "#f0f1fb1a",
+      iconSrc: `${ASSETS}/model-icon-3.svg`,
+      iconW: 20,
+      iconH: 16,
+      maskSrc: `${ASSETS}/mask-group-3.svg`,
+    },
+  ]
 
   useEffect(() => {
     let active = true
     const loadTracks = async () => {
       try {
-        const response = await apiFetch(`${GATEWAY_URL}/music/tracks?pageSize=5`)
+        const response = await apiFetch(`${GATEWAY_URL}/music/tracks?pageSize=50`)
         if (response.ok && active) {
           const result = await response.json()
           const dbTracks: PlayerTrack[] = result.items || []
-          
-          if (dbTracks.length > 0) {
-            const mapped = dbTracks.map((t) => {
+
+          // Filter tracks so only genuine AI tracks are displayed
+          const aiFiltered = dbTracks.filter((t) => {
+            const g = (t.genre || "").toLowerCase()
+            const title = (t.title || "").toLowerCase()
+            const artist = (t.artistName || "").toLowerCase()
+            return (
+              g.includes("ai") ||
+              g.includes("cyber") ||
+              g.includes("synthwave") ||
+              g.includes("electronic") ||
+              g.includes("ambient") ||
+              title.includes("ai") ||
+              title.includes("ші") ||
+              artist.includes("ai") ||
+              artist.includes("neural") ||
+              artist.includes("groovra ai")
+            )
+          })
+
+          if (aiFiltered.length > 0) {
+            const mapped = aiFiltered.slice(0, 5).map((t) => {
               const mins = Math.floor(t.durationSeconds / 60)
               const secs = Math.floor(t.durationSeconds % 60).toString().padStart(2, "0")
               return {
@@ -203,7 +245,7 @@ export const ContentGridAi = (): React.JSX.Element => {
                 artist: t.artistName,
                 genre: t.genre || "AI Pop",
                 duration: `${mins}:${secs}`,
-                cover: t.coverImageUrl || Cover,
+                cover: resolveMediaUrl(t.coverImageUrl) || '',
                 rawTrack: t,
               }
             })
@@ -216,24 +258,7 @@ export const ContentGridAi = (): React.JSX.Element => {
       }
 
       if (active) {
-        setTracksState([
-          {
-            id: "synthetic-dawn",
-            title: "Synthetic Dawn",
-            artist: "Neural Composer",
-            genre: "Cyber Pop",
-            duration: "3:42",
-            cover: `${ASSETS}/track-cover-1.png`,
-          },
-          {
-            id: "ghost-remix",
-            title: "Ghost in the Shell (Remix)",
-            artist: "Groovra AI Core",
-            genre: "Synthwave",
-            duration: "4:15",
-            cover: `${ASSETS}/track-cover-2.png`,
-          },
-        ])
+        setTracksState([])
       }
     }
 
@@ -255,26 +280,6 @@ export const ContentGridAi = (): React.JSX.Element => {
         setTracks(contextTracks)
         selectTrack(track.rawTrack)
       }
-    } else {
-      const fakeTrack: PlayerTrack = {
-        trackId: track.id,
-        title: track.title,
-        artistName: track.artist,
-        durationSeconds: track.id === "synthetic-dawn" ? 222 : 255,
-        audioUrl: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-        coverImageUrl: track.cover,
-        fileSizeBytes: 0,
-        contentType: "audio/mpeg",
-        uploadedAt: new Date().toISOString(),
-        playCount: 0,
-      }
-      if (currentTrack?.trackId === fakeTrack.trackId) {
-        const playerBtn = document.querySelector(".PlayerPlayBtn") as HTMLButtonElement | null
-        if (playerBtn) playerBtn.click()
-      } else {
-        setTracks([fakeTrack])
-        selectTrack(fakeTrack)
-      }
     }
   }
 
@@ -288,19 +293,42 @@ export const ContentGridAi = (): React.JSX.Element => {
 
   return (
     <div className="content-grid-ai">
+      {/* Mobile Tab Switcher */}
+      <div className="cga-mobile-tabs">
+        <button
+          type="button"
+          className={`cga-mobile-tab${mobileTab === "tracks" ? " cga-mobile-tab--active" : ""}`}
+          onClick={() => setMobileTab("tracks")}
+        >
+          {t("aimix.mobile_tabs.tracks_genres", { defaultValue: "🔥 Треки & Жанри" })}
+        </button>
+        <button
+          type="button"
+          className={`cga-mobile-tab${mobileTab === "models" ? " cga-mobile-tab--active" : ""}`}
+          onClick={() => setMobileTab("models")}
+        >
+          {t("aimix.mobile_tabs.ai_models", { defaultValue: "🤖 ШІ Моделі" })}
+        </button>
+      </div>
 
       {/* LEFT column: Popular Tracks */}
-      <div className="cga-left">
-        <div className="cga-section-heading">Популярні ШІ Треки</div>
+      <div className={`cga-left${mobileTab === "tracks" ? " cga-column--mobile-active" : ""}`}>
+        <div className="cga-section-heading">{t("aimix.popular_title", { defaultValue: "Популярні ШІ Треки" })}</div>
         <div className="cga-tracks-card">
-          {tracksWithPlayingState.map((track) => (
-            <TrackRow key={track.id} track={track} onPlay={handlePlayTrack} />
-          ))}
+          {tracksWithPlayingState.length > 0 ? (
+            tracksWithPlayingState.map((track) => (
+              <TrackRow key={track.id} track={track} onPlay={handlePlayTrack} />
+            ))
+          ) : (
+            <div className="cga-empty-tracks">
+              <span>{t("aimix.no_ai_tracks", { defaultValue: "ШІ-треки поки відсутні" })}</span>
+            </div>
+          )}
         </div>
 
         {/* Trending Genres */}
         <div className="cga-genres-section">
-          <div className="cga-section-heading">Трендові Жанри</div>
+          <div className="cga-section-heading">{t("aimix.trending_genres", { defaultValue: "Трендові Жанри" })}</div>
           <div className="cga-genres">
             {GENRES.map((genre) => (
               <button
@@ -317,20 +345,17 @@ export const ContentGridAi = (): React.JSX.Element => {
       </div>
 
       {/* RIGHT column: AI Models */}
-      <div className="cga-right">
-
+      <div className={`cga-right${mobileTab === "models" ? " cga-column--mobile-active" : ""}`}>
         {/* AI Models */}
         <div className="cga-models-section">
-          <div className="cga-section-heading">Наші ШІ Моделі</div>
+          <div className="cga-section-heading">{t("aimix.our_models", { defaultValue: "Наші ШІ Моделі" })}</div>
           <div className="cga-models">
-            {AI_MODELS.map((model) => (
+            {aiModels.map((model) => (
               <AiModelCard key={model.id} model={model} />
             ))}
           </div>
         </div>
-
       </div>
-
     </div>
   )
 }

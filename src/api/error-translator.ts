@@ -29,7 +29,7 @@ export const getServerErrorTranslationKey = (message: string): string => {
   return ''
 }
 
-export const translateServerError = (message: string, t: any): string => {
+export const translateServerError = (message: string, t: (key: string) => string): string => {
   const key = getServerErrorTranslationKey(message)
   return key ? t(key) : message
 }

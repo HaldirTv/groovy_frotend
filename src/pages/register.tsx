@@ -5,59 +5,36 @@ import MiddleLogo from '../assets/MiddleLogo.svg'
 import Google from '../assets/Google.svg'
 import { Link, useNavigate } from 'react-router-dom'
 import { useGoogleLogin } from '@react-oauth/google'
-import { setAccessToken, GATEWAY_URL, getOrCreateDeviceId, decodeTokenEmail } from '../api/api-client'
-import { translateServerError } from '../api/error-translator'
+import { useUsernameCheck } from '../hooks/use-username-check'
+
+const statusColor: Record<string, string> = {
+  idle:      'transparent',
+  checking:  '#888',
+  available: '#5ce07a',
+  taken:     '#e05c5c',
+  invalid:   '#e0a45c',
+  error:     '#e0a45c',
+}
 
 export const Reg = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading] = useState(false)
+
+  const { status: unStatus, message: unMessage } = useUsernameCheck(username)
 
   const hasGoogleClientId = !!import.meta.env.VITE_GOOGLE_CLIENT_ID
 
+  // Реєстрація через Google веде на той самий /auth/callback, що й вхід —
+  // єдиний узгоджений OAuth-флоу для всього застосунку (щоб уникнути
+  // розсинхронізації redirect_uri між сторінками логіну та реєстрації).
   const loginWithGoogle = useGoogleLogin({
     flow: 'auth-code',
-    onSuccess: async (codeResponse) => {
-      setError('')
-      setIsLoading(true)
-      try {
-        const deviceId = getOrCreateDeviceId()
-        const response = await fetch(`${GATEWAY_URL}/auth/google`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({ code: codeResponse.code, deviceId }),
-        })
-
-        const data = await response.json().catch(() => ({}))
-
-        if (!response.ok) {
-          throw new Error(data.message || t('errors.google_failed'))
-        }
-
-        if (data.token) {
-          const emailFromToken = decodeTokenEmail(data.token)
-          if (emailFromToken) {
-            localStorage.setItem('UserEmail', emailFromToken)
-          }
-          setAccessToken(data.token)
-        }
-
-        navigate('/main')
-      } catch (err: unknown) {
-        if (err instanceof Error) {
-          setError(translateServerError(err.message, t))
-        } else {
-          setError(t('errors.unknown'))
-        }
-      } finally {
-        setIsLoading(false)
-      }
-    },
+    ux_mode: 'redirect',
+    redirect_uri: `${window.location.origin}/auth/callback`,
     onError: () => {
       setError(t('errors.google_failed'))
     }
@@ -73,13 +50,24 @@ export const Reg = () => {
 
   const handleContinue = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) {
+    if (!email || !username) {
       setError(t('errors.email_required'))
       return
     }
+    if (unStatus === 'invalid' || unStatus === 'taken') {
+      setError(t('errors.username_invalid'))
+      return
+    }
+    if (unStatus === 'checking') {
+      setError(t('auth.wait'))
+      return
+    }
     localStorage.setItem('RegistrationEmail', email)
+    localStorage.setItem('RegistrationUsername', username)
     navigate('/create')
   }
+
+  const isSubmitDisabled = isLoading || unStatus === 'taken' || unStatus === 'checking' || unStatus === 'invalid'
 
   return (
     <div className='auth-wrapper'>
@@ -96,10 +84,45 @@ export const Reg = () => {
 
           <form onSubmit={handleContinue} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div className='auth-form-group'>
+              <label htmlFor="reg-username" className='auth-label'>{t('auth.username_label')}</label>
+              <div className='auth-input-wrapper' style={{ position: 'relative' }}>
+                <input
+                  id="reg-username"
+                  name="username"
+                  type="text"
+                  placeholder={t('auth.username_placeholder')}
+                  value={username}
+                  onChange={(e) => { setError(''); setUsername(e.target.value) }}
+                  required
+                  disabled={isLoading}
+                  autoComplete="username"
+                  style={{ paddingRight: '2rem' }}
+                />
+                {unStatus !== 'idle' && (
+                  <span style={{ position: 'absolute', right: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: statusColor[unStatus], fontWeight: 700, pointerEvents: 'none' }}>
+                    {unStatus === 'checking'  && '⏳'}
+                    {unStatus === 'available' && '✓'}
+                    {unStatus === 'taken'     && '✗'}
+                    {unStatus === 'invalid'   && '!'}
+                    {unStatus === 'error'     && '?'}
+                  </span>
+                )}
+              </div>
+
+              {unMessage && (
+                <span className='auth-hint' role="status" aria-live="polite" style={{ color: statusColor[unStatus], marginTop: '0.3rem' }}>
+                  {unMessage}
+                </span>
+              )}
+              {!unMessage && <span className='auth-hint'>{t('auth.username_hint')}</span>}
+            </div>
+
+            <div className='auth-form-group'>
               <label htmlFor="reg-email" className='auth-label'>{t('auth.email')}</label>
               <div className='auth-input-wrapper'>
                 <input
                   id="reg-email"
+                  name="email"
                   type="email"
                   placeholder={t('auth.enter_email')}
                   value={email}
@@ -111,7 +134,7 @@ export const Reg = () => {
               </div>
             </div>
 
-            <button type="submit" className='auth-button' disabled={isLoading}>
+            <button type="submit" className='auth-button' disabled={isSubmitDisabled}>
               {t('auth.continue')}
             </button>
           </form>

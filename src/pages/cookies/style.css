@@ -166,3 +166,22 @@
     padding: 24px;
   }
 }
+
+/* Light Theme Overrides */
+body.light-theme .cookies-content-card {
+  background-color: var(--card-bg);
+  border-color: var(--border-color);
+  box-shadow: var(--card-shadow);
+}
+body.light-theme .cookies-text-block,
+body.light-theme .cookies-subsection-desc,
+body.light-theme .cookies-list-intro,
+body.light-theme .cookies-list li {
+  color: var(--color-text-main) !important;
+}
+
+body.light-theme .cookies-last-update,
+html.light-theme .cookies-last-update {
+  color: #003D47 !important;
+  font-weight: 700 !important;
+}

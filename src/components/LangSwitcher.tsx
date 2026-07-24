@@ -1,13 +1,13 @@
 import React from 'react'
-import { useParams, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
 import './LangSwitcher.css'
 
 export const LangSwitcher: React.FC = () => {
-  const { lang } = useParams<{ lang?: string }>()
   const location = useLocation()
   const navigate = useNavigate()
 
-  const currentLang = lang === 'en' ? 'en' : 'uk'
+  const currentLang = location.pathname.startsWith('/en') || localStorage.getItem('lang') === 'en' ? 'en' : 'uk'
 
   const handleLanguageChange = (targetLang: 'uk' | 'en') => {
     if (targetLang === currentLang) return
@@ -15,7 +15,8 @@ export const LangSwitcher: React.FC = () => {
     localStorage.setItem('lang', targetLang)
 
     if (targetLang === 'en') {
-      navigate(`/en${location.pathname}`, { replace: true })
+      const cleanPath = location.pathname.replace(/^\/en/, '')
+      navigate(`/en${cleanPath === '/' ? '' : cleanPath}`, { replace: true })
     } else {
       const newPath = location.pathname.replace(/^\/en/, '') || '/'
       navigate(newPath, { replace: true })
@@ -24,26 +25,46 @@ export const LangSwitcher: React.FC = () => {
 
   return (
     <div className="lang-switcher" role="radiogroup" aria-label="Language Selector">
-      <button
+      <motion.button
         type="button"
         className={`lang-btn ${currentLang === 'uk' ? 'active' : ''}`}
         onClick={() => handleLanguageChange('uk')}
         role="radio"
         aria-checked={currentLang === 'uk'}
         aria-label="Ukrainian Language"
+        style={{ position: 'relative' }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
       >
-        UA
-      </button>
-      <button
+        {currentLang === 'uk' && (
+          <motion.span
+            layoutId="activeLangIndicator"
+            className="lang-active-indicator"
+            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+          />
+        )}
+        <span style={{ position: 'relative', zIndex: 10 }}>UA</span>
+      </motion.button>
+      <motion.button
         type="button"
         className={`lang-btn ${currentLang === 'en' ? 'active' : ''}`}
         onClick={() => handleLanguageChange('en')}
         role="radio"
         aria-checked={currentLang === 'en'}
         aria-label="English Language"
+        style={{ position: 'relative' }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
       >
-        EN
-      </button>
+        {currentLang === 'en' && (
+          <motion.span
+            layoutId="activeLangIndicator"
+            className="lang-active-indicator"
+            transition={{ type: 'spring', stiffness: 380, damping: 30 }}
+          />
+        )}
+        <span style={{ position: 'relative', zIndex: 10 }}>EN</span>
+      </motion.button>
     </div>
   )
 }

@@ -55,7 +55,7 @@ export const Cod = () => {
     setIsLoading(true)
     setError('')
     try {
-      const response = await fetch(`${GATEWAY_URL}/auth/verify-code`, {
+      const response = await fetch(`${GATEWAY_URL}/auth/verifycodepasswordreset`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, code: fullCode }),
@@ -64,11 +64,14 @@ export const Cod = () => {
       const data = await response.json().catch(() => ({}))
 
       if (!response.ok) {
-        throw new Error(data.message || t('errors.code_invalid'))
+        throw new Error(data.message || data.Message || t('errors.code_invalid'))
       }
 
-      if (data.Token || data.token) {
-        localStorage.setItem('RecoveryToken', data.Token || data.token)
+      const resetToken = data.token || data.Token
+      if (resetToken) {
+        localStorage.setItem('ResetToken', resetToken)
+      } else {
+        throw new Error(t('errors.callback_token_missing'))
       }
 
       navigate('/passwordrecovery')

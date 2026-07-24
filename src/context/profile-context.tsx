@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react'
-import { getAccessToken } from '../api/api-client'
+import { getAccessToken, onAccessTokenChange } from '../api/api-client'
 import { getProfile, resolveMediaUrl } from '../api/profile'
 
 interface ProfileContextType {
@@ -150,6 +150,18 @@ export const ProfileProvider: React.FC<{children: React.ReactNode}> = ({children
 
         useEffect(() => {
             refreshProfile()
+        }, [])
+
+        // The mount-time refreshProfile() above runs before any login attempt (this
+        // provider sits above <Router>, so it never remounts on navigation from
+        // /login to /main). Without this, profileName stays stuck at its initial
+        // fallback ("Profile") after logging in until a full page reload.
+        useEffect(() => {
+            const unsubscribe = onAccessTokenChange((token) => {
+                if (token) refreshProfile()
+            })
+            return unsubscribe
+            // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [])
 
         return (

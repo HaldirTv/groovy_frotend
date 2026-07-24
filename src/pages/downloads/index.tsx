@@ -1,154 +1,243 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlayer } from '../../context/player-context'
 import type { Track } from '../../context/player-context'
+import { fetchDownloads, addDownload, removeDownload, downloadTrackFile } from '../../api/downloads'
+import { saveOfflineTrack, getOfflineTracks, removeOfflineTrack } from '../../utils/offline-storage'
+import { Music, Disc, Headphones } from 'lucide-react'
 import searchIcon from './icon.svg'
 import { Download02 } from './Download02'
+import { TrackCover } from '../../components/common/TrackCover'
 import { FooterFromJson } from '../../components/footer-from-json'
 import './downloads.css'
 
-const DECORATIVE_GRADIENTS = [
-  'linear-gradient(135deg, #72DEEF 0%, #1A1C1C 100%)',
-  'linear-gradient(135deg, #A98FDB 0%, #0d0d12 100%)',
-  'linear-gradient(135deg, #71deef 0%, #A98FDB 100%)',
-  'linear-gradient(135deg, #1A1C1C 0%, #72DEEF 100%)',
-  'linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%)',
-  'linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%)',
-  'linear-gradient(135deg, #cfd9df 0%, #e2ebf0 100%)',
-  'linear-gradient(135deg, #f6d365 0%, #fda085 100%)',
-  'linear-gradient(135deg, #fda085 0%, #f6d365 100%)',
-  'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
-  'linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%)',
-  'linear-gradient(135deg, #10b981 0%, #14b8a6 100%)'
-]
-
-interface Recommendation {
-  id: string
-  title: string
-  artistName: string
-  durationSeconds: number
-  fileSizeBytes: number
-  genre?: string
-}
-
 export const DownloadsPage = (): React.JSX.Element => {
-  const { t, i18n } = useTranslation()
+  const { t } = useTranslation()
   const {
     tracks,
     currentTrack,
     isPlaying,
     selectTrack,
     togglePlayPause,
-    formatTime
+    formatTime,
+    popularTracks,
+    fetchPopularTracks
   } = usePlayer()
 
   const [activeCategory, setActiveCategory] = useState<'songs' | 'playlists' | 'albums' | null>(null)
 
-  const [downloadStatus, setDownloadStatus] = useState<Record<string, 'idle' | 'loading' | 'success'>>(() => {
-    try {
-      const saved = localStorage.getItem('downloads_recommendation_status')
-      return saved ? JSON.parse(saved) : {}
-    } catch {
-      return {}
-    }
-  })
+  const [allDownloadedSongs, setAllDownloadedSongs] = useState<Track[]>([])
+  const [downloadStatus, setDownloadStatus] = useState<Record<string, 'idle' | 'loading' | 'success'>>({})
 
-  const [downloadedRecommendations, setDownloadedRecommendations] = useState<Track[]>(() => {
+  const LS_DELETED_ITEMS = 'groovra_deleted_download_ids'
+
+  const getDeletedIds = (): string[] => {
     try {
-      const saved = localStorage.getItem('downloads_recommendation_tracks')
-      return saved ? JSON.parse(saved) : []
+      const stored = localStorage.getItem(LS_DELETED_ITEMS)
+      return stored ? JSON.parse(stored) : []
     } catch {
       return []
     }
-  })
+  }
 
-  const [deletedContextTrackIds, setDeletedContextTrackIds] = useState<string[]>(() => {
+  const markAsDeleted = (id: string) => {
     try {
-      const saved = localStorage.getItem('downloads_deleted_context_track_ids')
-      return saved ? JSON.parse(saved) : []
-    } catch {
-      return []
+      const current = getDeletedIds()
+      if (!current.includes(id)) {
+        const next = [...current, id]
+        localStorage.setItem(LS_DELETED_ITEMS, JSON.stringify(next))
+      }
+    } catch (e) {
+      console.error(e)
     }
-  })
-
-  useEffect(() => {
-    localStorage.setItem('downloads_recommendation_status', JSON.stringify(downloadStatus))
-  }, [downloadStatus])
-
-  useEffect(() => {
-    localStorage.setItem('downloads_recommendation_tracks', JSON.stringify(downloadedRecommendations))
-  }, [downloadedRecommendations])
-
-  useEffect(() => {
-    localStorage.setItem('downloads_deleted_context_track_ids', JSON.stringify(deletedContextTrackIds))
-  }, [deletedContextTrackIds])
-
-  const recommendations: Recommendation[] = [
-    { id: 'rec-1', title: 'Beetlbum', artistName: 'Blur', durationSeconds: 302, fileSizeBytes: 7240000, genre: 'Alternative' },
-    { id: 'rec-2', title: 'Alison', artistName: 'Slowdive', durationSeconds: 231, fileSizeBytes: 5540000, genre: 'Shoegaze' },
-    { id: 'rec-3', title: 'Gemetry Gates', artistName: 'The smiths', durationSeconds: 215, fileSizeBytes: 5160000, genre: 'Indie' },
-    { id: 'rec-4', title: '100', artistName: 'Dean Blunt', durationSeconds: 153, fileSizeBytes: 3670000, genre: 'Experimental' },
-    { id: 'rec-5', title: 'Louise', artistName: 'Tv Girl', durationSeconds: 194, fileSizeBytes: 4650000, genre: 'Indie Pop' },
-    { id: 'rec-6', title: 'In the garage', artistName: 'Weezer', durationSeconds: 235, fileSizeBytes: 5640000, genre: 'Alternative' }
-  ]
-
-  const allDownloadedSongs = [...downloadedRecommendations, ...tracks].filter(
-    track => !deletedContextTrackIds.includes(track.trackId)
-  )
-
-  const getUpdatedDaysAgo = (count: number) => {
-    const updatedWord = i18n.language === 'en' ? 'updated' : 'оновлено'
-    return `${updatedWord} ${t('daysAgo', { count })}`
   }
 
-  const getUpdatedWeeksAgo = (count: number) => {
-    const updatedWord = i18n.language === 'en' ? 'updated' : 'оновлено'
-    return `${updatedWord} ${t('weeksAgo', { count })}`
+  const unmarkAsDeleted = (id: string) => {
+    try {
+      const current = getDeletedIds()
+      const next = current.filter(x => x !== id)
+      localStorage.setItem(LS_DELETED_ITEMS, JSON.stringify(next))
+    } catch (e) {
+      console.error(e)
+    }
   }
 
-  const mockPlaylists = [
-    { id: 'p1', title: 'Вечірній вайб', tracksCount: 8, updateText: getUpdatedDaysAgo(2), color: 'linear-gradient(135deg, #1e1b4b, #311042)', tracks: tracks.slice(0, 3) },
-    { id: 'p2', title: 'Енергійний мікс', tracksCount: 12, updateText: getUpdatedDaysAgo(5), color: 'linear-gradient(135deg, #1c1917, #451a03)', tracks: tracks.slice(1, 4) },
-    { id: 'p3', title: 'Релакс', tracksCount: 6, updateText: getUpdatedWeeksAgo(1), color: 'linear-gradient(135deg, #064e3b, #022c22)', tracks: tracks.slice(2, 5) }
-  ]
+  const loadDownloadedTracks = useCallback(async () => {
+    const deletedIds = getDeletedIds()
+    const indexedDBTracks = await getOfflineTracks()
+    const validOffline = indexedDBTracks.filter(t => !deletedIds.includes(t.trackId))
 
-  const mockAlbums = [
-    { id: 'a1', title: 'Aura Vibes', artist: 'Groovra AI', tracksCount: 10, updateText: getUpdatedWeeksAgo(1), tracks: tracks.slice(0, 4) },
-    { id: 'a2', title: 'Neon Shadows', artist: 'Lofi Maker', tracksCount: 14, updateText: getUpdatedWeeksAgo(2), tracks: tracks.slice(1, 5) }
-  ]
+    try {
+      const items = await fetchDownloads('Track')
+      const remoteDownloaded: Track[] = items
+        .filter((item) => item.itemId && !deletedIds.includes(item.itemId))
+        .map((item) => ({
+          trackId: item.itemId!,
+          title: item.title,
+          artistName: item.subTitle || '',
+          durationSeconds: item.totalDurationSeconds,
+          fileSizeBytes: item.fileSizeBytes,
+          contentType: 'audio/mpeg',
+          audioUrl: item.audioUrl || '',
+          coverImageUrl: item.coverImageUrl,
+          uploadedAt: item.downloadedAt,
+          playCount: 0
+        }))
 
-  const renderCollage = (itemTracks: Track[], offset = 0) => {
+      // Combine remote and IndexedDB tracks, preferring IndexedDB data if available
+      const trackMap = new Map<string, Track>()
+      remoteDownloaded.forEach(t => trackMap.set(t.trackId, t))
+      validOffline.forEach(t => trackMap.set(t.trackId, t))
+
+      const combined = Array.from(trackMap.values())
+
+      setAllDownloadedSongs(combined)
+      setDownloadStatus((prev) => {
+        const next = { ...prev }
+        combined.forEach((track) => { next[track.trackId] = 'success' })
+        return next
+      })
+    } catch (err) {
+      console.warn('Failed to fetch remote downloads, using IndexedDB offline storage:', err)
+      setAllDownloadedSongs(validOffline)
+      setDownloadStatus((prev) => {
+        const next = { ...prev }
+        validOffline.forEach((track) => { next[track.trackId] = 'success' })
+        return next
+      })
+    }
+  }, [])
+
+  useEffect(() => {
+    loadDownloadedTracks()
+  }, [loadDownloadedTracks])
+
+  useEffect(() => {
+    if (fetchPopularTracks) {
+      fetchPopularTracks()
+    }
+  }, [fetchPopularTracks])
+
+  // "Smart recommendations": real most-played tracks from backend (or fallback to tracks list)
+  const recommendations = (popularTracks.length > 0 ? popularTracks : tracks).slice(0, 6)
+
+  interface DownloadedPlaylist {
+    id: string
+    title: string
+    tracksCount: number
+    updateText: string
+    color?: string
+    tracks: Track[]
+  }
+
+  interface DownloadedAlbum {
+    id: string
+    title: string
+    artist: string
+    tracksCount: number
+    updateText: string
+    tracks: Track[]
+  }
+
+  const [mockPlaylists, setMockPlaylists] = useState<DownloadedPlaylist[]>([])
+  const [mockAlbums, setMockAlbums] = useState<DownloadedAlbum[]>([])
+
+  const loadDownloadedCollections = useCallback(async () => {
+    const deletedIds = getDeletedIds()
+    try {
+      const [playlistItems, albumItems] = await Promise.all([
+        fetchDownloads('Playlist').catch(() => []),
+        fetchDownloads('Album').catch(() => [])
+      ])
+
+      const loadedPlaylists: DownloadedPlaylist[] = playlistItems
+        .filter((item) => item.itemId && !deletedIds.includes(item.itemId))
+        .map((item) => ({
+          id: item.itemId!,
+          title: item.title,
+          tracksCount: item.trackCount || 0,
+          updateText: item.subTitle || '',
+          tracks: []
+        }))
+
+      const loadedAlbums: DownloadedAlbum[] = albumItems
+        .filter((item) => (item.itemId || item.title) && !deletedIds.includes(item.itemId || item.title))
+        .map((item) => ({
+          id: item.itemId || item.title,
+          title: item.title,
+          artist: item.subTitle || '',
+          tracksCount: item.trackCount || 0,
+          updateText: '',
+          tracks: []
+        }))
+
+      setMockPlaylists(loadedPlaylists)
+      setMockAlbums(loadedAlbums)
+    } catch (err) {
+      console.warn('Failed to fetch remote playlists/albums downloads:', err)
+      setMockPlaylists([])
+      setMockAlbums([])
+    }
+  }, [])
+
+  useEffect(() => {
+    loadDownloadedCollections()
+  }, [loadDownloadedCollections])
+
+  const handleDeletePlaylist = async (e: React.MouseEvent, playlistId: string, title?: string) => {
+    e.stopPropagation()
+    markAsDeleted(playlistId)
+    setMockPlaylists(prev => prev.filter(p => p.id !== playlistId))
+
+    try {
+      await removeDownload({ type: 'Playlist', itemId: playlistId, albumName: title })
+    } catch (err) {
+      console.error('Failed to remove playlist download from backend:', err)
+    }
+  }
+
+  const handleDeleteAlbum = async (e: React.MouseEvent, albumId: string, title?: string) => {
+    e.stopPropagation()
+    markAsDeleted(albumId)
+    setMockAlbums(prev => prev.filter(a => a.id !== albumId))
+
+    try {
+      await removeDownload({ type: 'Album', itemId: albumId, albumName: title })
+    } catch (err) {
+      console.error('Failed to remove album download from backend:', err)
+    }
+  }
+
+  const renderCollage = (itemTracks: Track[], fallbackType: 'songs' | 'playlists' | 'albums' = 'songs') => {
+    const validTracks = itemTracks.filter(t => t && (t.coverImageUrl || (t as any).coverPath || (t as any).coverUrl || (t as any).imageUrl))
+
+    if (itemTracks.length === 0 || validTracks.length === 0) {
+      return (
+        <div className={`downloads-collage-single-fallback ${fallbackType}`}>
+          <div className="downloads-fallback-glow" />
+          {fallbackType === 'songs' && <Music size={38} className="downloads-fallback-icon" />}
+          {fallbackType === 'playlists' && <Disc size={38} className="downloads-fallback-icon" />}
+          {fallbackType === 'albums' && <Headphones size={38} className="downloads-fallback-icon" />}
+        </div>
+      )
+    }
+
     return (
-      <>
+      <div className="downloads-collage-grid">
         {[0, 1, 2, 3].map(index => {
           const track = itemTracks[index]
-          const gradientIndex = (offset + index) % DECORATIVE_GRADIENTS.length
-          
-          if (track && track.coverImageUrl) {
-            return (
-              <img
-                key={index}
-                className="downloads-collage-img"
-                src={track.coverImageUrl}
-                alt={track.title}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none'
-                  const sibling = (e.target as HTMLImageElement).nextElementSibling as HTMLElement
-                  if (sibling) sibling.style.display = 'flex'
-                }}
-              />
-            )
-          }
+          const coverSrc = track ? (track.coverImageUrl || (track as any).coverPath || (track as any).coverUrl || (track as any).imageUrl) : null
 
           return (
-            <div
+            <TrackCover
               key={index}
-              className="downloads-gradient-placeholder"
-              style={{ background: DECORATIVE_GRADIENTS[gradientIndex] }}
+              src={coverSrc}
+              className="downloads-collage-img"
+              alt={track ? track.title : 'Cover'}
             />
           )
         })}
-      </>
+      </div>
     )
   }
 
@@ -160,43 +249,44 @@ export const DownloadsPage = (): React.JSX.Element => {
     }
   }
 
-  const handleDownload = (rec: Recommendation) => {
-    if (downloadStatus[rec.id] === 'success' || downloadStatus[rec.id] === 'loading') return
+  const handleDownload = async (rec: Track) => {
+    if (downloadStatus[rec.trackId] === 'success' || downloadStatus[rec.trackId] === 'loading') return
 
-    setDownloadStatus(prev => ({ ...prev, [rec.id]: 'loading' }))
+    setDownloadStatus(prev => ({ ...prev, [rec.trackId]: 'loading' }))
+    unmarkAsDeleted(rec.trackId)
 
-    setTimeout(() => {
-      setDownloadStatus(prev => ({ ...prev, [rec.id]: 'success' }))
-
-      const newTrack: Track = {
-        trackId: rec.id,
-        title: rec.title,
-        artistName: rec.artistName,
-        durationSeconds: rec.durationSeconds,
-        fileSizeBytes: rec.fileSizeBytes,
-        genre: rec.genre || 'Indie',
-        contentType: 'audio/mpeg',
-        audioUrl: '', 
-        uploadedAt: new Date().toISOString(),
-        playCount: 0
-      }
-
-      setDownloadedRecommendations(prev => [newTrack, ...prev])
-    }, 1500)
-  }
-
-  const handleDeleteSong = (e: React.MouseEvent, track: Track) => {
-    e.stopPropagation() 
-    
-    if (track.trackId.startsWith('rec-')) {
-      setDownloadedRecommendations(prev => prev.filter(t => t.trackId !== track.trackId))
+    try {
+      await addDownload({ type: 'Track', itemId: rec.trackId }).catch(e => console.warn('addDownload warning:', e))
+      const blob = await downloadTrackFile(rec.trackId, `${rec.artistName} - ${rec.title}.mp3`)
+      await saveOfflineTrack(rec, blob)
+      setDownloadStatus(prev => ({ ...prev, [rec.trackId]: 'success' }))
+      loadDownloadedTracks()
+    } catch (err) {
+      console.error('Failed to download track:', err)
       setDownloadStatus(prev => {
         const next = { ...prev }
-        delete next[track.trackId]
+        delete next[rec.trackId]
         return next
       })
-    } else {
-      setDeletedContextTrackIds(prev => [...prev, track.trackId])
+    }
+  }
+
+  const handleDeleteSong = async (e: React.MouseEvent, track: Track) => {
+    e.stopPropagation()
+
+    markAsDeleted(track.trackId)
+    await removeOfflineTrack(track.trackId)
+    setAllDownloadedSongs(prev => prev.filter(t => t.trackId !== track.trackId))
+    setDownloadStatus(prev => {
+      const next = { ...prev }
+      delete next[track.trackId]
+      return next
+    })
+
+    try {
+      await removeDownload({ type: 'Track', itemId: track.trackId })
+    } catch (err) {
+      console.error('Failed to remove download:', err)
     }
   }
 
@@ -229,11 +319,11 @@ export const DownloadsPage = (): React.JSX.Element => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveCategory('songs') }}
               >
                 <div className="downloads-collage-frame">
-                  {renderCollage(allDownloadedSongs, 0)}
+                  {renderCollage(allDownloadedSongs, 'songs')}
                 </div>
                 <div className="downloads-category-info">
                   <h2 className="downloads-category-name">{t('downloads.categories_songs')}</h2>
-                  <p className="downloads-category-update">{t('downloads.updated_today')}</p>
+                  <p className="downloads-category-update">{t('tracks_count', { count: allDownloadedSongs.length })}</p>
                 </div>
               </div>
 
@@ -245,11 +335,11 @@ export const DownloadsPage = (): React.JSX.Element => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveCategory('playlists') }}
               >
                 <div className="downloads-collage-frame">
-                  {renderCollage(tracks, 4)}
+                  {renderCollage(mockPlaylists.flatMap(p => p.tracks || []), 'playlists')}
                 </div>
                 <div className="downloads-category-info">
                   <h2 className="downloads-category-name">{t('downloads.categories_playlists')}</h2>
-                  <p className="downloads-category-update">{getUpdatedDaysAgo(2)}</p>
+                  <p className="downloads-category-update">{t('playlists_count', { count: mockPlaylists.length })}</p>
                 </div>
               </div>
 
@@ -261,11 +351,11 @@ export const DownloadsPage = (): React.JSX.Element => {
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setActiveCategory('albums') }}
               >
                 <div className="downloads-collage-frame">
-                  {renderCollage(tracks, 8)}
+                  {renderCollage(mockAlbums.flatMap(a => a.tracks || []), 'albums')}
                 </div>
                 <div className="downloads-category-info">
                   <h2 className="downloads-category-name">{t('downloads.categories_albums')}</h2>
-                  <p className="downloads-category-update">{getUpdatedWeeksAgo(1)}</p>
+                  <p className="downloads-category-update">{t('playlists_count', { count: mockAlbums.length })}</p>
                 </div>
               </div>
             </div>
@@ -282,7 +372,7 @@ export const DownloadsPage = (): React.JSX.Element => {
 
               <div className="downloads-detail-header">
                 <div className="downloads-collage-frame" style={{ width: 100, height: 100 }}>
-                  {renderCollage(allDownloadedSongs, 0)}
+                  {renderCollage(allDownloadedSongs, 'songs')}
                 </div>
                 <div className="downloads-detail-title-group">
                   <h2 className="downloads-detail-title">{t('downloads.categories_songs')}</h2>
@@ -308,11 +398,10 @@ export const DownloadsPage = (): React.JSX.Element => {
                         onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') handleRowClick(track) }}
                       >
                         <span className="downloads-row-index">{index + 1}</span>
-                        <img
+                        <TrackCover
                           className="downloads-row-cover"
-                          src={track.coverImageUrl || '/src/assets/Cover.svg'}
-                          alt="Cover"
-                          onError={(e) => { (e.target as HTMLImageElement).src = '/src/assets/Cover.svg' }}
+                          src={track.coverImageUrl}
+                          alt={track.title}
                         />
                         <div className="downloads-row-info">
                           <span className="downloads-row-title">{track.title}</span>
@@ -370,7 +459,7 @@ export const DownloadsPage = (): React.JSX.Element => {
 
               <div className="downloads-detail-header">
                 <div className="downloads-collage-frame" style={{ width: 100, height: 100 }}>
-                  {renderCollage(tracks, 4)}
+                  {renderCollage(mockPlaylists.flatMap(p => p.tracks || []), 'playlists')}
                 </div>
                 <div className="downloads-detail-title-group">
                   <h2 className="downloads-detail-title">{t('downloads.categories_playlists')}</h2>
@@ -399,9 +488,10 @@ export const DownloadsPage = (): React.JSX.Element => {
                       }}
                     >
                       <span className="downloads-row-index">{index + 1}</span>
-                      <div
+                      <TrackCover
                         className="downloads-row-cover"
-                        style={{ background: playlist.color }}
+                        src={playlist.tracks[0]?.coverImageUrl || (playlist as any).coverPath || (playlist as any).coverUrl}
+                        alt={playlist.title}
                       />
                       <div className="downloads-row-info">
                         <span className="downloads-row-title">{playlist.title}</span>
@@ -412,6 +502,20 @@ export const DownloadsPage = (): React.JSX.Element => {
                         <button className="downloads-row-play-btn" aria-label={t('downloads.play_playlist')}>
                           <svg className="downloads-row-play-icon" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </button>
+
+                        <button
+                          className="downloads-row-delete-btn"
+                          onClick={(e) => handleDeletePlaylist(e, playlist.id, playlist.title)}
+                          aria-label={t('downloads.delete')}
+                          title={t('downloads.delete')}
+                        >
+                          <svg className="downloads-row-delete-icon" viewBox="0 0 24 24">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            <line x1="10" y1="11" x2="10" y2="17" />
+                            <line x1="14" y1="11" x2="14" y2="17" />
                           </svg>
                         </button>
                       </div>
@@ -433,7 +537,7 @@ export const DownloadsPage = (): React.JSX.Element => {
 
               <div className="downloads-detail-header">
                 <div className="downloads-collage-frame" style={{ width: 100, height: 100 }}>
-                  {renderCollage(tracks, 8)}
+                  {renderCollage(mockAlbums.flatMap(a => a.tracks || []), 'albums')}
                 </div>
                 <div className="downloads-detail-title-group">
                   <h2 className="downloads-detail-title">{t('downloads.categories_albums')}</h2>
@@ -462,9 +566,10 @@ export const DownloadsPage = (): React.JSX.Element => {
                       }}
                     >
                       <span className="downloads-row-index">{index + 1}</span>
-                      <div
+                      <TrackCover
                         className="downloads-row-cover"
-                        style={{ background: DECORATIVE_GRADIENTS[(index + 3) % DECORATIVE_GRADIENTS.length] }}
+                        src={album.tracks[0]?.coverImageUrl || (album as any).coverPath || (album as any).coverUrl}
+                        alt={album.title}
                       />
                       <div className="downloads-row-info">
                         <span className="downloads-row-title">{album.title}</span>
@@ -475,6 +580,20 @@ export const DownloadsPage = (): React.JSX.Element => {
                         <button className="downloads-row-play-btn" aria-label={t('downloads.play_album')}>
                           <svg className="downloads-row-play-icon" viewBox="0 0 24 24">
                             <path d="M8 5v14l11-7z" />
+                          </svg>
+                        </button>
+
+                        <button
+                          className="downloads-row-delete-btn"
+                          onClick={(e) => handleDeleteAlbum(e, album.id, album.title)}
+                          aria-label={t('downloads.delete')}
+                          title={t('downloads.delete')}
+                        >
+                          <svg className="downloads-row-delete-icon" viewBox="0 0 24 24">
+                            <polyline points="3 6 5 6 21 6" />
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                            <line x1="10" y1="11" x2="10" y2="17" />
+                            <line x1="14" y1="11" x2="14" y2="17" />
                           </svg>
                         </button>
                       </div>
@@ -495,16 +614,17 @@ export const DownloadsPage = (): React.JSX.Element => {
           </p>
 
           <div className="recommendations-list">
-            {recommendations.map((rec, index) => {
-              const status = downloadStatus[rec.id] || 'idle'
+            {recommendations.map((rec) => {
+              const status = downloadStatus[rec.trackId] || 'idle'
 
               return (
-                <div key={rec.id} className="recommendation-item">
-                  <div
+                <div key={rec.trackId} className="recommendation-item">
+                  <TrackCover
                     className="recommendation-cover"
-                    style={{ background: DECORATIVE_GRADIENTS[(index + 1) % DECORATIVE_GRADIENTS.length] }}
+                    src={rec.coverImageUrl || (rec as any).coverPath || (rec as any).coverUrl || (rec as any).imageUrl}
+                    alt={rec.title}
                   />
-                  
+
                   <div className="recommendation-info">
                     <h3 className="recommendation-name">{rec.title}</h3>
                     <span className="recommendation-artist">{rec.artistName}</span>

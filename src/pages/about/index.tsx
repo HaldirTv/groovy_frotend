@@ -8,7 +8,7 @@ import L from 'leaflet'
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png'
 import markerIcon   from 'leaflet/dist/images/marker-icon.png'
 import markerShadow from 'leaflet/dist/images/marker-shadow.png'
-delete (L.Icon.Default.prototype as any)._getIconUrl
+delete (L.Icon.Default.prototype as L.Icon.Default & { _getIconUrl?: unknown })._getIconUrl
 L.Icon.Default.mergeOptions({ iconUrl: markerIcon, iconRetinaUrl: markerIcon2x, shadowUrl: markerShadow })
 
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet'
@@ -65,11 +65,11 @@ export const ContainerHero: React.FC = () => {
 export const OverlayBorderGraphic: React.FC = () => (
   <div className="overlay-border-graphic">
     <div className="frame">
-      <img className="ellipse"     alt="" src={ellipse16} />
-      <img className="img-ellipse" alt="" src={ellipse17} />
-      <img className="ellipse-2"   alt="" src={ellipse18} />
-      <img className="ellipse-3"   alt="" src={ellipse19} />
-      <img className="polygon"     alt="" src={polygon5}  />
+      <img className="ellipse"     alt="" loading="lazy" src={ellipse16} />
+      <img className="img-ellipse" alt="" loading="lazy" src={ellipse17} />
+      <img className="ellipse-2"   alt="" loading="lazy" src={ellipse18} />
+      <img className="ellipse-3"   alt="" loading="lazy" src={ellipse19} />
+      <img className="polygon"     alt="" loading="lazy" src={polygon5}  />
     </div>
   </div>
 )
@@ -223,7 +223,7 @@ const ClockIcon = () => (
 
 export const Label: React.FC = () => (
   <div className="label">
-    <img className="image" alt="Image" src={imageSvg} />
+    <img className="image" alt="Image" loading="lazy" src={imageSvg} />
   </div>
 )
 
@@ -287,7 +287,6 @@ const AboutPage: React.FC = () => {
 
   return (
     <main className="Main2 about-us-page">
-      <Label />
       <div className="main-content">
         <ElementHeroSection />
         <SectionCompany />

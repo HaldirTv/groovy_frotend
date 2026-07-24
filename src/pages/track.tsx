@@ -2,19 +2,27 @@ import React, { useRef, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlayer } from '../context/player-context'
+import { usePlaylistModal } from '../context/playlist-modal-context'
+import { useAuthModal } from '../context/auth-modal-context'
+import { ShareModal } from '../components/ShareModal'
+import { CommentsModal } from '../components/CommentsModal'
+import { MiniEqualizerModal } from '../components/MiniEqualizerModal'
+import { apiFetch, GATEWAY_URL } from '../api/api-client'
+import { addDownload, downloadTrackFile } from '../api/downloads'
+import { saveOfflineTrack } from '../utils/offline-storage'
+import { TrackCover } from '../components/common/TrackCover'
 import './track.css'
 
 // Import Figma-exported track page images
-import trackCoverLarge from '../assets/track-cover-large.png'
-import downstreamImg   from '../assets/track-downstream.png'
-import dustImg         from '../assets/track-dust.png'
-import flowingImg      from '../assets/track-flowing.png'
-import bezboiuImg      from '../assets/track-bezboiu.png'
-import adviceImg       from '../assets/track-advice.png'
-import mirrorsImg      from '../assets/track-16mirrors.png'
-import strileyImg      from '../assets/track-striley.png'
-import todayImg        from '../assets/track-today.png'
-import minimiseIcon    from '../assets/minimise.svg'
+import downstreamImg from '../assets/track-downstream.png'
+import dustImg from '../assets/track-dust.png'
+import flowingImg from '../assets/track-flowing.png'
+import bezboiuImg from '../assets/track-bezboiu.png'
+import adviceImg from '../assets/track-advice.png'
+import mirrorsImg from '../assets/track-16mirrors.png'
+import strileyImg from '../assets/track-striley.png'
+import todayImg from '../assets/track-today.png'
+import minimiseIcon from '../assets/minimise.svg'
 
 import Remix from '../assets/IconRemix.svg'
 import LeftArrow from '../assets/LeftArrowLogo.svg'
@@ -66,16 +74,27 @@ const AnnotationIcon = () => (
   </svg>
 )
 
+const EqualizerIcon = () => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#A98FDB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="20" x2="18" y2="10" />
+    <line x1="12" y1="20" x2="12" y2="4" />
+    <line x1="6" y1="20" x2="6" y2="14" />
+    <circle cx="18" cy="7" r="2" fill="#72DEEF" />
+    <circle cx="12" cy="12" r="2" fill="#A98FDB" />
+    <circle cx="6" cy="9" r="2" fill="#72DEEF" />
+  </svg>
+)
+
 // Playlist Tracks mock data
 const playlistTracks = [
   { img: downstreamImg, title: 'Downstream', artist: 'Beats on 21st', album: 'Single' },
-  { img: dustImg,        title: 'Dust',       artist: 'Soft Dunes',   album: 'Dust' },
-  { img: flowingImg,     title: 'Flowing',    artist: 'Spring Bingo', album: 'Flowing' },
-  { img: adviceImg,      title: 'Advice',     artist: 'Alex G',       album: 'Trick' },
-  { img: strileyImg,     title: 'Стріляй',    artist: 'Океан Ельзи',  album: 'Земля' },
-  { img: bezboiuImg,     title: 'Без бою',    artist: 'Океан Ельзи',  album: 'Без бою' },
-  { img: mirrorsImg,     title: '16 mirrors', artist: 'Alex G',       album: 'Trick' },
-  { img: todayImg,       title: 'Today',      artist: 'The smashing pumpkins', album: 'Siamese dream' },
+  { img: dustImg, title: 'Dust', artist: 'Soft Dunes', album: 'Dust' },
+  { img: flowingImg, title: 'Flowing', artist: 'Spring Bingo', album: 'Flowing' },
+  { img: adviceImg, title: 'Advice', artist: 'Alex G', album: 'Trick' },
+  { img: strileyImg, title: 'Стріляй', artist: 'Океан Ельзи', album: 'Земля' },
+  { img: bezboiuImg, title: 'Без бою', artist: 'Океан Ельзи', album: 'Без бою' },
+  { img: mirrorsImg, title: '16 mirrors', artist: 'Alex G', album: 'Trick' },
+  { img: todayImg, title: 'Today', artist: 'The smashing pumpkins', album: 'Siamese dream' },
 ]
 
 interface LyricLine {
@@ -154,13 +173,18 @@ export const TrackPage: React.FC = () => {
     seekTo,
     formatTime,
     selectTrack,
+    equalizer,
   } = usePlayer()
 
+  const [isEqModalOpen, setIsEqModalOpen] = useState(false)
+
   const timelineRef = useRef<HTMLDivElement>(null)
-  const lyricsContainerRef = useRef<HTMLParagraphElement>(null)
+  const lyricsContainerRef = useRef<HTMLDivElement>(null)
   const [scale, setScale] = useState(1)
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [isAddModalOpen, setIsAddModalOpen] = useState(false)
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false)
+  const [isCommentsModalOpen, setIsCommentsModalOpen] = useState(false)
   const [lyrics, setLyrics] = useState<LyricLine[]>([])
   const [lyricsLoading, setLyricsLoading] = useState(false)
   const [isInstrumental, setIsInstrumental] = useState(false)
@@ -175,7 +199,7 @@ export const TrackPage: React.FC = () => {
     setLyricsLoading(true)
     setIsInstrumental(false)
     setLyrics([])
-    fetch(`/music/tracks/${currentTrack.trackId}/lyrics`, { signal: controller.signal })
+    apiFetch(`${GATEWAY_URL}/music/tracks/${currentTrack.trackId}/lyrics`, { signal: controller.signal })
       .then(res => res.ok ? res.json() : Promise.reject(res.status))
       .then((data: { lrc: string; isInstrumental: boolean }) => {
         if (data.isInstrumental) {
@@ -185,7 +209,10 @@ export const TrackPage: React.FC = () => {
           setLyrics(parseLrc(data.lrc))
         }
       })
-      .catch(err => { if (err !== 'AbortError') console.warn('Lyrics fetch failed:', err) })
+      .catch(err => {
+        if (err?.name === 'AbortError' || err === 'AbortError') return
+        if (import.meta.env.DEV) console.warn('Lyrics fetch failed:', err)
+      })
       .finally(() => setLyricsLoading(false))
     return () => controller.abort()
   }, [currentTrack?.trackId])
@@ -216,25 +243,54 @@ export const TrackPage: React.FC = () => {
     }, 3000)
   }
 
+  const { openModal } = usePlaylistModal()
+
   const handleAddClick = () => {
-    setIsAddModalOpen(true)
+    if (currentTrack?.trackId) {
+      openModal(currentTrack.trackId)
+    } else {
+      setIsAddModalOpen(true)
+    }
   }
 
-  const handleDownloadClick = () => {
+  const { isGuest, openAuthModal } = useAuthModal()
+
+  const handleCommentsClick = () => {
+    if (isGuest) {
+      openAuthModal(t('authModal.reasons.comments'))
+      return
+    }
+    setIsCommentsModalOpen(true)
+  }
+
+  const handleEqualizerClick = () => {
+    if (isGuest) {
+      openAuthModal(t('authModal.reasons.equalizer'))
+      return
+    }
+    setIsEqModalOpen(true)
+  }
+
+  const handleDownloadClick = async () => {
     if (!currentTrack) return
-    showToast(
-      i18n.language === 'en'
-        ? `Downloaded to offline library`
-        : `Завантажено в офлайн-бібліотеку`
-    )
-    
+
+    showToast(t('trackPageExt.downloaded_offline'))
+
+    try {
+      await addDownload({ type: 'Track', itemId: currentTrack.trackId }).catch(e => console.warn('addDownload warning:', e))
+      const blob = await downloadTrackFile(currentTrack.trackId, `${currentTrack.artistName} - ${currentTrack.title}.mp3`)
+      await saveOfflineTrack(currentTrack, blob)
+    } catch (e) {
+      console.error('Error saving track offline:', e)
+    }
+
     // 1. Restore the track if it was previously deleted in /downloads
     try {
-      const deletedIdsSaved = localStorage.getItem('downloads_deleted_context_track_ids')
+      const deletedIdsSaved = localStorage.getItem('groovra_deleted_download_ids')
       let deletedIds: string[] = deletedIdsSaved ? JSON.parse(deletedIdsSaved) : []
       if (deletedIds.includes(currentTrack.trackId)) {
         deletedIds = deletedIds.filter(id => id !== currentTrack.trackId)
-        localStorage.setItem('downloads_deleted_context_track_ids', JSON.stringify(deletedIds))
+        localStorage.setItem('groovra_deleted_download_ids', JSON.stringify(deletedIds))
       }
     } catch (e) {
       console.error('Error updating deleted track IDs:', e)
@@ -261,27 +317,10 @@ export const TrackPage: React.FC = () => {
     } catch (e) {
       console.error('Error updating download status:', e)
     }
-
   }
 
   const handleShareClick = () => {
-    if (!currentTrack) return
-    const shareUrl = `${window.location.origin}/track?trackId=${currentTrack.trackId}`
-    navigator.clipboard.writeText(shareUrl)
-      .then(() => {
-        showToast(
-          i18n.language === 'en'
-            ? 'Share link copied to clipboard!'
-            : 'Посилання скопійовано в буфер обміну!'
-        )
-      })
-      .catch(() => {
-        showToast(
-          i18n.language === 'en'
-            ? 'Failed to copy link.'
-            : 'Не вдалося скопіювати посилання.'
-        )
-      })
+    setIsShareModalOpen(true)
   }
 
   useEffect(() => {
@@ -328,152 +367,186 @@ export const TrackPage: React.FC = () => {
     <div className="box">
       <div className="track-player-scale-wrapper" style={{ transform: `scale(${scale})` }}>
         <div className="group">
-        <div className="rectangle" />
-        <img
-          className="img"
-          alt="Cover"
-          src={currentTrack?.coverImageUrl || trackCoverLarge}
-          onError={(e) => { (e.target as HTMLImageElement).src = trackCoverLarge }}
-        />
-        
-        {/* Toolbar section */}
-        <div className="div">
-          <button
-            className={`track-action-btn heart-instance ${isLiked ? 'liked' : ''}`}
-            onClick={toggleLiked}
-            title={isLiked ? t('player.unlike') : t('player.like')}
-          >
-            <HeartIcon filled={isLiked} />
-          </button>
-          <button className="track-action-btn icon-instance-node" onClick={handleAddClick} title={t('trackPage.add')}>
-            <AddSquareIcon />
-          </button>
-          <button className="track-action-btn icon-instance-node" onClick={handleDownloadClick} title={t('trackPage.download')}>
-            <DownloadIcon />
-          </button>
-          <button className="track-action-btn icon-instance-node" onClick={handleShareClick} title={t('trackPage.share')}>
-            <ShareIcon />
-          </button>
-          <button className="track-action-btn icon-instance-node" title={t('trackPage.comments')}>
-            <AnnotationIcon />
-          </button>
-        </div>
+          <div className="rectangle" />
+          <TrackCover
+            src={currentTrack?.coverImageUrl}
+            className={`img ${!currentTrack?.coverImageUrl ? 'placeholder-cover' : ''}`}
+            alt={currentTrack?.title || 'Cover'}
+          />
 
-        <div className="text-wrapper">{t('trackPage.lyrics')}</div>
-        
-        {/* Lyrics paragraph */}
-        <p className="over-my-shoulder-i-m" ref={lyricsContainerRef}>
-          {lyricsLoading ? (
-            <span className="lyric-line" style={{ opacity: 0.4 }}>
-              {i18n.language === 'en' ? 'Loading lyrics...' : 'Завантаження тексту...'}
-            </span>
-          ) : isInstrumental ? (
-            <span className="lyric-line" style={{ opacity: 0.4 }}>
-              {i18n.language === 'en' ? '♪ Instrumental ♪' : '♪ Інструментальний трек ♪'}
-            </span>
-          ) : lyrics.length === 0 ? (
-            <span className="lyric-line" style={{ opacity: 0.4 }}>
-              {i18n.language === 'en' ? 'No lyrics available' : 'Текст недоступний'}
-            </span>
-          ) : lyrics.map((line, index) => {
-            const isActive = index === activeLineIndex
-            return (
-              <span
-                key={index}
-                className={`lyric-line ${isActive ? 'active-lyric-line' : ''}`}
-                style={{
-                  opacity: isActive ? 1 : index < activeLineIndex ? 0.6 : 0.3,
-                  transform: isActive ? 'scale(1.05)' : 'scale(1)'
-                }}
-                onClick={() => seekTo(line.time / duration)}
-              >
-                {line.text}
+          {/* Toolbar section */}
+          <div className="div">
+            <button
+              className={`track-action-btn heart-instance ${isLiked ? 'liked' : ''}`}
+              onClick={toggleLiked}
+              title={isLiked ? t('player.unlike') : t('player.like')}
+            >
+              <HeartIcon filled={isLiked} />
+            </button>
+            <button className="track-action-btn icon-instance-node" onClick={handleAddClick} title={t('trackPage.add')}>
+              <AddSquareIcon />
+            </button>
+            <button className="track-action-btn icon-instance-node" onClick={handleDownloadClick} title={t('trackPage.download')}>
+              <DownloadIcon />
+            </button>
+            <button className="track-action-btn icon-instance-node" onClick={handleShareClick} title={t('trackPage.share')}>
+              <ShareIcon />
+            </button>
+            <button className="track-action-btn icon-instance-node" onClick={handleCommentsClick} title={t('trackPage.comments')}>
+              <AnnotationIcon />
+            </button>
+            <button className="track-action-btn icon-instance-node" onClick={handleEqualizerClick} title={t('trackPage.equalizer')}>
+              <EqualizerIcon />
+            </button>
+          </div>
+
+          {/* Mini Equalizer Soundwave Widget (Desktop) */}
+          <div className="track-mini-eq-widget desktop-eq-widget" onClick={handleEqualizerClick} title={t('trackPage.equalizer')}>
+            <div className="track-mini-eq-bars">
+              {(equalizer?.spectrum ?? [10, 15, 20, 15, 10]).map((val, idx) => {
+                const h = equalizer?.isEnabled && isPlaying ? Math.max(20, val) : (equalizer?.isEnabled ? 25 : 10)
+                return (
+                  <div
+                    key={idx}
+                    className={`track-mini-eq-bar-item ${isPlaying && equalizer?.isEnabled ? 'active' : ''}`}
+                    style={{ height: `${h}%` }}
+                  />
+                )
+              })}
+            </div>
+            <span className="track-mini-eq-badge">EQ</span>
+          </div>
+
+          <div className="text-wrapper">{t('trackPage.lyrics')}</div>
+
+          {/* Lyrics paragraph */}
+          <div className="over-my-shoulder-i-m" ref={lyricsContainerRef}>
+            {lyricsLoading ? (
+              <span className="lyric-line" style={{ opacity: 0.4 }}>
+                {t('trackPageExt.lyrics_loading')}
               </span>
-            )
-          })}
-        </p>
-
-        <div className="text-wrapper-2">{currentTrack ? currentTrack.title : t('player.track')}</div>
-        <div className="text-wrapper-3">{currentTrack ? currentTrack.artistName : t('player.artist')}</div>
-        
-        {/* Minimise button */}
-        <Minimise onClick={handleMinimise} />
-
-        {/* Playback Controls */}
-        <div className="playback-controls">
-          <div className="container-2">
-            <div className="track-time-wrapper">
-              <div className="text-wrapper-4">{formatTime(currentTime)}</div>
-            </div>
-            <div className="background" ref={timelineRef} onClick={handleTimelineClick} style={{ cursor: 'pointer' }}>
-              <div className="background-shadow" style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }} />
-            </div>
-            <div className="track-time-wrapper">
-              <div className="text-wrapper-4">{formatTime(duration)}</div>
-            </div>
+            ) : isInstrumental ? (
+              <span className="lyric-line" style={{ opacity: 0.4 }}>
+                {t('trackPageExt.lyrics_instrumental')}
+              </span>
+            ) : lyrics.length === 0 ? (
+              <span className="lyric-line" style={{ opacity: 0.4 }}>
+                {t('trackPageExt.lyrics_unavailable')}
+              </span>
+            ) : lyrics.map((line, index) => {
+              const isActive = index === activeLineIndex
+              return (
+                <span
+                  key={index}
+                  className={`lyric-line ${isActive ? 'active-lyric-line' : ''}`}
+                  style={{
+                    opacity: isActive ? 1 : index < activeLineIndex ? 0.6 : 0.3
+                  }}
+                  onClick={() => seekTo(line.time / duration)}
+                >
+                  {line.text}
+                </span>
+              )
+            })}
           </div>
 
-          <div className="track-player-buttons">
-            <button className={`track-btn-remix ${isShuffle ? 'active' : ''}`} onClick={toggleShuffle} title={t('player.shuffle')}>
-              <img src={Remix} className="LogoRemix" alt="Shuffle" />
-            </button>
-            <button className="track-btn-prev" onClick={playPrevious} title={t('player.previous')}>
-              <img src={LeftArrow} className="LeftArrow" alt="Previous" />
-            </button>
-            <button className="track-btn-play" onClick={togglePlayPause} title={isPlaying ? t('player.pause') : t('player.play')}>
-              <img src={isPlaying ? Pause : PLAY_ICON_DATA} className="PauseLogo" style={isPlaying ? undefined : { marginLeft: '2px' }} alt="Play/Pause" />
-            </button>
-            <button className="track-btn-next" onClick={playNext} title={t('player.next')}>
-              <img src={RightArrow} className="RightArrowLogo" alt="Next" />
-            </button>
-            <button className={`track-btn-repeat ${isRepeat ? 'active' : ''}`} onClick={toggleRepeat} title={isRepeat ? t('player.repeatOn') : t('player.repeat')}>
-              <img src={Ref} className="RefLogo" alt="Repeat" />
-            </button>
+          <div className="text-wrapper-2">{currentTrack ? currentTrack.title : t('player.track')}</div>
+          <div className="text-wrapper-3">{currentTrack ? currentTrack.artistName : t('player.artist')}</div>
+
+          {/* Minimise button */}
+          <Minimise onClick={handleMinimise} />
+
+          {/* Playback Controls */}
+          <div className="playback-controls">
+            <div className="container-2">
+              <div className="track-time-wrapper">
+                <div className="text-wrapper-4">{formatTime(currentTime)}</div>
+              </div>
+              <div className="background" ref={timelineRef} onClick={handleTimelineClick} style={{ cursor: 'pointer' }}>
+                <div className="background-shadow" style={{ width: `${duration ? (currentTime / duration) * 100 : 0}%` }} />
+              </div>
+              <div className="track-time-wrapper">
+                <div className="text-wrapper-4">{formatTime(duration)}</div>
+              </div>
+            </div>
+
+            <div className="track-player-buttons">
+              <button className={`track-btn-remix ${isShuffle ? 'active' : ''}`} onClick={toggleShuffle} title={t('player.shuffle')}>
+                <img src={Remix} className="LogoRemix" alt="Shuffle" />
+              </button>
+              <button className="track-btn-prev" onClick={playPrevious} title={t('player.previous')}>
+                <img src={LeftArrow} className="LeftArrow" alt="Previous" />
+              </button>
+              <button className="track-btn-play" onClick={togglePlayPause} title={isPlaying ? t('player.pause') : t('player.play')}>
+                <img src={isPlaying ? Pause : PLAY_ICON_DATA} className="PauseLogo" style={isPlaying ? undefined : { marginLeft: '2px' }} alt="Play/Pause" />
+              </button>
+              <button className="track-btn-next" onClick={playNext} title={t('player.next')}>
+                <img src={RightArrow} className="RightArrowLogo" alt="Next" />
+              </button>
+              <button className={`track-btn-repeat ${isRepeat ? 'active' : ''}`} onClick={toggleRepeat} title={isRepeat ? t('player.repeatOn') : t('player.repeat')}>
+                <img src={Ref} className="RefLogo" alt="Repeat" />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Right Column: Playlist Sidebar Panel */}
-      <div className="playlist-sidebar-panel">
-        <h2 className="playlist-sidebar-title">{t('trackPage.sidebar_title')}</h2>
-        <div className="playlist-sidebar-list">
-          {tracks.length > 0 ? (
-            tracks.map((track) => (
-              <div
-                className={`playlist-item-card ${currentTrack?.trackId === track.trackId ? 'active' : ''}`}
-                key={track.trackId}
-                onClick={() => selectTrack(track)}
-                style={currentTrack?.trackId === track.trackId ? { backgroundColor: 'rgba(169, 143, 219, 0.15)' } : undefined}
-              >
-                <img
-                  className="playlist-item-thumbnail"
-                  alt={track.title}
-                  src={track.coverImageUrl || trackCoverLarge}
-                  onError={(e) => { (e.target as HTMLImageElement).src = trackCoverLarge }}
-                />
-                <div className="playlist-item-details">
-                  <h3 className="playlist-item-title" style={currentTrack?.trackId === track.trackId ? { color: '#72DEEF' } : undefined}>
-                    {track.title}
-                  </h3>
-                  <p className="playlist-item-meta">{track.artistName}</p>
-                  {track.album && <p className="playlist-item-meta" style={{ opacity: 0.6 }}>{track.album}</p>}
-                </div>
+        {/* Right Column: Playlist Sidebar Panel */}
+        <div className="playlist-sidebar-panel">
+          <div className="playlist-sidebar-header">
+            <h2 className="playlist-sidebar-title">{t('trackPage.sidebar_title')}</h2>
+            {/* Mini Equalizer Soundwave Widget (Mobile Header) */}
+            <div className="track-mini-eq-widget mobile-eq-widget" onClick={handleEqualizerClick} title={t('trackPage.equalizer')}>
+              <div className="track-mini-eq-bars">
+                {(equalizer?.spectrum ?? [10, 15, 20, 15, 10]).map((val, idx) => {
+                  const h = equalizer?.isEnabled && isPlaying ? Math.max(20, val) : (equalizer?.isEnabled ? 25 : 10)
+                  return (
+                    <div
+                      key={idx}
+                      className={`track-mini-eq-bar-item ${isPlaying && equalizer?.isEnabled ? 'active' : ''}`}
+                      style={{ height: `${h}%` }}
+                    />
+                  )
+                })}
               </div>
-            ))
-          ) : (
-            playlistTracks.map((track) => (
-              <div className="playlist-item-card" key={track.title}>
-                <img className="playlist-item-thumbnail" alt={track.title} src={track.img} />
-                <div className="playlist-item-details">
-                  <h3 className="playlist-item-title">{track.title}</h3>
-                  <p className="playlist-item-meta">{track.artist}</p>
-                  <p className="playlist-item-meta" style={{ opacity: 0.6 }}>{track.album}</p>
+              <span className="track-mini-eq-badge">EQ</span>
+            </div>
+          </div>
+          <div className="playlist-sidebar-list">
+            {tracks.length > 0 ? (
+              tracks.map((track) => (
+                <div
+                  className={`playlist-item-card ${currentTrack?.trackId === track.trackId ? 'active' : ''}`}
+                  key={track.trackId}
+                  onClick={() => selectTrack(track)}
+                >
+                  <TrackCover
+                    src={track.coverImageUrl}
+                    className={`playlist-item-thumbnail ${!track.coverImageUrl ? 'placeholder-cover' : ''}`}
+                    alt={track.title}
+                  />
+                  <div className="playlist-item-details">
+                    <h3 className="playlist-item-title">
+                      {track.title}
+                    </h3>
+                    <p className="playlist-item-meta">{track.artistName}</p>
+                    {track.album && <p className="playlist-item-meta" style={{ opacity: 0.6 }}>{track.album}</p>}
+                  </div>
                 </div>
-              </div>
-            ))
-          )}
+              ))
+            ) : (
+              playlistTracks.map((track) => (
+                <div className="playlist-item-card" key={track.title}>
+                  <img className="playlist-item-thumbnail" alt={track.title} src={track.img} />
+                  <div className="playlist-item-details">
+                    <h3 className="playlist-item-title">{track.title}</h3>
+                    <p className="playlist-item-meta">{track.artist}</p>
+                    <p className="playlist-item-meta" style={{ opacity: 0.6 }}>{track.album}</p>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-      </div>
       </div>
 
       {/* Toast Notification */}
@@ -507,11 +580,45 @@ export const TrackPage: React.FC = () => {
               ))}
             </div>
             <button className="modal-close-btn" onClick={() => setIsAddModalOpen(false)}>
-              {i18n.language === 'en' ? 'Cancel' : 'Скасувати'}
+              {t('createPlaylistModal.cancel')}
             </button>
           </div>
         </div>
       )}
+
+      {/* Share Modal */}
+      <ShareModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        trackTitle={currentTrack?.title}
+        artistName={currentTrack?.artistName}
+        coverUrl={currentTrack?.coverImageUrl}
+        trackId={currentTrack?.trackId}
+      />
+
+      {/* Comments Modal */}
+      <CommentsModal
+        isOpen={isCommentsModalOpen}
+        onClose={() => setIsCommentsModalOpen(false)}
+        trackId={currentTrack?.trackId}
+        trackTitle={currentTrack?.title}
+        artistName={currentTrack?.artistName}
+      />
+
+      {/* Mini Equalizer Modal */}
+      <MiniEqualizerModal
+        isOpen={isEqModalOpen}
+        onClose={() => setIsEqModalOpen(false)}
+        isEnabled={equalizer.isEnabled}
+        onToggleEnabled={equalizer.toggleEnabled}
+        activePreset={equalizer.activePreset}
+        onSelectPreset={equalizer.selectPreset}
+        gains={equalizer.gains}
+        onSetBandGain={equalizer.setBandGain}
+        onReset={equalizer.resetEq}
+        spectrum={equalizer.spectrum}
+        isPlaying={isPlaying}
+      />
     </div>
   )
 }

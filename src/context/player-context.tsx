@@ -1,5 +1,18 @@
-import React, { createContext, useContext, useState, useRef, useEffect, useCallback } from 'react'
-import { apiFetch, GATEWAY_URL } from '../api/api-client'
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from 'react'
+import { apiFetch, GATEWAY_URL, notifyTrackPlayed } from '../api/api-client'
+import { useAuthPrompt } from './auth-prompt-context'
+
+// ──────────────────────────────────────────────────────────────────────────────
+// 1. Типы
+// ──────────────────────────────────────────────────────────────────────────────
 
 export interface Track {
   trackId: string
@@ -10,11 +23,11 @@ export interface Track {
   durationSeconds: number
   fileSizeBytes: number
   contentType: string
-  audioUrl: string         
+  audioUrl: string
   coverImageUrl?: string
   uploadedAt: string
   playCount: number
-  isLiked?: boolean 
+  isLiked?: boolean
 }
 
 interface PlayerContextType {
@@ -49,19 +62,50 @@ interface PlayerContextType {
   formatTime: (seconds: number) => string
   setTracks: React.Dispatch<React.SetStateAction<Track[]>>
   setCurrentTrack: React.Dispatch<React.SetStateAction<Track | null>>
-  fetchTracks: (search?: string, page?: number, append?: boolean) => Promise<void>
+  fetchTracks: (search?: string, page?: number, append?: boolean, searchBy?: 'all' | 'artist') => Promise<void>
   currentPage: number
   hasMoreTracks: boolean
+  tracksTotalCount: number
+  popularTracks: Track[]
+  isLoadingPopular: boolean
+  fetchPopularTracks: () => Promise<void>
+  genreFilter: string
+  setGenreFilter: (genre: string) => void
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined)
 
-const normalizeUrl = (url?: string): string | undefined => {
+// ──────────────────────────────────────────────────────────────────────────────
+// 2. Хелперы
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const normalizeUrl = (url?: string): string | undefined => {
   if (!url) return undefined
   return url.replace(/^https?:\/\/localhost:\d+/, GATEWAY_URL)
 }
 
-export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+/** Лимит хранимых идентификаторов треков, для которых уже отправлен play-запрос */
+const MAX_REPORTED_TRACKS = 200
+
+/** Должно совпадать с pageSize, который fetchTracks шлёт на бэкенд */
+const TRACKS_PAGE_SIZE = 10
+
+/** Сколько секунд нужно прослушать, чтобы трек засчитался как "played" — не зависит от длины трека. Отсекает случайные клики/скипы, но ощущается почти мгновенным */
+const PLAY_REPORT_SECONDS = 4
+
+/** Для треков короче PLAY_REPORT_SECONDS*2 — требуем прослушать половину, а не фиксированные секунды */
+const PLAY_REPORT_FALLBACK_RATIO = 0.5
+
+// ──────────────────────────────────────────────────────────────────────────────
+// 3. Провайдер
+// ──────────────────────────────────────────────────────────────────────────────
+
+export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const { requireAuth } = useAuthPrompt()
+
+  // ── Состояния ──────────────────────────────────────────────────────────────
   const [tracks, setTracks] = useState<Track[]>([])
   const [currentTrack, setCurrentTrack] = useState<Track | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
@@ -75,7 +119,15 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isLoadingTracks, setIsLoadingTracks] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState('Home')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [hasMoreTracks, setHasMoreTracks] = useState(true)
+  const [tracksTotalCount, setTracksTotalCount] = useState(0)
+  const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  const [popularTracks, setPopularTracks] = useState<Track[]>([])
+  const [isLoadingPopular, setIsLoadingPopular] = useState(false)
+  const [genreFilter, setGenreFilter] = useState('')
 
+  // ── Лайки ──────────────────────────────────────────────────────────────────
   const [likedTrackIds, setLikedTrackIds] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('likedTrackIds')
@@ -85,139 +137,253 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   })
 
-  const [blobUrl, setBlobUrl] = useState<string | null>(null)
+  // ── Отслеживание отправленных play-запросов (Map с лимитом) ─────────────
+  const [reportedTracks, setReportedTracks] = useState<Map<string, boolean>>(
+    () => new Map()
+  )
 
+  // ── Refs ──────────────────────────────────────────────────────────────────
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  // Флаг для предотвращения параллельных вызовов при быстрых переключениях
+  const isReportingRef = useRef(false)
+
+  // ── Производные ──────────────────────────────────────────────────────────
   const isLiked = currentTrack ? likedTrackIds.includes(currentTrack.trackId) : false
 
-  const [currentPage, setCurrentPage] = useState(1)
-  const [hasMoreTracks, setHasMoreTracks] = useState(true)
-
+  // ── Загрузка лайков ──────────────────────────────────────────────────────
   useEffect(() => {
-  const loadLikedIds = async () => {
-    try {
-      const response = await apiFetch(`${GATEWAY_URL}/music/favorites`)
-      if (response.ok) {
-        const tracks = await response.json()
-        const ids = tracks.map((t: Track) => t.trackId)
-        setLikedTrackIds(ids)
-        localStorage.setItem('likedTrackIds', JSON.stringify(ids))
-      }
-    } catch (err) {
+    const loadLikedIds = async () => {
       try {
-        const saved = localStorage.getItem('likedTrackIds')
-        if (saved) setLikedTrackIds(JSON.parse(saved))
-      } catch {}
+        const response = await apiFetch(`${GATEWAY_URL}/music/favorites`)
+        if (response.ok) {
+          const data = await response.json()
+          const ids = data.map((t: Track) => t.trackId)
+          setLikedTrackIds(ids)
+          localStorage.setItem('likedTrackIds', JSON.stringify(ids))
+        }
+      } catch {
+        // Если запрос не удался, оставляем то, что было в localStorage
+      }
     }
-  }
-  loadLikedIds()
-}, [])
+    loadLikedIds()
+  }, [])
 
   useEffect(() => {
     localStorage.setItem('likedTrackIds', JSON.stringify(likedTrackIds))
   }, [likedTrackIds])
 
-  const toggleLiked = async () => {
+  // ── Логика отправки play-запроса ────────────────────────────────────────
+  useEffect(() => {
+    // Валидация
+    if (
+      !currentTrack ||
+      !isPlaying ||
+      duration <= 0 ||
+      !isFinite(duration) ||
+      isReportingRef.current
+    ) {
+      return
+    }
+
+    const trackId = currentTrack.trackId
+
+    // Уже отправляли для этого трека?
+    if (reportedTracks.has(trackId)) return
+
+    const requiredSeconds = Math.min(PLAY_REPORT_SECONDS, duration * PLAY_REPORT_FALLBACK_RATIO)
+    if (currentTime < requiredSeconds) return
+
+    // Блокируем параллельные вызовы
+    isReportingRef.current = true
+
+    notifyTrackPlayed(trackId)
+      .catch((err) => {
+        // Логируем ошибку, но не блокируем плеер
+        console.error('[Player] Failed to report play for track', trackId, err)
+      })
+      .finally(() => {
+        isReportingRef.current = false
+      })
+
+    // Запоминаем, что для этого трека отправили запрос (с ограничением размера)
+    setReportedTracks((prev) => {
+      const next = new Map(prev)
+      next.set(trackId, true)
+
+      // Если превышен лимит – удаляем самую старую запись (первый ключ)
+      if (next.size > MAX_REPORTED_TRACKS) {
+        const firstKey = next.keys().next().value
+        if (firstKey !== undefined) {
+          next.delete(firstKey)
+        }
+      }
+      return next
+    })
+  }, [currentTime, duration, currentTrack, isPlaying, reportedTracks])
+
+  // ── Toggle лайка ──────────────────────────────────────────────────────────
+  const toggleLiked = useCallback(async () => {
     if (!currentTrack) return
+    if (!requireAuth()) return
     const trackId = currentTrack.trackId
     const currentlyLiked = likedTrackIds.includes(trackId)
 
-    setLikedTrackIds(prev =>
-      currentlyLiked 
-        ? prev.filter(id => id !== trackId) 
-        : [...prev, trackId]
+    // Оптимистичное обновление
+    setLikedTrackIds((prev) =>
+      currentlyLiked ? prev.filter((id) => id !== trackId) : [...prev, trackId]
     )
 
     try {
       if (currentlyLiked) {
-        await apiFetch(`${GATEWAY_URL}/music/favorites/${trackId}`, { 
-          method: 'DELETE' 
+        await apiFetch(`${GATEWAY_URL}/music/favorites/${trackId}`, {
+          method: 'DELETE',
         })
       } else {
         await apiFetch(`${GATEWAY_URL}/music/favorites`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ trackId }) 
+          body: JSON.stringify({ trackId }),
         })
       }
     } catch (err) {
-      console.error('Ошибка синхронизации лайка:', err)
-      setLikedTrackIds(prev =>
-        currentlyLiked 
-          ? [...prev, trackId] 
-          : prev.filter(id => id !== trackId)
+      console.error('[Player] Failed to sync like status:', err)
+      // Откат оптимистичного обновления
+      setLikedTrackIds((prev) =>
+        currentlyLiked ? [...prev, trackId] : prev.filter((id) => id !== trackId)
       )
     }
-}
+  }, [currentTrack, likedTrackIds, requireAuth])
 
-  // ─── Загрузка треков ────────────────────────────────────────
-  const fetchTracks = useCallback(async (search = '', page = 1, append = false) => {
-    setIsLoadingTracks(true)
-    try {
-      const url = search
-        ? `${GATEWAY_URL}/music/tracks?search=${encodeURIComponent(search)}&pageNumber=${page}&pageSize=10`
-        : `${GATEWAY_URL}/music/tracks?pageNumber=${page}&pageSize=10`
+  // ── Загрузка треков ──────────────────────────────────────────────────────
+  const fetchTracks = useCallback(
+    async (search = '', page = 1, append = false, searchBy: 'all' | 'artist' = 'all') => {
+      setIsLoadingTracks(true)
+      try {
+        const params = new URLSearchParams()
+        if (search) {
+          if (searchBy === 'artist') params.set('artist', search)
+          else params.set('search', search)
+        }
+        if (genreFilter) params.set('genre', genreFilter)
+        params.set('pageNumber', String(page))
+        params.set('pageSize', String(TRACKS_PAGE_SIZE))
+        const url = `${GATEWAY_URL}/music/tracks?${params.toString()}`
 
-      const response = await apiFetch(url)
-      if (response.ok) {
-        const result = await response.json()
-        const fetchedTracks: Track[] = result.items || result.data || result.Items || result.Tracks || (Array.isArray(result) ? result : [])
-
-        if (fetchedTracks.length === 0) {
-          console.warn('GET /music/tracks вернул 200, но список треков пуст. Ответ:', result)
+        const response = await apiFetch(url)
+        if (!response.ok) {
+          console.error(`[Player] Fetch tracks failed: ${response.status}`)
+          return
         }
 
-        const normalizedData = fetchedTracks.map(track => ({
+        const result = await response.json()
+        // Нормализуем ответ (разные варианты структуры)
+        const fetchedTracks: Track[] =
+          result.items || result.data || result.Items || result.Tracks || []
+        const totalCount = Number(
+          result.totalCount ?? result.TotalCount ?? fetchedTracks.length
+        )
+
+        if (!fetchedTracks.length) {
+          console.warn('[Player] No tracks received from server')
+        }
+
+        const normalizedData = fetchedTracks.map((track) => ({
           ...track,
           coverImageUrl: normalizeUrl(track.coverImageUrl),
           audioUrl: `${GATEWAY_URL}/music/tracks/${track.trackId}/stream`,
         }))
-        const incomingLikedIds = normalizedData.filter(t => t.isLiked).map(t => t.trackId)
-        if (incomingLikedIds.length > 0) {
-          setLikedTrackIds(prev => Array.from(new Set([...prev, ...incomingLikedIds])))
+
+        // Обновляем лайки из полученных данных
+        const incomingLikedIds = normalizedData
+          .filter((t) => t.isLiked)
+          .map((t) => t.trackId)
+        if (incomingLikedIds.length) {
+          setLikedTrackIds((prev) =>
+            Array.from(new Set([...prev, ...incomingLikedIds]))
+          )
         }
 
-        if (append) {
-          setTracks(prev => [...prev, ...normalizedData])
-        } else {
-          setTracks(normalizedData)
-          if (normalizedData.length > 0 && !currentTrack) {
-            setCurrentTrack(normalizedData[0])
-          }
+        setTracks((prev) => (append ? [...prev, ...normalizedData] : normalizedData))
+
+        // Если треков ещё нет и мы загрузили первую страницу – выбираем первый
+        if (!append && normalizedData.length > 0 && !currentTrack) {
+          setCurrentTrack(normalizedData[0])
         }
 
-        setHasMoreTracks(fetchedTracks.length === 10)
+        setTracksTotalCount(totalCount)
+        setHasMoreTracks(page * TRACKS_PAGE_SIZE < totalCount)
         setCurrentPage(page)
-      } else {
-        const errorBody = await response.text().catch(() => '')
-        console.error(`GET /music/tracks ошибка ${response.status}:`, errorBody)
+      } catch (err) {
+        console.error('[Player] Error fetching tracks:', err)
+      } finally {
+        setIsLoadingTracks(false)
       }
-    } catch (err) {
-      console.error('Error fetching tracks:', err)
-    } finally {
-      setIsLoadingTracks(false)
-    }
-  }, [currentTrack])
+    },
+    [currentTrack, genreFilter]
+  )
 
+  // ── Популярное (для секцій "Populate"/"Recommendations") ────────────────────
+  const fetchPopularTracks = useCallback(async () => {
+    setIsLoadingPopular(true)
+    try {
+      const response = await apiFetch(`${GATEWAY_URL}/music/tracks/popular?pageNumber=1&pageSize=10`)
+      if (!response.ok) {
+        console.error(`[Player] Fetch popular tracks failed: ${response.status}`)
+        return
+      }
+
+      const result = await response.json()
+      const fetchedTracks: Track[] = result.items || result.Items || []
+
+      const normalizedData = fetchedTracks.map((track) => ({
+        ...track,
+        coverImageUrl: normalizeUrl(track.coverImageUrl),
+        audioUrl: `${GATEWAY_URL}/music/tracks/${track.trackId}/stream`,
+      }))
+
+      setPopularTracks(normalizedData)
+    } catch (err) {
+      console.error('[Player] Error fetching popular tracks:', err)
+    } finally {
+      setIsLoadingPopular(false)
+    }
+  }, [])
+
+  // Первичная загрузка
   useEffect(() => {
     fetchTracks()
+    fetchPopularTracks()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleSearchChange = (query: string) => {
-    setSearchQuery(query)
-    fetchTracks(query)
-  }
+  // ── Поиск ──────────────────────────────────────────────────────────────────
+  // Інпут (searchQuery) оновлюється миттєво — щоб не гальмувати друк, — а сам запит
+  // до бекенду відкладається на паузу в наборі тексту. Без цього кожна натиснута
+  // клавіша била в API окремим запитом (для "love" — 4 запити замість одного), що й
+  // відчувалось як "гальмує" навіть коли кожен окремий запит сам по собі швидкий.
+  const searchDebounceRef = useRef<number | null>(null)
+  const handleSearchChange = useCallback(
+    (query: string) => {
+      setSearchQuery(query)
+      if (searchDebounceRef.current !== null) window.clearTimeout(searchDebounceRef.current)
+      searchDebounceRef.current = window.setTimeout(() => {
+        fetchTracks(query)
+      }, 350)
+    },
+    [fetchTracks]
+  )
 
-  // ─── Громкость ──────────────────────────────────────────────
+  // ── Громкость ─────────────────────────────────────────────────────────────
   const applyVolume = useCallback((newVolume: number) => {
-    setVolume(newVolume)
-    setIsMuted(newVolume === 0)
+    const clamped = Math.max(0, Math.min(100, newVolume))
+    setVolume(clamped)
+    setIsMuted(clamped === 0)
     if (audioRef.current) {
-      audioRef.current.volume = newVolume / 100
+      audioRef.current.volume = clamped / 100
     }
   }, [])
 
-  const toggleMute = () => {
+  const toggleMute = useCallback(() => {
     if (isMuted || volume === 0) {
       const restored = prevVolume > 0 ? prevVolume : 50
       applyVolume(restored)
@@ -227,85 +393,98 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       applyVolume(0)
       setIsMuted(true)
     }
-  }
+  }, [isMuted, volume, prevVolume, applyVolume])
 
+  // Синхронизация громкости с audio-элементом
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = isMuted ? 0 : volume / 100
     }
   }, [volume, isMuted])
 
+  // ── Загрузка аудио (Blob) ────────────────────────────────────────────────
   // ═══════════════════════════════════════════════════════════
-  // АВТОРИЗОВАННАЯ ЗАГРУЗКА АУДИО В BLOCK ПРИ СМЕНЕ ТРЕКА
-  // ═══════════════════════════════════════════════════════════
-  useEffect(() => {
-    let cancelled = false
+// ЗАГРУЗКА АУДИО (без лишней магии)
+// ═══════════════════════════════════════════════════════════
+useEffect(() => {
+  let cancelled = false
 
-    const loadAudio = async () => {
-      if (!currentTrack) {
-        setBlobUrl(null)
+  const loadAudio = async () => {
+    if (!currentTrack) {
+      setBlobUrl(null)
+      return
+    }
+
+    try {
+      const response = await apiFetch(currentTrack.audioUrl)
+      if (!response.ok) {
+        console.error(`[Player] Stream failed: ${response.status}`)
         return
       }
 
-      try {
-        // Загружаем аудио через apiFetch (с автоматическим токеном)
-        const response = await apiFetch(currentTrack.audioUrl)
-        if (!response.ok) {
-          console.error(`Stream load failed with status ${response.status}`)
-          return
-        }
-
-        const blob = await response.blob()
-        if (cancelled) return
-
-        // Освобождаем старый Blob URL, чтобы не утекала память
-        if (blobUrl) {
-          URL.revokeObjectURL(blobUrl)
-        }
-
-        const newBlobUrl = URL.createObjectURL(blob)
-        setBlobUrl(newBlobUrl)
-      } catch (err) {
-        console.error('Failed to load audio via apiFetch:', err)
+      const blob = await response.blob()
+      
+      // Проверяем, что blob не пустой
+      if (blob.size === 0) {
+        console.error('[Player] Received empty audio blob')
+        return
       }
+
+      if (cancelled) return
+
+      // Освобождаем старый URL
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl)
+      }
+
+      const newBlobUrl = URL.createObjectURL(blob)
+      setBlobUrl(newBlobUrl)
+    } catch (err) {
+      console.error('[Player] Failed to load audio:', err)
     }
+  }
 
-    loadAudio()
+  loadAudio()
 
-    return () => {
-      cancelled = true
-    }
-  }, [currentTrack?.trackId]) 
+  return () => {
+    cancelled = true
+  }
+}, [currentTrack?.trackId]) // 👈 важно: только при смене trackId
 
+  // Когда Blob готов – подгружаем и запускаем, если нужно
   useEffect(() => {
     if (!audioRef.current || !blobUrl) return
 
-    audioRef.current.load() 
+    audioRef.current.load()
     if (isPlaying) {
-      audioRef.current.play().catch(err => {
-        console.error('Auto-play blocked after blob ready:', err)
+      audioRef.current.play().catch((err) => {
+        console.error('[Player] Auto-play failed:', err)
         setIsPlaying(false)
       })
     }
-  }, [blobUrl])
+  }, [blobUrl, isPlaying])
 
-  // ─── Управление воспроизведением ───────────────────────────
-  const togglePlayPause = () => {
+  // ── Управление воспроизведением ──────────────────────────────────────────
+  const togglePlayPause = useCallback(() => {
     if (!audioRef.current || !blobUrl) return
     if (isPlaying) {
       audioRef.current.pause()
       setIsPlaying(false)
     } else {
-      audioRef.current.play()
-        .then(() => setIsPlaying(true))
-        .catch(e => console.error('Playback failed:', e))
+      audioRef.current.play().then(
+        () => setIsPlaying(true),
+        (err) => {
+          console.error('[Player] Play failed:', err)
+          setIsPlaying(false)
+        }
+      )
     }
-  }
+  }, [isPlaying, blobUrl])
 
-  const selectTrack = (track: Track) => {
+  const selectTrack = useCallback((track: Track) => {
     setCurrentTrack(track)
     setIsPlaying(true)
-  }
+  }, [])
 
   const playNext = useCallback(() => {
     if (tracks.length === 0 || !currentTrack) return
@@ -313,77 +492,132 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       const randomIndex = Math.floor(Math.random() * tracks.length)
       selectTrack(tracks[randomIndex])
     } else {
-      const currentIndex = tracks.findIndex(t => t.trackId === currentTrack.trackId)
+      const currentIndex = tracks.findIndex(
+        (t) => t.trackId === currentTrack.trackId
+      )
       if (currentIndex === -1) return
       const nextIndex = (currentIndex + 1) % tracks.length
       selectTrack(tracks[nextIndex])
     }
-  }, [tracks, currentTrack, isShuffle])
+  }, [tracks, currentTrack, isShuffle, selectTrack])
 
-  const playPrevious = () => {
+  const playPrevious = useCallback(() => {
     if (tracks.length === 0 || !currentTrack) return
-    const currentIndex = tracks.findIndex(t => t.trackId === currentTrack.trackId)
+    const currentIndex = tracks.findIndex(
+      (t) => t.trackId === currentTrack.trackId
+    )
     if (currentIndex === -1) return
-    let prevIndex = currentIndex - 1
-    if (prevIndex < 0) prevIndex = tracks.length - 1
+    const prevIndex = (currentIndex - 1 + tracks.length) % tracks.length
     selectTrack(tracks[prevIndex])
-  }
+  }, [tracks, currentTrack, selectTrack])
 
-  const toggleShuffle = () => setIsShuffle(!isShuffle)
-  const toggleRepeat = () => setIsRepeat(!isRepeat)
+  const toggleShuffle = useCallback(() => setIsShuffle((v) => !v), [])
+  const toggleRepeat = useCallback(() => setIsRepeat((v) => !v), [])
 
-  const seekTo = (percent: number) => {
-    if (audioRef.current && duration > 0) {
-      const newTime = percent * duration
-      audioRef.current.currentTime = newTime
-      setCurrentTime(newTime)
-    }
-  }
+  const seekTo = useCallback(
+    (percent: number) => {
+      if (audioRef.current && duration > 0 && isFinite(duration)) {
+        const newTime = Math.max(0, Math.min(percent, 1)) * duration
+        audioRef.current.currentTime = newTime
+        setCurrentTime(newTime)
+      }
+    },
+    [duration]
+  )
 
-  const formatTime = (seconds: number) => {
-    if (isNaN(seconds) || seconds === Infinity) return '00:00'
+  const formatTime = useCallback((seconds: number) => {
+    if (!isFinite(seconds) || seconds < 0) return '00:00'
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`
-  }
+  }, [])
 
-  // ─── Значение контекста ────────────────────────────────────
-  const value: PlayerContextType = {
-    tracks,
-    currentTrack,
-    isPlaying,
-    volume,
-    isMuted,
-    currentTime,
-    duration,
-    isShuffle,
-    isRepeat,
-    isLoadingTracks,
-    searchQuery,
-    likedTrackIds,
-    isLiked,
-    audioUrl: blobUrl,  
-    audioRef,
-    activeTab,
-    setActiveTab,
-    selectTrack,
-    togglePlayPause,
-    playNext,
-    playPrevious,
-    toggleShuffle,
-    toggleRepeat,
-    toggleMute,
-    applyVolume,
-    seekTo,
-    handleSearchChange,
-    toggleLiked,
-    formatTime,
-    setTracks,
-    setCurrentTrack,
-    fetchTracks,
-    currentPage,
-    hasMoreTracks,
-  }
+  // ── Мемоизированное значение контекста ──────────────────────────────────
+  const value = useMemo<PlayerContextType>(
+    () => ({
+      tracks,
+      currentTrack,
+      isPlaying,
+      volume,
+      isMuted,
+      currentTime,
+      duration,
+      isShuffle,
+      isRepeat,
+      isLoadingTracks,
+      searchQuery,
+      likedTrackIds,
+      isLiked,
+      audioUrl: blobUrl,
+      audioRef,
+      activeTab,
+      setActiveTab,
+      selectTrack,
+      togglePlayPause,
+      playNext,
+      playPrevious,
+      toggleShuffle,
+      toggleRepeat,
+      toggleMute,
+      applyVolume,
+      seekTo,
+      handleSearchChange,
+      toggleLiked,
+      formatTime,
+      setTracks,
+      setCurrentTrack,
+      fetchTracks,
+      currentPage,
+      hasMoreTracks,
+      tracksTotalCount,
+      popularTracks,
+      isLoadingPopular,
+      fetchPopularTracks,
+      genreFilter,
+      setGenreFilter,
+    }),
+    [
+      tracks,
+      currentTrack,
+      isPlaying,
+      volume,
+      isMuted,
+      currentTime,
+      duration,
+      isShuffle,
+      isRepeat,
+      isLoadingTracks,
+      searchQuery,
+      likedTrackIds,
+      isLiked,
+      blobUrl,
+      activeTab,
+      selectTrack,
+      togglePlayPause,
+      playNext,
+      playPrevious,
+      toggleShuffle,
+      toggleRepeat,
+      toggleMute,
+      applyVolume,
+      seekTo,
+      handleSearchChange,
+      toggleLiked,
+      formatTime,
+      fetchTracks,
+      currentPage,
+      hasMoreTracks,
+      tracksTotalCount,
+      popularTracks,
+      isLoadingPopular,
+      fetchPopularTracks,
+      genreFilter,
+    ]
+  )
+
+  // ────────────────────────────────────────────────────────────────────────────
+  // 4. Рендер
+  // ────────────────────────────────────────────────────────────────────────────
 
   return (
     <PlayerContext.Provider value={value}>
@@ -397,21 +631,31 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         onEnded={() => {
           if (isRepeat && audioRef.current) {
             audioRef.current.currentTime = 0
-            audioRef.current.play().catch(err => console.error('Replay failed:', err))
+            audioRef.current.play().catch((err) =>
+              console.error('[Player] Replay failed:', err)
+            )
           } else {
             playNext()
           }
         }}
         onTimeUpdate={() => {
-          if (audioRef.current) setCurrentTime(audioRef.current.currentTime)
+          if (audioRef.current) {
+            setCurrentTime(audioRef.current.currentTime)
+          }
         }}
         onLoadedMetadata={() => {
-          if (audioRef.current) setDuration(audioRef.current.duration)
+          if (audioRef.current && isFinite(audioRef.current.duration)) {
+            setDuration(audioRef.current.duration)
+          }
         }}
       />
     </PlayerContext.Provider>
   )
 }
+
+// ──────────────────────────────────────────────────────────────────────────────
+// 5. Хук usePlayer
+// ──────────────────────────────────────────────────────────────────────────────
 
 export const usePlayer = () => {
   const context = useContext(PlayerContext)

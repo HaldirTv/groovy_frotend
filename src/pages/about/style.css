@@ -14,18 +14,19 @@
    PAGE SHELL
    ============================================================ */
 .about-us-page {
-  background: linear-gradient(180deg, rgba(0,0,0,0.2) 0%, rgba(102,102,102,0.2) 100%), #16161F;
-  min-height: 100vh;
+  background: var(--bg-dop);
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .about-us-page .main-content {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 60px 40px 80px;
+  padding: 20px 0 60px;
   display: flex;
   flex-direction: column;
-  gap: 80px;
+  gap: 60px;
   box-sizing: border-box;
 }
 
@@ -359,20 +360,6 @@
   background-clip: text;
 }
 
-/* User-requested floating label component styles */
-.label {
-  height: 40px;
-  width: 461px;
-}
-.label .image {
-  height: 47px;
-  left: calc(50.00% - 227px);
-  position: fixed;
-  top: 2px;
-  width: 456px;
-  z-index: 9999; /* Ensure it is visible above headers/menus */
-}
-
 
 .section-footer .map-wrapper {
   backdrop-filter: blur(8px) brightness(100%);
@@ -561,4 +548,159 @@
   .section-footer .info-card {
     max-width: 100%;
   }
+}
+
+/* Light Theme Overrides */
+body.light-theme .about-us-page,
+html.light-theme .about-us-page {
+  background: var(--bg-dop) !important;
+}
+
+body.light-theme .container-hero .text-wrapper,
+html.light-theme .container-hero .text-wrapper {
+  background: linear-gradient(161deg, #003D47 0%, #00788C 60%, #5B32A8 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  filter: drop-shadow(0 2px 10px rgba(0, 61, 71, 0.12)) !important;
+}
+
+body.light-theme .container-hero .groovra-is-more-than,
+body.light-theme .container-hero .groovra-is-more-than .text-wrapper-2,
+html.light-theme .container-hero .groovra-is-more-than,
+html.light-theme .container-hero .groovra-is-more-than .text-wrapper-2 {
+  color: #222A31 !important;
+}
+
+body.light-theme .container-hero .groovra-is-more-than .span,
+html.light-theme .container-hero .groovra-is-more-than .span {
+  color: #003D47 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .container-hero .overlay-border-hero-quote,
+html.light-theme .container-hero .overlay-border-hero-quote {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E0DCFF !important;
+  border-left: 4px solid #003D47 !important;
+  box-shadow: 0 6px 24px rgba(0, 61, 71, 0.08) !important;
+}
+
+body.light-theme .container-hero .our-mission-is-to,
+html.light-theme .container-hero .our-mission-is-to {
+  color: #003D47 !important;
+}
+
+body.light-theme .overlay-border-graphic,
+html.light-theme .overlay-border-graphic {
+  background-color: #FFFFFF !important;
+  border: 2px solid #E0DCFF !important;
+  box-shadow: 0 8px 30px rgba(0, 61, 71, 0.1) !important;
+}
+
+body.light-theme .container-team .div-info .team-heading,
+html.light-theme .container-team .div-info .team-heading {
+  background: linear-gradient(164deg, #003D47 0%, #00788C 60%, #5B32A8 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+body.light-theme .container-team .text-wrapper-name,
+body.light-theme .container-team .founded-in-by-a,
+body.light-theme .container-team .member-item,
+html.light-theme .container-team .text-wrapper-name,
+html.light-theme .container-team .founded-in-by-a,
+html.light-theme .container-team .member-item {
+  color: #222A31 !important;
+}
+
+body.light-theme .container-team .member-item .name,
+html.light-theme .container-team .member-item .name {
+  color: #003D47 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .container-team .overlay-border-initials,
+html.light-theme .container-team .overlay-border-initials {
+  background-color: #FFFFFF !important;
+  border: 2px solid #E0DCFF !important;
+  box-shadow: 0 4px 14px rgba(0, 61, 71, 0.08) !important;
+}
+
+body.light-theme .container-team .text-wrapper-initial,
+html.light-theme .container-team .text-wrapper-initial {
+  color: #003D47 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .section-statistics .stat-card,
+html.light-theme .section-statistics .stat-card {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E0DCFF !important;
+  box-shadow: 0 6px 24px rgba(0, 61, 71, 0.08) !important;
+}
+
+body.light-theme .section-statistics .stat-card:hover,
+html.light-theme .section-statistics .stat-card:hover {
+  background-color: #EDF8FF !important;
+  border-color: #72DEEF !important;
+  box-shadow: 0 10px 30px rgba(0, 61, 71, 0.14) !important;
+}
+
+body.light-theme .section-statistics .stat-number,
+html.light-theme .section-statistics .stat-number {
+  color: #003D47 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .section-statistics .stat-label,
+html.light-theme .section-statistics .stat-label {
+  color: #222A31 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .section-footer .section-footer-heading,
+html.light-theme .section-footer .section-footer-heading {
+  color: #222A31 !important;
+}
+
+body.light-theme .section-footer .section-footer-heading .highlight,
+html.light-theme .section-footer .section-footer-heading .highlight {
+  background: linear-gradient(164deg, #003D47 0%, #00788C 60%, #5B32A8 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+body.light-theme .section-footer .map-wrapper,
+html.light-theme .section-footer .map-wrapper {
+  background-color: #FFFFFF !important;
+  border: 2px solid #E0DCFF !important;
+  box-shadow: 0 8px 30px rgba(0, 61, 71, 0.1) !important;
+}
+
+body.light-theme .section-footer .leaflet-map .leaflet-tile,
+html.light-theme .section-footer .leaflet-map .leaflet-tile {
+  filter: none !important;
+}
+
+body.light-theme .section-footer .info-card,
+html.light-theme .section-footer .info-card {
+  background-color: #FFFFFF !important;
+  border: 1px solid #E0DCFF !important;
+  box-shadow: 0 8px 24px rgba(0, 61, 71, 0.12) !important;
+}
+
+body.light-theme .section-footer .info-card .brand-name,
+html.light-theme .section-footer .info-card .brand-name {
+  color: #003D47 !important;
+  font-weight: 700 !important;
+}
+
+body.light-theme .section-footer .info-row p,
+body.light-theme .section-footer .info-row div,
+html.light-theme .section-footer .info-row p,
+html.light-theme .section-footer .info-row div {
+  color: #222A31 !important;
 }

@@ -1,9 +1,11 @@
-import React, { useState } from "react"
+import React, { useState, useRef } from "react"
 import { useTranslation } from "react-i18next"
+import type { PlaylistDetail } from "../../../../types/playlist"
+import { useSubscription } from "../../../../context/subscription-context"
 import "./style.css"
 
 interface HeroSectionMarginProps {
-  playlist: any | null
+  playlist: PlaylistDetail | null
   isLoading: boolean
   loadingMessage: string
   error: string | null
@@ -26,7 +28,18 @@ export const HeroSectionMargin = ({
   onToggleLike
 }: HeroSectionMarginProps): React.JSX.Element => {
   const { t, i18n } = useTranslation()
+  const { subscription, openSubscriptionModal } = useSubscription()
   const [promptText, setPromptText] = useState("")
+  const chipsRef = useRef<HTMLDivElement>(null)
+
+  const scrollChips = (direction: "left" | "right") => {
+    if (chipsRef.current) {
+      chipsRef.current.scrollBy({
+        left: direction === "left" ? -240 : 240,
+        behavior: "smooth"
+      })
+    }
+  }
 
   const suggestionsUk = [
     "Космічний кодинг під атмосферні синти",
@@ -48,8 +61,14 @@ export const HeroSectionMargin = ({
     setPromptText(suggestion)
   }
 
+  const isLimitReached = !subscription.isActivePremium && subscription.remainingAiMixes <= 0
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
+    if (isLimitReached) {
+      openSubscriptionModal()
+      return
+    }
     if (promptText.trim()) {
       onGenerate(promptText)
     }
@@ -84,7 +103,7 @@ export const HeroSectionMargin = ({
               <div className="ai-loading-text">{loadingMessage}</div>
             </div>
           ) : !playlist ? (
-            <div className="playlist-details" style={{ left: 0, width: "100%", top: "calc(50% - 130px)" }}>
+            <div className="playlist-details playlist-details--empty">
               <div className="container-2">
                 <div className="overlay-border">
                   <div className="container-3">
@@ -96,48 +115,116 @@ export const HeroSectionMargin = ({
                   </div>
                   <div className="text-wrapper">{t("aimix.generated", { defaultValue: "ШІ Згенеровано" })}</div>
                 </div>
+
+                <div className="container-3">
+                  <div
+                    className={`text-wrapper-2 ${subscription.isActivePremium ? 'premium-badge-active' : 'premium-badge-free'}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={openSubscriptionModal}
+                  >
+                    {subscription.isActivePremium
+                      ? "✨ Groovra Premium — Безліміт"
+                      : `Спроб залишилось: ${subscription.remainingAiMixes} з 3 (Натисніть для Premium)`}
+                  </div>
+                </div>
               </div>
 
               <div className="heading">
-                <div className="text-wrapper-3" style={{ fontSize: "36px", lineHeight: "44px" }}>
+                <div className="text-wrapper-3">
                   {t("aimix.generation_title", { defaultValue: "Згенерувати персональний ШІ Мікс" })}
                 </div>
               </div>
 
               <form onSubmit={handleSubmit} className="ai-prompt-container">
-                <textarea
-                  className="ai-prompt-textarea"
-                  value={promptText}
-                  onChange={(e) => setPromptText(e.target.value)}
-                  placeholder={t("aimix.prompt_placeholder", { defaultValue: "Опишіть ваш настрій, жанр чи атмосферу (наприклад: 'Космічний релакс під ембієнт')..." })}
-                />
-                
-                {error && <div className="ai-error-message">{error}</div>}
-
-                <div className="ai-prompt-chips">
-                  {suggestions.map((s) => (
+                <div className="ai-prompt-wrapper">
+                  <textarea
+                    id="ai-prompt-input"
+                    name="promptText"
+                    className="ai-prompt-textarea"
+                    value={promptText}
+                    onChange={(e) => setPromptText(e.target.value)}
+                    placeholder={t("aimix.prompt_placeholder", { defaultValue: "Опишіть ваш настрій, жанр чи атмосферу (наприклад: 'Космічний релакс під ембієнт')..." })}
+                    rows={3}
+                  />
+                  {promptText && (
                     <button
-                      key={s}
                       type="button"
-                      className="ai-prompt-chip"
-                      onClick={() => handleChipClick(s)}
+                      className="ai-prompt-clear-btn"
+                      onClick={() => setPromptText("")}
+                      aria-label={t("common.delete", { defaultValue: "Очистити" })}
                     >
-                      {s}
+                      ✕
                     </button>
-                  ))}
+                  )}
                 </div>
 
-                <div className="container-6" style={{ marginTop: "8px" }}>
-                  <button
-                    className="button"
-                    type="submit"
-                    disabled={!promptText.trim()}
-                    style={{ opacity: promptText.trim() ? 1 : 0.6 }}
-                  >
-                    <div className="text-wrapper-5" style={{ color: "#a98fdb" }}>
-                      {t("aimix.generate_btn", { defaultValue: "Створити ШІ мікс" })}
+                {error && <div className="ai-error-message">{error}</div>}
+
+                <div className="ai-chips-section">
+                  <div className="ai-chips-header">
+                    <span className="ai-chips-label">
+                      {t("aimix.quick_prompts", { defaultValue: "Ідеї для підказок:" })}
+                    </span>
+                    <div className="ai-chips-controls">
+                      <button
+                        type="button"
+                        className="ai-chips-arrow"
+                        onClick={() => scrollChips("left")}
+                        aria-label="Scroll left"
+                      >
+                        ‹
+                      </button>
+                      <button
+                        type="button"
+                        className="ai-chips-arrow"
+                        onClick={() => scrollChips("right")}
+                        aria-label="Scroll right"
+                      >
+                        ›
+                      </button>
                     </div>
-                  </button>
+                  </div>
+                  <div className="ai-prompt-chips" ref={chipsRef}>
+                    {suggestions.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        className={`ai-prompt-chip ${promptText === s ? "ai-prompt-chip--active" : ""}`}
+                        onClick={() => handleChipClick(s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="container-6 ai-submit-container">
+                  {isLimitReached ? (
+                    <button
+                      className="button ai-generate-btn"
+                      type="button"
+                      onClick={openSubscriptionModal}
+                      style={{ background: 'linear-gradient(135deg, #a98fdb, #72deef)' }}
+                    >
+                      <span className="text-wrapper-5" style={{ color: "#0f0e1a", fontWeight: 800 }}>
+                        Використано 3/3 спроб — Оформити підписку
+                      </span>
+                    </button>
+                  ) : (
+                    <button
+                      className="button ai-generate-btn"
+                      type="submit"
+                      disabled={!promptText.trim()}
+                      style={{ opacity: promptText.trim() ? 1 : 0.5 }}
+                    >
+                      <svg className="ai-btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L14.5 9.5L22 12L14.5 14.5L12 22L9.5 14.5L2 12L9.5 9.5L12 2Z" fill="currentColor"/>
+                      </svg>
+                      <span className="text-wrapper-5" style={{ color: "#ffffff" }}>
+                        {t("aimix.generate_btn", { defaultValue: "Створити ШІ мікс" })}
+                      </span>
+                    </button>
+                  )}
                 </div>
               </form>
             </div>
@@ -220,7 +307,7 @@ export const HeroSectionMargin = ({
                       role="button"
                       tabIndex={0}
                       onClick={onToggleLike}
-                      aria-label={isLiked ? "Видалити з вибраного" : "Додати до вибраного"}
+                      aria-label={isLiked ? t("player.unlike", { defaultValue: "Видалити з улюбленого" }) : t("player.like", { defaultValue: "Додати до улюбленого" })}
                       style={{ color: isLiked ? "#71deef" : "#a98fdb", borderColor: isLiked ? "#71deef" : "#a98fdb" }}
                     >
                       <div className="icon-wrapper">

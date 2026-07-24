@@ -138,21 +138,123 @@
   background-color: #0d0d12;
   border: 1px solid var(--color-accent-blue);
   border-radius: 20px;
-  display: grid;
-  gap: 4px;
-  grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: repeat(2, 1fr);
+  display: block;
   height: 140px;
   width: 140px;
   padding: 6px;
   flex-shrink: 0;
   position: relative;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .downloads-category-card:hover .downloads-collage-frame {
   border-color: #a3f1fc;
   box-shadow: 0 0 15px rgba(114, 222, 239, 0.3);
+}
+
+.downloads-collage-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+}
+
+.downloads-collage-single-fallback {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(169, 143, 219, 0.2) 0%, rgba(114, 222, 239, 0.12) 100%);
+  border: 1px solid rgba(114, 222, 239, 0.25);
+  box-shadow: inset 0 0 20px rgba(114, 222, 239, 0.08);
+}
+
+.downloads-collage-single-fallback.songs {
+  background: linear-gradient(135deg, rgba(114, 222, 239, 0.2) 0%, rgba(169, 143, 219, 0.1) 100%);
+}
+
+.downloads-collage-single-fallback.playlists {
+  background: linear-gradient(135deg, rgba(169, 143, 219, 0.2) 0%, rgba(15, 14, 22, 0.9) 100%);
+}
+
+.downloads-collage-single-fallback.albums {
+  background: linear-gradient(135deg, rgba(114, 222, 239, 0.15) 0%, rgba(169, 143, 219, 0.25) 100%);
+}
+
+.downloads-fallback-glow {
+  position: absolute;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: rgba(114, 222, 239, 0.4);
+  filter: blur(20px);
+  pointer-events: none;
+}
+
+.downloads-fallback-icon {
+  color: #72deef;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 2px 8px rgba(114, 222, 239, 0.4));
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.downloads-category-card:hover .downloads-fallback-icon {
+  transform: scale(1.1);
+  color: #a3f1fc;
+}
+
+/* Light theme support for single fallback frame and icon */
+body.light-theme .downloads-collage-frame,
+html.light-theme .downloads-collage-frame {
+  background-color: #f0f4f8;
+  border-color: rgba(0, 180, 216, 0.4);
+}
+
+body.light-theme .downloads-collage-single-fallback,
+html.light-theme .downloads-collage-single-fallback {
+  background: linear-gradient(135deg, rgba(0, 180, 216, 0.15) 0%, rgba(124, 58, 237, 0.12) 100%);
+  border-color: rgba(0, 180, 216, 0.3);
+  box-shadow: inset 0 0 15px rgba(0, 180, 216, 0.1);
+}
+
+body.light-theme .downloads-collage-single-fallback.songs,
+html.light-theme .downloads-collage-single-fallback.songs {
+  background: linear-gradient(135deg, rgba(0, 180, 216, 0.18) 0%, rgba(124, 58, 237, 0.1) 100%);
+}
+
+body.light-theme .downloads-collage-single-fallback.playlists,
+html.light-theme .downloads-collage-single-fallback.playlists {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.18) 0%, rgba(0, 180, 216, 0.12) 100%);
+}
+
+body.light-theme .downloads-collage-single-fallback.albums,
+html.light-theme .downloads-collage-single-fallback.albums {
+  background: linear-gradient(135deg, rgba(0, 180, 216, 0.15) 0%, rgba(124, 58, 237, 0.15) 100%);
+}
+
+body.light-theme .downloads-fallback-glow,
+html.light-theme .downloads-fallback-glow {
+  background: rgba(0, 180, 216, 0.3);
+}
+
+body.light-theme .downloads-fallback-icon,
+html.light-theme .downloads-fallback-icon {
+  color: #006f85;
+  filter: drop-shadow(0 2px 6px rgba(0, 111, 133, 0.3));
+}
+
+body.light-theme .downloads-category-card:hover .downloads-fallback-icon,
+html.light-theme .downloads-category-card:hover .downloads-fallback-icon {
+  color: #004d5a;
 }
 
 
@@ -190,6 +292,8 @@
   flex-direction: column;
   gap: 8px;
   flex-grow: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .downloads-category-name {
@@ -199,6 +303,9 @@
   font-weight: 700;
   margin: 0;
   transition: color 0.2s ease;
+  white-space: normal;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .downloads-category-card:hover .downloads-category-name {
@@ -208,7 +315,7 @@
 .downloads-category-update {
   color: rgba(245, 245, 245, 0.6);
   font-family: var(--second-text);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 400;
   margin: 0;
 }
@@ -639,13 +746,19 @@
 }
 
 .downloads-item-row:hover .downloads-row-delete-btn {
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
 .downloads-row-delete-btn:hover {
   opacity: 1 !important;
   background-color: rgba(239, 68, 68, 0.15);
   transform: scale(1.1);
+}
+
+@media (max-width: 768px) {
+  .downloads-row-delete-btn {
+    opacity: 0.8;
+  }
 }
 
 .downloads-row-delete-icon {
@@ -664,12 +777,12 @@
 
 @media (max-width: 768px) {
   .downloads-page {
-    padding: 20px;
+    padding: 16px;
     margin-top: 60px;
   }
   .downloads-layout {
     flex-direction: column;
-    gap: 32px;
+    gap: 24px;
   }
   .downloads-divider-line {
     display: none;
@@ -681,4 +794,76 @@
     max-width: 100%;
     padding-bottom: 20px;
   }
+  .downloads-category-card {
+    padding: 12px;
+    gap: 14px;
+    border-radius: 18px;
+  }
+  .downloads-collage-frame {
+    width: 90px;
+    height: 90px;
+    border-radius: 14px;
+    padding: 4px;
+    gap: 3px;
+  }
+  .downloads-category-name {
+    font-size: 20px;
+    line-height: 1.3;
+  }
+  .downloads-category-update {
+    font-size: 13px;
+  }
+}
+
+/* ============================================
+   LIGHT THEME OVERRIDES FOR DOWNLOADS PAGE
+   ============================================ */
+
+body.light-theme .downloads-page,
+html.light-theme .downloads-page {
+  background: var(--bg-dop) !important;
+}
+
+body.light-theme .downloads-wrapper,
+body.light-theme .downloads-title,
+body.light-theme .downloads-category-name,
+html.light-theme .downloads-wrapper,
+html.light-theme .downloads-title,
+html.light-theme .downloads-category-name {
+  color: #222A31 !important;
+}
+
+body.light-theme .downloads-category-card,
+html.light-theme .downloads-category-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E0DCFF !important;
+  box-shadow: 0 4px 20px rgba(0, 61, 71, 0.05) !important;
+}
+
+body.light-theme .downloads-category-card:hover,
+html.light-theme .downloads-category-card:hover {
+  background: #EDF8FF !important;
+  border-color: #72DEEF !important;
+}
+
+body.light-theme .downloads-collage-frame,
+html.light-theme .downloads-collage-frame {
+  background-color: #EDF8FF !important;
+  border-color: #003D47 !important;
+}
+
+body.light-theme .downloads-item-row,
+html.light-theme .downloads-item-row {
+  background: #FFFFFF !important;
+  border: 1px solid #E0DCFF !important;
+}
+
+body.light-theme .downloads-row-title,
+html.light-theme .downloads-row-title {
+  color: #222A31 !important;
+}
+
+body.light-theme .downloads-row-artist,
+html.light-theme .downloads-row-artist {
+  color: #003D47 !important;
 }

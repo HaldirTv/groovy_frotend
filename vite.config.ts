@@ -36,17 +36,45 @@ export default defineConfig({
   server: {
     port: 5178,
     proxy: {
-      
-      
       '/music': {
         target: 'http://localhost:5274',
         changeOrigin: true,
         secure: false,
+        bypass(req) {
+          if (req.headers.accept?.includes('html')) return '/index.html'
+        },
       },
       '/auth': {
         target: 'http://localhost:5274',
         changeOrigin: true,
         secure: false,
+        bypass(req) {
+          if (req.headers.accept?.includes('html')) return '/index.html'
+        },
+      },
+      '/profile': {
+        target: 'http://localhost:5274',
+        changeOrigin: true,
+        secure: false,
+        bypass(req) {
+          if (req.headers.accept?.includes('html')) return '/index.html'
+        },
+      },
+      '/media': {
+        target: 'http://localhost:5274',
+        changeOrigin: true,
+        secure: false,
+        bypass(req) {
+          if (req.headers.accept?.includes('html')) return '/index.html'
+        },
+      },
+      '/api': {
+        target: 'http://localhost:5274',
+        changeOrigin: true,
+        secure: false,
+        bypass(req) {
+          if (req.headers.accept?.includes('html')) return '/index.html'
+        },
       },
     },
   },
@@ -57,13 +85,28 @@ export default defineConfig({
         manualChunks(id) {
           if (id.includes('node_modules')) {
             if (id.includes('react-dom') || id.includes('/react/')) {
-              return 'react-vendor';
+              return 'react-vendor'
             }
             if (id.includes('react-router-dom') || id.includes('react-router')) {
-              return 'router';
+              return 'router'
+            }
+            if (id.includes('lucide-react')) {
+              return 'icons-vendor'
+            }
+            if (id.includes('framer-motion') || id.includes('motion')) {
+              return 'motion-vendor'
+            }
+            if (id.includes('@reduxjs') || id.includes('react-redux')) {
+              return 'redux-vendor'
+            }
+            if (id.includes('@microsoft/signalr')) {
+              return 'signalr-vendor'
             }
             if (id.includes('@react-oauth')) {
-              return 'google-oauth';
+              return 'google-oauth'
+            }
+            if (id.includes('i18next') || id.includes('react-i18next')) {
+              return 'i18n'
             }
           }
         },

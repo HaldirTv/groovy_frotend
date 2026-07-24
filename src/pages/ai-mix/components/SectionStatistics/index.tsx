@@ -1,16 +1,7 @@
 import React, { useState, useEffect } from "react"
+import { useTranslation } from "react-i18next"
 import { apiFetch, GATEWAY_URL } from "../../../../api/api-client"
 import "./style.css"
-
-
-
-
-
-
-
-
-
-
 
 const ASSETS = "/src/pages/ai-mix/components/SectionStatistics"
 
@@ -32,17 +23,20 @@ const StatCard = ({
   maskSrc,
 }: StatCardProps): React.JSX.Element => (
   <div className="ss-overlay-border">
-    <div className="ss-margin">
-      <img className={`ss-${iconClass}`} alt={iconAlt} src={iconSrc} />
+    <div className="ss-header">
+      <div className="ss-margin">
+        <img className={`ss-${iconClass}`} alt={iconAlt} src={iconSrc} />
+      </div>
+      <div className="ss-text-wrapper">{label}</div>
     </div>
-    <div className="ss-text-wrapper">{label}</div>
     <div className="ss-div">{value}</div>
-    <img className="ss-mask-group" alt="Background" src={maskSrc} />
+    <img className="ss-mask-group" alt="" aria-hidden="true" src={maskSrc} />
     <div className="ss-overlay-blur" />
   </div>
 )
 
 export const SectionStatistics = (): React.JSX.Element => {
+  const { t } = useTranslation()
   const [statsData, setStatsData] = useState<{
     aiMixesCount: number
     songsCount: number
@@ -86,7 +80,7 @@ export const SectionStatistics = (): React.JSX.Element => {
       iconSrc: `${ASSETS}/icon.svg`,
       iconClass: "icon",
       iconAlt: "AI Mixes icon",
-      label: "ШІ МІКСИ",
+      label: t("aimix.stats_labels.ai_mixes", { defaultValue: "ШІ МІКСИ" }),
       value: formatNumber(statsData.aiMixesCount),
       maskSrc: `${ASSETS}/mask-group.svg`,
     },
@@ -94,7 +88,7 @@ export const SectionStatistics = (): React.JSX.Element => {
       iconSrc: `${ASSETS}/image.svg`,
       iconClass: "img",
       iconAlt: "Songs icon",
-      label: "ПІСНІ",
+      label: t("aimix.stats_labels.songs", { defaultValue: "ПІСНІ" }),
       value: formatNumber(statsData.songsCount),
       maskSrc: `${ASSETS}/mask-group-2.svg`,
     },
@@ -102,7 +96,7 @@ export const SectionStatistics = (): React.JSX.Element => {
       iconSrc: `${ASSETS}/icon-2.svg`,
       iconClass: "icon",
       iconAlt: "Albums icon",
-      label: "АЛЬБОМИ",
+      label: t("aimix.stats_labels.albums", { defaultValue: "АЛЬБОМИ" }),
       value: formatNumber(statsData.albumsCount),
       maskSrc: `${ASSETS}/mask-group-3.svg`,
     },
@@ -110,7 +104,7 @@ export const SectionStatistics = (): React.JSX.Element => {
       iconSrc: `${ASSETS}/icon-3.svg`,
       iconClass: "icon-2",
       iconAlt: "Hours icon",
-      label: "ГОДИНИ",
+      label: t("aimix.stats_labels.hours", { defaultValue: "ГОДИНИ" }),
       value: formatNumber(statsData.hoursListened, true),
       maskSrc: `${ASSETS}/mask-group-4.svg`,
     },

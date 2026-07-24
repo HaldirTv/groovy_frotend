@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { GATEWAY_URL } from '../api/api-client'
 
 export type UsernameStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid' | 'error'
@@ -14,38 +15,61 @@ const VALID_PATTERN = /^[a-zA-Z0-9_.-]+$/
 const DEBOUNCE_MS = 500
 
 export function useUsernameCheck(username: string): UsernameCheckResult {
+  const { t } = useTranslation()
   const [status, setStatus]   = useState<UsernameStatus>('idle')
   const [message, setMessage] = useState('')
   const abortRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
+    let active = true
+
     // Reset on empty
     if (!username) {
-      setStatus('idle')
-      setMessage('')
+      Promise.resolve().then(() => {
+        if (active) {
+          setStatus('idle')
+          setMessage('')
+        }
+      })
       return
     }
 
     // Client-side rules first
     if (username.length < MIN_LENGTH) {
-      setStatus('invalid')
-      setMessage(`Мінімум ${MIN_LENGTH} символи`)
+      Promise.resolve().then(() => {
+        if (active) {
+          setStatus('invalid')
+          setMessage(t('usernameCheck.min_length', { count: MIN_LENGTH }))
+        }
+      })
       return
     }
     if (username.length > MAX_LENGTH) {
-      setStatus('invalid')
-      setMessage(`Максимум ${MAX_LENGTH} символів`)
+      Promise.resolve().then(() => {
+        if (active) {
+          setStatus('invalid')
+          setMessage(t('usernameCheck.max_length', { count: MAX_LENGTH }))
+        }
+      })
       return
     }
     if (!VALID_PATTERN.test(username)) {
-      setStatus('invalid')
-      setMessage('Тільки латинські літери, цифри, _ . -')
+      Promise.resolve().then(() => {
+        if (active) {
+          setStatus('invalid')
+          setMessage(t('usernameCheck.invalid_pattern'))
+        }
+      })
       return
     }
 
     // Passed local validation → debounce API call
-    setStatus('checking')
-    setMessage('')
+    Promise.resolve().then(() => {
+      if (active) {
+        setStatus('checking')
+        setMessage('')
+      }
+    })
 
     const timer = setTimeout(async () => {
       // Cancel any in-flight request
@@ -66,25 +90,30 @@ export function useUsernameCheck(username: string): UsernameCheckResult {
         // Expected: { available: boolean }
         const data = await response.json()
 
-        if (data.available) {
-          setStatus('available')
-          setMessage('Нікнейм вільний')
-        } else {
-          setStatus('taken')
-          setMessage('Цей нікнейм вже зайнятий')
+        if (active) {
+          if (data.available) {
+            setStatus('available')
+            setMessage(t('usernameCheck.available'))
+          } else {
+            setStatus('taken')
+            setMessage(t('usernameCheck.taken'))
+          }
         }
-      } catch (err: any) {
-        if (err.name === 'AbortError') return   // stale request, ignore
-        setStatus('error')
-        setMessage('Не вдалося перевірити нікнейм')
+      } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return   // stale request, ignore
+        if (active) {
+          setStatus('error')
+          setMessage(t('usernameCheck.error'))
+        }
       }
     }, DEBOUNCE_MS)
 
     return () => {
+      active = false
       clearTimeout(timer)
       abortRef.current?.abort()
     }
-  }, [username])
+  }, [username, t])
 
   return { status, message }
 }

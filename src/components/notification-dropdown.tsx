@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useTranslation } from 'react-i18next'
 import '../app.css'
 
@@ -18,7 +19,7 @@ const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     titleKey: 'notifications.items.rec_title',
     titleFallback: 'Перегляньте нові релізи цієї п’ятниці',
     descriptionKey: 'notifications.items.rec_desc',
-    descriptionFallback: 'Понад 20 артистів зробили нові релізи',
+    descriptionFallback: 'Понад 20 артистов зробили нові релізи',
     gradient: 'linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%)',
     initials: '🔥'
   },
@@ -72,15 +73,13 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
       try {
         return JSON.parse(saved)
       } catch (e) {
-        console.error('Error parsing notifications from localStorage', e)
+        if (import.meta.env.DEV) console.error('Помилка парсингу повідомлень з localStorage', e)
       }
     }
-    
+
     localStorage.setItem('notifications', JSON.stringify(INITIAL_NOTIFICATIONS))
     return INITIAL_NOTIFICATIONS
   })
-
-  if (!isOpen) return null
 
   const handleClearAll = () => {
     setNotifications([])
@@ -95,54 +94,65 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({ isOp
     })
   }
 
-  if (notifications.length === 0) {
-    return (
-      <div className="div-wrapper empty-state" onClick={(e) => e.stopPropagation()}>
-        <div className="text-wrapper">{t('notifications.empty_title')}</div>
-        <p className="div">
-          {t('notifications.empty_desc')}
-        </p>
-      </div>
-    )
-  }
-
   return (
-    <div className="div-wrapper" onClick={(e) => e.stopPropagation()}>
-      <div className="notification-header">
-        <span className="notification-title">{t('notifications.title')}</span>
-        <button className="notification-clear-btn" onClick={handleClearAll}>
-          {t('notifications.clear_all')}
-        </button>
-      </div>
-      
-      <div className="notification-list">
-        {notifications.map((item) => (
-          <div key={item.id} className="notification-item">
-            <div 
-              className="notification-avatar"
-              style={{ background: item.gradient }}
-            >
-              {item.initials}
-            </div>
-            <div className="notification-content">
-              <span className="notification-item-title">
-                {item.titleKey ? t(item.titleKey) : item.titleFallback}
-              </span>
-              <span className="notification-item-desc">
-                {item.descriptionKey ? t(item.descriptionKey) : item.descriptionFallback}
-              </span>
-            </div>
-            <button 
-              className="notification-delete-btn" 
-              onClick={() => handleRemoveItem(item.id)}
-              title={t('notifications.remove_title')}
-              aria-label={t('notifications.aria_remove')}
-            >
-              &times;
-            </button>
-          </div>
-        ))}
-      </div>
-    </div>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          className={`div-wrapper ${notifications.length === 0 ? 'empty-state' : ''}`}
+          onClick={(e: any) => e.stopPropagation()}
+          initial={{ opacity: 0, y: -10, scale: 0.95 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -10, scale: 0.95 }}
+          transition={{ duration: 0.15, ease: 'easeOut' }}
+        >
+          {notifications.length === 0 ? (
+            <>
+              <div className="text-wrapper">{t('notifications.empty_title')}</div>
+              <p className="div">
+                {t('notifications.empty_desc')}
+              </p>
+            </>
+          ) : (
+            <>
+              <div className="notification-header">
+                <span className="notification-title">{t('notifications.title')}</span>
+                <button className="notification-clear-btn" onClick={handleClearAll}>
+                  {t('notifications.clear_all')}
+                </button>
+              </div>
+
+              <div className="notification-list">
+                {notifications.map((item) => (
+                  <div key={item.id} className="notification-item">
+                    <div
+                      className="notification-avatar"
+                      style={{ background: item.gradient }}
+                    >
+                      {item.initials}
+                    </div>
+                    <div className="notification-content">
+                      <span className="notification-item-title">
+                        {item.titleKey ? t(item.titleKey) : item.titleFallback}
+                      </span>
+                      <span className="notification-item-desc">
+                        {item.descriptionKey ? t(item.descriptionKey) : item.descriptionFallback}
+                      </span>
+                    </div>
+                    <button
+                      className="notification-delete-btn"
+                      onClick={() => handleRemoveItem(item.id)}
+                      title={t('notifications.remove_title')}
+                      aria-label={t('notifications.aria_remove')}
+                    >
+                      &times;
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }

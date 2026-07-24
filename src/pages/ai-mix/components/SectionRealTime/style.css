@@ -127,35 +127,8 @@
   white-space: nowrap;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 768px) {
   .section-real-time {
-    flex-direction: column;
-    height: auto;
-    padding: 20px;
-    gap: 16px;
-    align-items: flex-start;
-  }
-  .srt-badges {
-    width: 100%;
-    justify-content: space-between;
-  }
-}
-
-@media (max-width: 640px) {
-  .srt-badges {
-    flex-wrap: wrap !important;
-    gap: 8px !important;
-    justify-content: flex-start !important;
-  }
-  .srt-badge {
-    padding: 6px 12px !important;
-  }
-  .srt-subheading {
-    width: 100% !important;
-    font-size: 14px !important;
-  }
-  .srt-heading {
-    font-size: 18px !important;
-    white-space: normal !important;
+    display: none !important;
   }
 }

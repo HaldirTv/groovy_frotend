@@ -10,38 +10,16 @@ import { NewHowAiCreates } from "./components/NewHowAiCreates"
 import { AiMixesSection } from "./components/AiMixesSection"
 import { ContentGridAi } from "./components/ContentGridAi"
 import { FooterFromJson } from "../ai-mix/components/FooterFromJson"
-import Cover from "../../assets/Cover.svg"
+import { TrackCover } from "../../components/common/TrackCover"
+import type { PlaylistDetail } from "../../types/playlist"
+import { getPlaylistTrackCover } from "../../types/playlist"
 import "./ai-mix.css"
-
-interface PlaylistTrackDto {
-  trackId: string
-  title: string
-  artistName: string
-  position: number
-  coverUrl: string | null
-  durationSeconds: number
-}
-
-interface PlaylistDto {
-  id: string
-  userId: string
-  title: string
-  description: string | null
-  slug: string
-  coverImageUrl: string | null
-  trackCount: number
-  totalDurationSeconds: number
-  isPrivate: boolean
-  isLiked: boolean
-  createdAt: string
-  tracks: PlaylistTrackDto[]
-}
 
 export const AiMixPage = (): React.JSX.Element => {
   const { t } = useTranslation()
   const { selectTrack, setTracks, currentTrack, formatTime } = usePlayer()
 
-  const [generatedPlaylist, setGeneratedPlaylist] = useState<PlaylistDto | null>(null)
+  const [generatedPlaylist, setGeneratedPlaylist] = useState<PlaylistDetail | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [loadingStep, setLoadingStep] = useState("")
   const [error, setError] = useState<string | null>(null)
@@ -75,9 +53,9 @@ export const AiMixPage = (): React.JSX.Element => {
         throw new Error(errData.message || t("aimix.error_failed", { defaultValue: "Не вдалося згенерувати ШІ мікс." }))
       }
 
-      const data: PlaylistDto = await response.json()
+      const data: PlaylistDetail = await response.json()
       setGeneratedPlaylist(data)
-      setIsPlaylistLiked(data.isLiked)
+      setIsPlaylistLiked(!!data.isLiked)
     } catch (err: any) {
       console.error(err)
       setError(err.message || t("errors.unknown", { defaultValue: "Сталася помилка." }))
@@ -101,7 +79,7 @@ export const AiMixPage = (): React.JSX.Element => {
       title: pt.title,
       artistName: pt.artistName,
       durationSeconds: pt.durationSeconds,
-      coverImageUrl: pt.coverUrl || undefined,
+      coverImageUrl: getPlaylistTrackCover(pt),
       audioUrl: `${GATEWAY_URL}/music/tracks/${pt.trackId}/stream`,
       fileSizeBytes: 0,
       contentType: "audio/mpeg",
@@ -176,7 +154,7 @@ export const AiMixPage = (): React.JSX.Element => {
                 title: track.title,
                 artistName: track.artistName,
                 durationSeconds: track.durationSeconds,
-                coverImageUrl: track.coverUrl || undefined,
+                coverImageUrl: getPlaylistTrackCover(track),
                 audioUrl: `${GATEWAY_URL}/music/tracks/${track.trackId}/stream`,
                 fileSizeBytes: 0,
                 contentType: "audio/mpeg",
@@ -198,7 +176,7 @@ export const AiMixPage = (): React.JSX.Element => {
                 >
                   <span className="ColHash">{index + 1}</span>
                   <div className="ColTitleDetail">
-                    <img src={track.coverUrl || Cover} className="LibraryRowCover" alt="Cover" />
+                    <TrackCover src={getPlaylistTrackCover(track)} className="LibraryRowCover" alt={track.title} />
                     <div className="LibraryRowInfo">
                       <span className="RowTitle">{track.title}</span>
                       <span className="RowArtist">{track.artistName}</span>

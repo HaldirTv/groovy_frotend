@@ -5,18 +5,21 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { GATEWAY_URL } from '../api/api-client'
 import { translateServerError } from '../api/error-translator'
+import { Eye, EyeOff } from 'lucide-react'
 
 export const Recovery = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const email = localStorage.getItem('RecoveryEmail')
-    const token = localStorage.getItem('RecoveryToken')
+    const token = localStorage.getItem('ResetToken')
     if (!email || !token) {
       navigate('/forgotpassword')
     }
@@ -37,7 +40,7 @@ export const Recovery = () => {
     }
 
     const email = localStorage.getItem('RecoveryEmail')
-    const token = localStorage.getItem('RecoveryToken')
+    const token = localStorage.getItem('ResetToken')
     if (!email || !token) {
       setError(t('errors.recovery_data_missing'))
       navigate('/forgotpassword')
@@ -46,19 +49,20 @@ export const Recovery = () => {
 
     setIsLoading(true)
     try {
-      const response = await fetch(`${GATEWAY_URL}/auth/reset-password`, {
+      const response = await fetch(`${GATEWAY_URL}/auth/confirmresetpassword`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, token, newPassword: password }),
+        body: JSON.stringify({ email, newPassword: password, token }),
       })
 
+      const data = await response.json().catch(() => ({}))
+
       if (!response.ok) {
-        const data = await response.json().catch(() => ({}))
-        throw new Error(data.message || t('errors.recovery_failed'))
+        throw new Error(data.message || data.Message || t('errors.recovery_failed'))
       }
 
       localStorage.removeItem('RecoveryEmail')
-      localStorage.removeItem('RecoveryToken')
+      localStorage.removeItem('ResetToken')
       navigate('/login')
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -86,11 +90,11 @@ export const Recovery = () => {
 
           <form onSubmit={handleSubmit} style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <div className='auth-form-group'>
-              <label htmlFor="recovery-password" className='auth-label'>{t('auth.recovery_new_password')}</label>
+              <label htmlFor="recovery-password" className='auth-label'>{t('auth.new_password_label')}</label>
               <div className='auth-input-wrapper'>
                 <input
                   id="recovery-password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder={t('auth.password')}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
@@ -98,6 +102,15 @@ export const Recovery = () => {
                   disabled={isLoading}
                   autoComplete="new-password"
                 />
+                <button
+                  type="button"
+                  className="auth-toggle-password-btn"
+                  onClick={() => setShowPassword(prev => !prev)}
+                  aria-label={showPassword ? t('auth.hide_password', 'Сховати пароль') : t('auth.show_password', 'Показати пароль')}
+                  tabIndex={-1}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
               <span className='auth-hint'>{t('auth.hint_chars')}</span>
             </div>
@@ -107,7 +120,7 @@ export const Recovery = () => {
               <div className='auth-input-wrapper'>
                 <input
                   id="recovery-confirm-password"
-                  type="password"
+                  type={showConfirmPassword ? 'text' : 'password'}
                   placeholder={t('auth.confirm_password_placeholder')}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -115,6 +128,15 @@ export const Recovery = () => {
                   disabled={isLoading}
                   autoComplete="new-password"
                 />
+                <button
+                  type="button"
+                  className="auth-toggle-password-btn"
+                  onClick={() => setShowConfirmPassword(prev => !prev)}
+                  aria-label={showConfirmPassword ? t('auth.hide_password', 'Сховати пароль') : t('auth.show_password', 'Показати пароль')}
+                  tabIndex={-1}
+                >
+                  {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
             </div>
 

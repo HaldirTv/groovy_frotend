@@ -2,10 +2,13 @@ import LogoReg from '../assets/LogoReg.svg'
 import MiddleLogo from '../assets/MiddleLogo.svg'
 import { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { confirmRegister } from '../api/auth'
 import { setAccessToken, getOrCreateDeviceId } from '../api/api-client'
+import { translateServerError } from '../api/error-translator'
 
 export const ConfirmReg = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [code, setCode] = useState(['', '', '', '', '', ''])
   const [error, setError] = useState('')
@@ -40,13 +43,13 @@ export const ConfirmReg = () => {
     e.preventDefault()
     const fullCode = code.join('')
     if (fullCode.length < 6) {
-      setError('Введіть усі 6 символів коду')
+      setError(t('errors.code_length'))
       return
     }
 
     const email = localStorage.getItem('RegistrationEmail')
     if (!email) {
-      setError('Email не знайдено. Поверніться назад.')
+      setError(t('errors.email_not_found'))
       navigate('/reg')
       return
     }
@@ -61,21 +64,24 @@ export const ConfirmReg = () => {
         localStorage.setItem('UserEmail', email)
         setAccessToken(data.Token || data.token)
 
-      localStorage.removeItem('RegistrationEmail')
-      localStorage.removeItem('RegistrationUsername')
+        localStorage.removeItem('RegistrationEmail')
+        localStorage.removeItem('RegistrationUsername')
 
-      navigate('/main')
-      
-    } else {
-        throw new Error('Сервер не повернув токен авторизації')
+        navigate('/main')
+      } else {
+        throw new Error(t('errors.callback_token_missing'))
       }
-    } catch (err: any) {
-      setError(err.message || 'Сталася невідома помилка')
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(translateServerError(err.message, t))
+      } else {
+        setError(t('errors.unknown'))
+      }
     } finally {
       setIsLoading(false)
     }
   }
-  
+
   return (
     <div className='auth-wrapper'>
       <div className='auth-header'>
@@ -85,8 +91,8 @@ export const ConfirmReg = () => {
       <div className='auth-content'>
         <div className='auth-container'>
           <img src={MiddleLogo} className='auth-middle-logo' alt="Logo" />
-          <span className='auth-title'>Підтвердження реєстрації</span>
-          <span className='auth-subtitle'>Ми надіслали код підтвердження на вашу пошту!</span>
+          <span className='auth-title'>{t('confirmReg.title')}</span>
+          <span className='auth-subtitle'>{t('confirmReg.subtitle')}</span>
 
           {error && <div className='auth-error' role="alert">{error}</div>}
 
@@ -104,12 +110,12 @@ export const ConfirmReg = () => {
                   onKeyDown={(e) => handleKeyDown(e, index)}
                   className="auth-code-input"
                   disabled={isLoading}
-                  aria-label={`Символ коду ${index + 1}`}
+                  aria-label={t('confirmReg.symbol_aria', { index: index + 1 })}
                 />
               ))}
             </div>
             <button type="submit" className='auth-button' disabled={isLoading || code.join('').length < 6}>
-              {isLoading ? 'Зачекайте...' : 'Підтвердити'}
+              {isLoading ? t('auth.wait') : t('confirmReg.confirm_btn')}
             </button>
           </form>
         </div>

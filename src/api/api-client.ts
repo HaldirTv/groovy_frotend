@@ -1,7 +1,21 @@
-import { getAccessToken, storeAccessToken, clearAccessToken } from './token-store'
+import { getAccessToken, storeAccessToken, clearAccessToken, getCurrentUserId, onAccessTokenChange } from './token-store'
+import { getLangPrefix } from '../utils/lang'
 
-export const GATEWAY_URL = import.meta.env.VITE_GATEWAY_URL || 'http://localhost:5274'
+const resolveGatewayUrl = (): string => {
+  const envUrl = import.meta.env.VITE_GATEWAY_URL
+  if (envUrl !== undefined && envUrl !== null && envUrl !== '') {
+    return envUrl.replace(/\/+$/, '')
+  }
+  if (typeof window !== 'undefined' && window.location) {
+    const hostname = window.location.hostname
+    if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+      return 'https://groovra-api-gateway.azurewebsites.net'
+    }
+  }
+  return 'http://localhost:5274'
+}
 
+export const GATEWAY_URL = resolveGatewayUrl()
 
 export const getOrCreateDeviceId = (): string => {
   let deviceId = localStorage.getItem('DeviceId')
@@ -11,7 +25,6 @@ export const getOrCreateDeviceId = (): string => {
   }
   return deviceId
 }
-
 
 export const decodeTokenEmail = (token: string): string | null => {
   try {
@@ -34,10 +47,39 @@ export const setAccessToken = (token: string | null) => {
     clearAccessToken()
   } else {
     storeAccessToken(token)
+    const email = decodeTokenEmail(token)
+    if (email) {
+      localStorage.setItem('UserEmail', email)
+    }
   }
 }
 
-export { getAccessToken }
+export { getAccessToken, getCurrentUserId, onAccessTokenChange }
+
+export const getAuthenticatedStreamUrl = (url?: string): string | undefined => {
+  if (!url) return undefined
+  if (url.startsWith('data:') || url.startsWith('blob:')) return url
+  const token = getAccessToken()
+  if (!token) return url
+  const separator = url.includes('?') ? '&' : '?'
+  if (url.includes('access_token=') || url.includes('token=')) return url
+  return `${url}${separator}access_token=${encodeURIComponent(token)}`
+}
+
+export const trackStreamUrl = (trackId: string): string => {
+  const token = getAccessToken()
+  const baseUrl = `${GATEWAY_URL}/music/tracks/${trackId}/stream`
+  return token ? `${baseUrl}?access_token=${encodeURIComponent(token)}` : baseUrl
+}
+
+export const resolveMediaUrl = (url: string | null | undefined): string | undefined => {
+  if (!url) return undefined
+  if (url.startsWith('data:') || url.startsWith('blob:')) return url
+  if (url.includes('localhost:')) {
+    return url.replace(/^https?:\/\/localhost:\d+/, GATEWAY_URL)
+  }
+  return url
+}
 
 let isRefreshing = false
 let refreshSubscribers: ((token: string) => void)[] = []
@@ -54,22 +96,31 @@ const addRefreshSubscriber = (callback: (token: string) => void) => {
 export const clearAuth = () => {
   setAccessToken(null)
   localStorage.removeItem('UserEmail')
-  
+  localStorage.removeItem('groovy_last_track')
+  localStorage.removeItem('groovy_last_time')
+  localStorage.removeItem('groovy_was_playing')
+  localStorage.removeItem('likedTrackIds')
+
   const cleanPath = window.location.pathname.replace(/^\/en/, '') || '/'
-  const publicPaths = ['/login', '/reg', '/forgotpassword', '/emailcod', '/passwordrecovery']
+  const publicPaths = ['/login', '/reg', '/create', '/confirm-reg', '/forgotpassword', '/emailcod', '/passwordrecovery', '/auth/callback']
   if (!publicPaths.includes(cleanPath)) {
-    const savedLang = localStorage.getItem('lang') || 'uk'
-    const prefix = savedLang === 'en' ? '/en' : ''
-    window.location.href = `${prefix}/login`
+    window.location.href = `${getLangPrefix()}/login`
   }
 }
 
 export const refreshSession = async (): Promise<string | null> => {
-  const email = localStorage.getItem('UserEmail')
-  const deviceId = localStorage.getItem('DeviceId')
+  let email = localStorage.getItem('UserEmail')
+  const deviceId = getOrCreateDeviceId()
 
   if (!email) {
-    clearAuth()
+    const currentToken = getAccessToken()
+    if (currentToken) {
+      email = decodeTokenEmail(currentToken)
+      if (email) localStorage.setItem('UserEmail', email)
+    }
+  }
+
+  if (!email) {
     return null
   }
 
@@ -83,20 +134,35 @@ export const refreshSession = async (): Promise<string | null> => {
       body: JSON.stringify({ email, deviceId })
     })
 
-    if (!response.ok) {
-      throw new Error('Session expired')
+    if (response.ok) {
+      const data = await response.json()
+      if (data.token) {
+        setAccessToken(data.token)
+        return data.token
+      }
     }
 
-    const data = await response.json()
-    setAccessToken(data.token)
-    return data.token
-  } catch {
-    clearAuth()
+    // Only clear session if backend explicitly rejected auth (400, 401, 403)
+    if (response.status === 401 || response.status === 403 || response.status === 400) {
+      clearAuth()
+    }
+
+    return null
+  } catch (error) {
+    // Network error / server restarting — do NOT clear auth!
+    console.warn('[refreshSession] Backend temporarily unreachable or restarting:', error)
     return null
   }
 }
 
 export const apiFetch = async (url: string, options: RequestInit = {}): Promise<Response> => {
+  let targetUrl = url
+  if (targetUrl.startsWith('/')) {
+    targetUrl = `${GATEWAY_URL}${targetUrl}`
+  } else if (/^https?:\/\/localhost:(?:5178|5173)/.test(targetUrl)) {
+    targetUrl = targetUrl.replace(/^https?:\/\/localhost:(?:5178|5173)/, GATEWAY_URL)
+  }
+
   const token = getAccessToken()
   if (token) {
     options.headers = {
@@ -105,7 +171,7 @@ export const apiFetch = async (url: string, options: RequestInit = {}): Promise<
     }
   }
 
-  let response = await fetch(url, options)
+  let response = await fetch(targetUrl, options)
 
   if (response.status === 401) {
     if (isRefreshing) {
@@ -115,13 +181,13 @@ export const apiFetch = async (url: string, options: RequestInit = {}): Promise<
             ...options.headers,
             'Authorization': `Bearer ${token}`
           }
-          resolve(fetch(url, options))
+          resolve(fetch(targetUrl, options))
         })
       })
     }
 
     isRefreshing = true
-    let newToken: string | null = null
+    let newToken: string | null
     try {
       newToken = await refreshSession()
     } finally {
@@ -134,9 +200,22 @@ export const apiFetch = async (url: string, options: RequestInit = {}): Promise<
         ...options.headers,
         'Authorization': `Bearer ${newToken}`
       }
-      response = await fetch(url, options)
+      return fetch(targetUrl, options)
     }
   }
 
   return response
+}
+
+// Fire-and-forget: notifies the backend that a track was played (increments
+// play count and records history). Never throws — any failure is silently swallowed.
+export const notifyTrackPlayed = async (trackId: string): Promise<void> => {
+  try {
+    await apiFetch(`${GATEWAY_URL}/music/tracks/${trackId}/play`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    })
+  } catch (err) {
+    if (import.meta.env.DEV) console.error('[notifyTrackPlayed]', err)
+  }
 }

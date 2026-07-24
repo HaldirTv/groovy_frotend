@@ -274,25 +274,133 @@
   top: 1px;
   width: 100%;
   z-index: 0;
+  pointer-events: none;
+  user-select: none;
 }
 
-@media (max-width: 1200px) {
-  .naa-grid {
-    flex-wrap: wrap;
-    gap: 20px;
-  }
-  .naa-album-card {
-    flex: 1 1 calc(50% - 10px);
-    min-width: 200px;
-  }
+.naa-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
-@media (max-width: 640px) {
+.naa-scroll-btn {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(169, 143, 219, 0.15);
+  border: 1px solid rgba(169, 143, 219, 0.3);
+  color: #71deef;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: all 0.2s ease;
+}
+
+.naa-scroll-btn:hover {
+  background: rgba(113, 222, 239, 0.2);
+  border-color: #71deef;
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .naa-header {
+    align-items: center;
+    margin-bottom: 4px;
+  }
+
+  .naa-heading {
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .naa-icon {
+    width: 18px;
+    height: 18px;
+  }
+
   .naa-heading-text {
-    font-size: 28px;
-    line-height: 36px;
+    font-size: 18px !important;
+    line-height: 24px !important;
+    white-space: normal !important;
   }
+
+  .naa-controls {
+    gap: 6px;
+  }
+
+  .naa-scroll-btn {
+    width: 26px;
+    height: 26px;
+    font-size: 16px;
+  }
+
+  .naa-link-label {
+    font-size: 11px !important;
+    white-space: nowrap !important;
+  }
+
+  .naa-grid {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    touch-action: pan-x !important;
+    gap: 12px !important;
+    width: 100% !important;
+    padding: 2px 2px 8px 2px !important;
+    box-sizing: border-box !important;
+    scroll-snap-type: x mandatory !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+  }
+
+  .naa-grid::-webkit-scrollbar {
+    display: none !important;
+  }
+
   .naa-album-card {
-    flex: 1 1 100%;
+    flex: 0 0 140px !important;
+    width: 140px !important;
+    min-width: 140px !important;
+    scroll-snap-align: start !important;
+    border-radius: 12px !important;
+    touch-action: pan-x !important;
+  }
+
+  .naa-info {
+    padding: 8px 10px !important;
+    gap: 2px !important;
+  }
+
+  .naa-title {
+    font-size: 13px !important;
+    line-height: 17px !important;
+    font-weight: 600 !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .naa-artist {
+    font-size: 11px !important;
+    line-height: 14px !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+  }
+
+  .naa-tracks {
+    font-size: 10px !important;
+  }
+
+  .naa-genre-tag {
+    font-size: 9px !important;
+    padding: 1px 4px !important;
   }
 }

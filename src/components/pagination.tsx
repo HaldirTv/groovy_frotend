@@ -1,4 +1,5 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
 interface PaginationProps {
   currentPage: number
@@ -13,6 +14,8 @@ export const Pagination: React.FC<PaginationProps> = ({
   onPageChange,
   isLoading = false,
 }) => {
+  const { t } = useTranslation()
+
   if (totalPages <= 1) return null
 
   // Генерируем видимые страницы: всегда первая, последняя, текущая ±2
@@ -41,7 +44,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         className="pagination-arrow"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1 || isLoading}
-        aria-label="Попередня сторінка"
+        aria-label={t('pagination.previous', 'Попередня сторінка')}
       >
         <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
           <path d="M7 1L1 6.5L7 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
@@ -59,7 +62,7 @@ export const Pagination: React.FC<PaginationProps> = ({
               className={`pagination-page ${currentPage === page ? 'active' : ''}`}
               onClick={() => onPageChange(page as number)}
               disabled={isLoading}
-              aria-label={`Сторінка ${page}`}
+              aria-label={t('pagination.page', { page, defaultValue: `Сторінка ${page}` })}
               aria-current={currentPage === page ? 'page' : undefined}
             >
               {page}
@@ -73,7 +76,7 @@ export const Pagination: React.FC<PaginationProps> = ({
         className="pagination-arrow"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages || isLoading}
-        aria-label="Наступна сторінка"
+        aria-label={t('pagination.next', 'Наступна сторінка')}
       >
         <svg width="8" height="13" viewBox="0 0 8 13" fill="none">
           <path d="M1 1L7 6.5L1 12" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/>
